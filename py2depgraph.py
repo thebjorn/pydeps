@@ -22,25 +22,40 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 import os
+import pprint
 import sys
 import modulefinder
+import enum
 from collections import defaultdict
 
-# i = 0
-
 # we're not interested in imports of std python packages.
+import depgraph
+
 PYLIB_PATH = {
     # in virtualenvs that see the system libs, these will be different.
     os.path.split(os.path.split(modulefinder.__file__)[0])[0].lower(),
     os.path.split(os.__file__)[0].lower()
 }
 
-#print "PYLIBPATH:", PYLIB_PATH
+
+class imp(enum.Enum):
+    C_BUILTIN = 6
+    C_EXTENSION = 3
+    IMP_HOOK = 9
+    PKG_DIRECTORY = 5
+    PY_CODERESOURCE = 8
+    PY_COMPILED = 2
+    PY_FROZEN = 7
+    PY_RESOURCE = 4
+    PY_SOURCE = 1
+
 
 class MyModuleFinder(modulefinder.ModuleFinder):
     def __init__(self, *args, **kwargs):
-        self.include_pylib_all = False      # include all of python std lib (incl. C modules)
-        self.include_pylib = False          # include python std lib modules.
+        # include all of python std lib (incl. C modules)
+        self.include_pylib_all = kwargs.pop('pyliball', False)
+        # include python std lib modules.
+        self.include_pylib = kwargs.pop('pylib', self.include_pylib_all)
         self._depgraph = defaultdict(dict)
         self._types = {}
         self._last_caller = None
@@ -50,25 +65,20 @@ class MyModuleFinder(modulefinder.ModuleFinder):
         old_last_caller = self._last_caller
         try:
             self._last_caller = caller
-            return modulefinder.ModuleFinder.import_hook(self,name,caller,fromlist)
+            return modulefinder.ModuleFinder.import_hook(self, name, caller, fromlist)
         finally:
             self._last_caller = old_last_caller
             
     def import_module(self, partnam, fqname, parent):
-        # global i
         r = modulefinder.ModuleFinder.import_module(self, partnam, fqname, parent)
         if r is not None and self._last_caller is not None:
-            # print "R:", r, dir(r)
-            # print "path:", r.__file__
-            # i += 1
-            # if i > 50:
-            #     sys.exit()
-            # self._depgraph[self._last_caller.__name__][r.__name__] = 1
             if r.__file__ or self.include_pylib_all:
-                rpath = os.path.split(r.__file__)[0].lower()
-                pylib_p = [rpath.startswith(pp) for pp in PYLIB_PATH]
-                # if rpath not in PYLIB_PATH or self.include_pylib:
-                if not any(pylib_p) or self.include_pylib:
+                if not r.__file__:
+                    pass
+                else:
+                    rpath = os.path.split(r.__file__)[0].lower()
+                    pylib_p = [rpath.startswith(pp) for pp in PYLIB_PATH]
+                if self.include_pylib or not any(pylib_p):
                     self._depgraph[self._last_caller.__name__][r.__name__] = r.__file__
         return r
     
@@ -79,12 +89,12 @@ class MyModuleFinder(modulefinder.ModuleFinder):
         return r
 
 
-class DepGraph(object):
+class RawDependencies(object):
     def __init__(self, fname):
         path = sys.path[:]
         debug = 0
         exclude = []
-        mf = MyModuleFinder(path, debug, exclude)
+        mf = MyModuleFinder(path, debug, exclude, pyliball=True)
         mf.run_script(fname)
         self.depgraph = mf._depgraph
         self.types = mf._types
@@ -93,7 +103,19 @@ class DepGraph(object):
 if __name__ == '__main__':
     import json
     _fname = sys.argv[1]
-    _graph = DepGraph(_fname)
+    _graph = RawDependencies(_fname)
+
     sys.stdout.write(
         json.dumps(_graph.__dict__, indent=4)
     )
+
+    for node in depgraph.DepGraph(_graph).nodes.values():
+        if node.name == 'datakortet.tt3.tt3page':
+            print node
+            print
+            print node.name
+            print 'imports:',
+            pprint.pprint(node.imports)
+            print 'imported_by:',
+            pprint.pprint(node.imported_by)
+

@@ -1,3 +1,4 @@
+"""
 # Copyright 2004 Toby Dickenson
 # Changes 2014 (c) Bjorn Pettersen
 #
@@ -19,12 +20,14 @@
 # CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+"""
+import hashlib
 
 import sys, getopt, colorsys, imp, md5
+import textwrap
 
 
-class PyDepGraphDot:
+class PyDepGraphDot(object):
 
     def __init__(self, colored=True):
         self.colored = colored
@@ -34,32 +37,32 @@ class PyDepGraphDot:
         return s.replace('.', '_')
     
     def render(self, data, output=sys.stdout):
-        p = data['depgraph']
-        t = data['types']
+        depgraph = data['depgraph']
+        types = data['types']
 
         # normalise our input data
+        for d in depgraph.values():
+            for v in d:
+                if v not in depgraph:
+                    depgraph[v] = {}
 
-        for k, d in p.items():
-            for v in d.keys():
-                if v not in p:
-                    p[v] = {}
-                    
         f = output
-                    
-        f.write('digraph G {\n')
-        #f.write('concentrate = true;\n')
-        #f.write('ordering = out;\n')
-        f.write('ranksep=1.0;\n')
-        f.write('node [style=filled,fontname=Helvetica,fontsize=10];\n')
-        allkd = p.items()
+        f.write(textwrap.dedent("""
+            digraph G {
+                concentrate = true;
+                ordering = out;
+                ranksep=1.0;
+                node [style=filled,fontnamee=Helvetica,fontsize=10];
+        """))
+        allkd = depgraph.items()
         allkd.sort()
         for k, d in allkd:
-            tk = t.get(k)
+            tk = types.get(k)
             if self.use(k, tk):
                 allv = d.keys()
                 allv.sort()
                 for v in allv:
-                    tv = t.get(v)
+                    tv = types.get(v)
                     if self.use(v, tv) and not self.toocommon(v, tv):
                         #f.write('%s -> %s' % (self.fix(k), self.fix(v)))
                         f.write('%s -> %s' % (self.fix(v), self.fix(k)))
@@ -149,7 +152,7 @@ class PyDepGraphDot:
         #
         return 0
 
-    def label(self,s):
+    def label(self, s):
         # Convert a module name to a formatted node label. This is a default policy - please override.
         #
         return '\\.\\n'.join(s.split('.'))
@@ -162,7 +165,7 @@ class PyDepGraphDot:
         t = self.normalise_module_name_for_hash_coloring(s, type)
         return self.color_from_name(t)
         
-    def normalise_module_name_for_hash_coloring(self,s,type):
+    def normalise_module_name_for_hash_coloring(self, s, type):
         if type == imp.PKG_DIRECTORY:
             return s
         else:
@@ -173,7 +176,7 @@ class PyDepGraphDot:
                 return s[:i]
         
     def color_from_name(self, name):
-        n = md5.md5(name).digest()
+        n = hashlib.md5(name).digest()
         hf = float(ord(n[0])+ord(n[1])*0xff)/0xffff
         sf = float(ord(n[2]))/0xff
         vf = float(ord(n[3]))/0xff
