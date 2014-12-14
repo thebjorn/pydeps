@@ -12,10 +12,11 @@ def _pydeps(fname, fmt='svg', output=None, verbose=False,
     output = output or (os.path.splitext(fname)[0] + '.' + fmt)
     g = py2dep(fname, debug=verbose, **kw)
     if show_deps:
+        print "DEPS:"
         pprint.pprint(g)
     dotsrc = dep2dot(g)
     if show_dot:
-        print dotsrc
+        print "DOTSRC:\n", dotsrc
     svg = dot(dotsrc, T=fmt)
     with open(output, 'w') as fp:
         fp.write(svg)

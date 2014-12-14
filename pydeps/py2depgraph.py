@@ -52,7 +52,6 @@ class imp(enum.Enum):
 
 class MyModuleFinder(modulefinder.ModuleFinder):
     def __init__(self, fname, *args, **kwargs):
-        print "MyModuelFinder:", fname, args, kwargs
         self.verbose = kwargs.get('verbose', False)
 
         # include all of python std lib (incl. C modules)
@@ -79,7 +78,9 @@ class MyModuleFinder(modulefinder.ModuleFinder):
             self._last_caller = old_last_caller
             
     def import_module(self, partnam, fqname, parent):
+        # print partnam, fqname
         r = modulefinder.ModuleFinder.import_module(self, partnam, fqname, parent)
+        # print '  r:', r
         if r is not None and self._last_caller is not None:
             if r.__file__ or self.include_pylib_all:
                 pylib_p = []
@@ -110,15 +111,16 @@ class RawDependencies(object):
 
 
 def py2dep(fname, **kw):
-    # path = sys.path[:]
-    # exclude = []
-    # mf = MyModuleFinder(path, exclude, **kw)
-    # mf.run_script(fname)
-    # return depgraph.DepGraph(mf._depgraph, mf._types)
-    rawdeps = RawDependencies(fname, **kw)
-    d = rawdeps.__dict__
-    d['depgraph'] = dict(rawdeps.depgraph.items())
-    return d
+    path = sys.path[:]
+    path.insert(0, '')
+    exclude = []
+    mf = MyModuleFinder(path, exclude, **kw)
+    mf.run_script(fname)
+    return depgraph.DepGraph(mf._depgraph, mf._types)
+    # rawdeps = RawDependencies(fname, **kw)
+    # d = rawdeps.__dict__
+    # d['depgraph'] = dict(rawdeps.depgraph.items())
+    # return d
 
 
 def py2depgraph():

@@ -57,7 +57,7 @@ class RenderContext(object):
         if attr.get(key) == value:
             del attr[key]
 
-    def write_rule(self, a, b, attrs):
+    def write_rule(self, a, b, **attrs):
         "a -> b [a1=x,a2=y];"
         with self.rule():
             self.write('%s -> %s' % (self._nodename(a), self._nodename(b)))
@@ -65,7 +65,7 @@ class RenderContext(object):
             self._delattr(attrs, 'minlen', 0)
             self.write_attributes(attrs)
 
-    def write_node(self, a, attrs):
+    def write_node(self, a, **attrs):
         "a [a1=x,a2=y];"
         with self.rule():
             nodename = self._nodename(a)

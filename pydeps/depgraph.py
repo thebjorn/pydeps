@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import pprint
 import enum
+from . import colors
 
 
 class imp(enum.Enum):
@@ -24,6 +25,18 @@ class Source(object):
         self.imports = set(imports) # modules we import
         self.imported_by = set()    # modules that import us
 
+    def __str__(self):
+        return "%s (%s, %s)" % (self.name, self.path, self.kind)
+
+    def __repr__(self):
+        return "Source(%s)" % self.name
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def __eq__(self, other):
+        return self.name == other.name
+
     def __repr__(self):
         return pprint.pformat(self.__dict__)
 
@@ -35,8 +48,81 @@ class Source(object):
         self.imported_by |= other.imported_by
         return self
 
+    def imported_modules(self, depgraph):
+        for name in self.imports:
+            yield depgraph[name]
+
+    @property
+    def label(self):
+        """Convert a module name to a formatted node label. This is a default
+           policy - please override.
+        """
+        if len(self.name) > 14 and '.' in self.name:
+            return '\\.\\n'.join(self.name.split('.'))
+        return self.name
+
+    @property
+    def fillcolor(self):
+        """Return the node color for this module name. This is a default
+           policy - please override.
+
+           Calculate a color systematically based on the hash of the module
+           name. Modules in the same package have the same color. Unpackaged
+           modules are grey
+        """
+        return self.colors()['bg']
+
+    @property
+    def fontcolor(self):
+        return self.colors()['fg']
+
+    def colors(self):
+        bg = colors.name2rgb(self._color_base)
+        fg = colors.foreground(bg, (255, 255, 255), (0, 0, 0))
+        return dict(bg=colors.rgb2css(*bg), fg=colors.rgb2css(*fg))
+
+    @property
+    def _color_base(self):
+        if self.kind == imp.PKG_DIRECTORY:
+            return self.name
+        else:
+            i = self.name.rfind('.')
+            if i < 0:
+                return ''
+            else:
+                return self.name[:i]
+
+    def weight(self, other):
+        """Return the weight of the dependency from a to b. Higher weights
+           usually have shorter straighter edges. Return 1 if it has normal
+           weight. A value of 4 is usually good for ensuring that a related
+           pair of modules are drawn next to each other. This is a default
+           policy - please override.
+        """
+        if '_' + self.name == other.name:
+            return 6
+
+        if other.name.split('.')[-1].startswith('_'):
+            # A module that starts with an underscore. You need a special reason to
+            # import these (for example random imports _random), so draw them close
+            # together
+            return 4
+        return 1
+
+    def alien(self, other):
+        """Return non-zero if references to this module are strange, and
+            should be drawn extra-long. the value defines the length, in
+            rank. This is also good for putting some vertical space between
+            seperate subsystems. This is a default policy - please override.
+         """
+        return 0
+
 
 class DepGraph(object):
+    skip_modules = """
+        os sys qt time __future__ types re string bdb pdb
+        """.split()
+
     def __init__(self, depgraf, types):
         self.sources = {}             # module_name -> Source
         for name, imports in depgraf.items():
@@ -60,6 +146,29 @@ class DepGraph(object):
             self.sources[src.name] += src
         else:
             self.sources[src.name] = src
+
+    def __getitem__(self, item):
+        return self.sources[item]
+
+    def __iter__(self):
+        visited = set(self.skip_modules)
+
+        def visit(src):
+            if src.name in visited:
+                return
+            visited.add(src.name)
+            # yield src
+            for name in src.imports:
+                impmod = self.sources[name]
+                if impmod.path and not impmod.path.endswith('__init__.py'):
+                    yield impmod, src
+                visit(impmod)
+
+        for _src in self.sources.values():
+            # print "SRC:", _src
+            for source in visit(_src):
+                # print "Yielding", source[0], source[1]
+                yield source
 
     def __repr__(self):
         return repr(self.sources)
