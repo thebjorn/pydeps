@@ -53,3 +53,5 @@ coverage.xml
 docs/_build/
 
 .idea/workspace.xml
+*.py~
+*.py#
