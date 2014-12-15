@@ -25,7 +25,8 @@ import json
 import sys
 import getopt
 import imp
-from . import colors
+# from . import colors
+import colors
 from .render_context import RenderContext
 
 
@@ -51,34 +52,7 @@ class PyDepGraphDot(object):
                                fillcolor=src.fillcolor,
                                fontcolor=src.fontcolor)
 
-            # for src in depgraph:
-            #     for module in src.imported_modules(depgraph):
-            #         # we want the arrows to point down from imported to importer
-            #         ctx.write_rule(module.name, src.name,
-            #                        weight=src.weight(module),
-            #                        minlen=src.alien(module))
-            #     ctx.write_node(src.name,
-            #                    label=src.label,
-            #                    fillcolor=src.fillcolor,
-            #                    fontcolor=src.fontcolor)
-
         return ctx.text()
-
-
-        # depgraph = data['depgraph']
-        # types = data['types']
-        #
-        # with ctx.graph():
-        #     modules = self._normalize_depgraph(depgraph).items()
-        #     for module, imports in sorted(modules):
-        #         tk = types.get(module)
-        #         if self.filter_modules(module, tk):
-        #             for imported in sorted(imports.keys()):
-        #                 tv = types.get(imported)
-        #                 if self.filter_modules(imported, tv) and not self.toocommon(imported, tv):
-        #                     ctx.write_rule(imported, module, self.edge_attributes(module, imported))
-        #             ctx.write_node(module, self.node_attributes(module, tk))
-        # return ctx.text()
 
     def filter_modules(self, module_name, kind):
         """Return true if this module is interesting and should be drawn.

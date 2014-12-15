@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+import json
 import pprint
 import enum
-from . import colors
+# from . import colors
+import colors
 
 
 class imp(enum.Enum):
@@ -18,18 +20,33 @@ class imp(enum.Enum):
 
 
 class Source(object):
-    def __init__(self, name, kind=imp.UNKNOWN, path=None, imports=()):
-        self.name = name
+    def __init__(self, name, kind=imp.UNKNOWN, path=None, imports=(), args=None):
+        self.args = args or {}
+        if name == "__main__" and path:
+            self.name = path.replace('\\', '/').replace('/', '.')
+            if self.args.get('verbose', 0) >= 2:
+                print "changing __main__ =>", self.name
+        else:
+            self.name = name
         self.path = path            # needed here..?
         self.kind = kind
         self.imports = set(imports) # modules we import
         self.imported_by = set()    # modules that import us
 
+    def __json__(self):
+        res = dict(
+            name=self.name,
+            path=self.path,
+            kind=str(self.kind)
+        )
+        if self.imports:
+            res['imports'] = list(sorted(self.imports))
+        if self.imported_by:
+            res['imported_by'] = list(sorted(self.imported_by))
+        return res
+
     def __str__(self):
         return "%s (%s, %s)" % (self.name, self.path, self.kind)
-
-    def __repr__(self):
-        return "Source(%s)" % self.name
 
     def __hash__(self):
         return hash(self.name)
@@ -120,16 +137,20 @@ class Source(object):
 
 class DepGraph(object):
     skip_modules = """
-        os sys qt time __future__ types re string bdb pdb
+        os sys qt time __future__ types re string bdb pdb __main__
+
         """.split()
 
-    def __init__(self, depgraf, types):
+    def __init__(self, depgraf, types, **args):
+        self.args = args
         self.sources = {}             # module_name -> Source
         for name, imports in depgraf.items():
+            self.verbose(4, "depgraph:", name, imports)
             src = Source(
                 name=name,
                 kind=imp(types.get(name, 0)),
-                imports=imports.keys()
+                imports=imports.keys(),
+                args=args
             )
             self.add_source(src)
             for iname, path in imports.items():
@@ -137,9 +158,17 @@ class DepGraph(object):
                     name=iname,
                     kind=imp(types.get(name, 0)),
                     path=path,
+                    args=args
                 )
                 self.add_source(src)
+        self.verbose(1, "there are", len(self.sources), "modules")
         self.connect_generations()
+        if not self.args['show_deps']:
+            self.verbose(3, self)
+
+    def verbose(self, n, *args):
+        if self.args['verbose'] >= n:
+            print ' '.join(str(a) for a in args)
 
     def add_source(self, src):
         if src.name in self.sources:
@@ -167,11 +196,12 @@ class DepGraph(object):
         for _src in self.sources.values():
             # print "SRC:", _src
             for source in visit(_src):
-                # print "Yielding", source[0], source[1]
+                self.verbose(4, "Yielding", source[0], source[1])
                 yield source
 
     def __repr__(self):
-        return repr(self.sources)
+        return json.dumps(self.sources, indent=4, sort_keys=True,
+                          default=lambda obj: obj.__json__() if hasattr(obj, '__json__') else obj)
 
     def connect_generations(self):
         "Traverse depth-first adding imported_by."
