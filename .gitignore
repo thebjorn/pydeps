@@ -56,3 +56,6 @@ docs/_build/
 *.py~
 *.py#
 pydeps.svg
+.idea/pydeps.iml
+.idea/misc.xml
+.idea/misc.xml
