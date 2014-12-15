@@ -439,7 +439,10 @@ class ModuleFinder:
                     self._safe_import_hook(name, m, fromlist, level=level)
                 else:
                     parent = self.determine_parent(m, level=level)
-                    self._safe_import_hook(parent.__name__, None, fromlist, level=0)
+                    # m is still the caller here... [bp]
+                    # self._safe_import_hook(parent.__name__, None, fromlist, level=0)
+                    self._safe_import_hook(parent.__name__, m, fromlist, level=0)
+                    # self._safe_import_hook(parent.__name__, None, fromlist, level=0)
             else:
                 # We don't expect anything else from the generator.
                 raise RuntimeError(what)
