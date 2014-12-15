@@ -138,7 +138,7 @@ class Source(object):
 class DepGraph(object):
     skip_modules = """
         os sys qt time __future__ types re string bdb pdb __main__
-
+        south
         """.split()
 
     def __init__(self, depgraf, types, **args):

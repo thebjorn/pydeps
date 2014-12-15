@@ -56,7 +56,7 @@ def pydeps():
     p.add_argument('--debug', action='store_true', help="turn on all the show and verbose options")
     p.add_argument('--pylib', action='store_true', help="include python std lib modules")
     p.add_argument('--pylib-all', action='store_true', help="include python all std lib modules (incl. C modules)")
-    p.add_argument('-x', '--exclude', nargs="+", help="input files to skip")
+    p.add_argument('-x', '--exclude', nargs="+", default=[], help="input files to skip")
 
     _args = p.parse_args()
     if _args.verbose >= 2:

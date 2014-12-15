@@ -4,7 +4,16 @@ import hashlib
 
 
 def name2rgb(name):
+    print "COLORNAME:", name,
     n = hashlib.md5(name).digest()
+    n = '' if name else 'xxxx'
+    if name:
+        parts = name.split('.')
+        for p in parts:
+            n = chr(sum(ord(c) for c in p) % 256) + n
+    # print `n`, repr(hashlib.md5(name).digest())
+    n = n * 6
+
     hf = float(ord(n[0]) + ord(n[1]) * 0xff) / 0xffff
     sf = float(ord(n[2])) / 0xff
     vf = float(ord(n[3])) / 0xff
@@ -42,6 +51,7 @@ def foreground(background, *options):
 
 
 def rgb2css(r, g, b):
+    print '#%02x%02x%02x' % (r, g, b)
     return '#%02x%02x%02x' % (r, g, b)
 
 

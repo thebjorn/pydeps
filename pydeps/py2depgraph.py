@@ -188,12 +188,21 @@ def _create_dummy_module(package_name, **args):
     dummy = '_dummy.py'
     package = os.path.abspath(package_name)
 
+    def print_import(fp, module):
+        if 'migrations' in module:
+            return
+        print >>fp, "try:"
+        print >>fp, "    import", module
+        print >>fp, "except:"
+        print >>fp, "    pass"
+
+
     if is_module(package):
         if args['verbose']: print "found package"
         with open(dummy, 'w') as fp:
             for fname in _pyfiles(package):
                 modname = fname2modname(fname, package)
-                print >>fp, "import", modname
+                print_import(fp, modname)
 
     elif os.path.isdir(package):
         if args['verbose']: print "found directory"
@@ -201,7 +210,7 @@ def _create_dummy_module(package_name, **args):
         with open(dummy, 'w') as fp:
             for fname in os.listdir(package):
                 if pysource(fname):
-                    print >> fp, "import", fname2modname(fname, package)
+                    print_import(fp, fname2modname(fname, package))
 
     else:
         if args['verbose']: print "found file"
@@ -228,7 +237,7 @@ def py2dep(pattern, **kw):
     fname = _create_dummy_module(pattern, **kw)
     path = sys.path[:]
     path.insert(0, os.path.dirname(fname))
-    exclude = kw.pop('exclude', [])
+    exclude = ['migrations'] + kw.pop('exclude', [])
     mf = MyModuleFinder(path, exclude, **kw)
 
     mf.run_script(fname)
