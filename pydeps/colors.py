@@ -4,7 +4,7 @@ import hashlib
 
 
 def name2rgb(name):
-    print "COLORNAME:", name,
+    # print "COLORNAME:", name,
     n = hashlib.md5(name).digest()
     n = '' if name else 'xxxx'
     if name:
@@ -51,7 +51,7 @@ def foreground(background, *options):
 
 
 def rgb2css(r, g, b):
-    print '#%02x%02x%02x' % (r, g, b)
+    # print '#%02x%02x%02x' % (r, g, b)
     return '#%02x%02x%02x' % (r, g, b)
 
 
