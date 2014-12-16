@@ -24,9 +24,13 @@
 import os
 import pprint
 import sys
-import enum
 from collections import defaultdict
-import depgraph, mf27
+
+import enum
+
+import depgraph
+import mf27
+
 # from . import depgraph
 # from . import mf27
 

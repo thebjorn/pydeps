@@ -1,2 +1,7 @@
-
+PyYAML==3.11
+cov-core==1.15.0
+coverage==3.7.1
 enum34==1.0.4
+py==1.4.26
+pytest==2.6.4
+pytest-cov==1.8.1

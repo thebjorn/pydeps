@@ -2,6 +2,7 @@
 import argparse
 import os
 import pprint
+import sys
 from .py2depgraph import py2dep
 from .depgraph2dot import dep2dot
 from .dot import dot
@@ -40,7 +41,7 @@ def _pydeps(**kw):
         os.system("firefox " + output)
 
 
-def pydeps():
+def parse_args(argv=()):
     p = argparse.ArgumentParser()
     p.add_argument('fname', help='filename')
     # -v    informative (steps, input/output, statistics)
@@ -58,7 +59,7 @@ def pydeps():
     p.add_argument('--pylib-all', action='store_true', help="include python all std lib modules (incl. C modules)")
     p.add_argument('-x', '--exclude', nargs="+", default=[], help="input files to skip")
 
-    _args = p.parse_args()
+    _args = p.parse_args(argv)
     if _args.verbose >= 2:
         print _args
     if _args.debug:
@@ -67,17 +68,12 @@ def pydeps():
         _args.show_deps = True
         _args.show_dot = True
 
-    _pydeps(**vars(_args))
-    #     fname=_args.fname,
-    #     fmt=_args.format,
-    #     output=_args.output,
-    #     verbose=_args.verbose,
-    #     show=_args.show,
-    #     show_deps=_args.show_deps,
-    #     show_dot=_args.show_dot,
-    #     pylib=_args.pylib,
-    #     pylib_all=_args.pylib_all,
-    # )
+    return vars(_args)
+
+
+def pydeps():
+    _args = parse_args(sys.argv[1:])
+    _pydeps(**_args)
 
 
 if __name__ == '__main__':

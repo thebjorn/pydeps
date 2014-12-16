@@ -186,7 +186,6 @@ class DepGraph(object):
             if src.name in visited:
                 return
             visited.add(src.name)
-            # yield src
             for name in src.imports:
                 impmod = self.sources[name]
                 if impmod.path and not impmod.path.endswith('__init__.py'):
@@ -194,7 +193,6 @@ class DepGraph(object):
                 visit(impmod)
 
         for _src in self.sources.values():
-            # print "SRC:", _src
             for source in visit(_src):
                 self.verbose(4, "Yielding", source[0], source[1])
                 yield source
