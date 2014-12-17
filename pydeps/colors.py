@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 import colorsys
-import hashlib
 
 
+# noinspection PyAugmentAssignment
 def name2rgb(name):
     # print "COLORNAME:", name,
-    n = hashlib.md5(name).digest()
+    # n = hashlib.md5(name).digest()
     n = '' if name else 'xxxx'
     if name:
         parts = name.split('.')
         for p in parts:
             n = chr(sum(ord(c) for c in p) % 256) + n
-    # print `n`, repr(hashlib.md5(name).digest())
     n = n * 6
 
     hf = float(ord(n[0]) + ord(n[1]) * 0xff) / 0xffff
@@ -22,12 +21,14 @@ def name2rgb(name):
 
 
 def brightness(r, g, b):
-    "From w3c (range 0..255)"
+    """From w3c (range 0..255).
+    """
     return (r * 299 + g * 587 + b * 114) / 1000
 
 
 def brightnessdiff(a, b):
-    "greater than 125 is good"
+    """greater than 125 is good.
+    """
     return abs(brightness(*a) - brightness(*b))
 
 
@@ -43,6 +44,9 @@ def colordiff((r, g, b), (r2, g2, b2)):
 
 
 def foreground(background, *options):
+    """Find the best foreground color from `options` based on `background`
+       color.
+    """
     def absdiff(a, b):
         return 3 * brightnessdiff(a, b) + colordiff(a, b)
     diffs = [(absdiff(background, color), color) for color in options]
@@ -51,11 +55,14 @@ def foreground(background, *options):
 
 
 def rgb2css(r, g, b):
-    # print '#%02x%02x%02x' % (r, g, b)
+    """Convert rgb to hex.
+    """
     return '#%02x%02x%02x' % (r, g, b)
 
 
 def color_from_name(name):
+    """Convert `name` to a hex color.
+    """
     r, g, b = name2rgb(name)
     return '#%02x%02x%02x' % (r, g, b)
 

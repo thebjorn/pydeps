@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
+from contextlib import contextmanager
 import os
+import shutil
+import tempfile
+import yaml
 
 
-class FilemakerBase(object):
+class FilemakerBase(object):  # pragma: nocover
     """Override marked methods to do something useful.  Base class serves as
        a dry-run step generator.
     """
@@ -13,22 +17,26 @@ class FilemakerBase(object):
         self._makefiles(fdef)
 
     def goto_root(self, dirname):
-        "override"
+        """override
+        """
         print "pushd", dirname
 
     def makedir(self, dirname, content):
-        "override, but call self.make_list(content)"
+        """override, but call self.make_list(content)
+        """
         print "mkdir " + dirname
         print "pushd " + dirname
         self.make_list(content)
         print "popd"
 
     def make_file(self, filename, content):
-        "override"
+        """override
+        """
         print "create file: %s %r" % (filename, content)
 
     def make_empty_file(self, fname):
-        "override"
+        """override
+        """
         print "touch", fname
 
     def _make_empty_file(self, fname):
@@ -46,14 +54,15 @@ class FilemakerBase(object):
                     self.makedir(dirname=k, content=v)
                 elif isinstance(v, basestring):
                     self.make_file(filename=k, content=v)
-                else:
+                else:  # pragma: nocover
                     raise ValueError("Unexpected:", k, v)
         elif isinstance(f, basestring):
             self._make_empty_file(f)
         elif isinstance(f, list):
             self.make_list(f)
-        else:
+        else:  # pragma: nocover
             raise ValueError("Unknown type:", f)
+
 
 class Filemaker(FilemakerBase):
     def goto_root(self, dirname):
@@ -71,3 +80,17 @@ class Filemaker(FilemakerBase):
 
     def make_empty_file(self, fname):
         open(fname, 'w').close()
+
+
+@contextmanager
+def create_files(filedef, cleanup=True):
+    fdef = yaml.load(filedef)
+    cwd = os.getcwd()
+    tmpdir = tempfile.mkdtemp()
+    try:
+        Filemaker(tmpdir, fdef)
+        yield tmpdir
+    finally:
+        os.chdir(cwd)
+        if cleanup:
+            shutil.rmtree(tmpdir, ignore_errors=True)

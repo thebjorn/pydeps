@@ -1,36 +1,7 @@
 # -*- coding: utf-8 -*-
-from contextlib import contextmanager
 import os
-import tempfile
-import shutil
-import yaml
-from pydeps import pydeps
-from pydeps.py2depgraph import py2dep
-from tests.filemaker import Filemaker
-
-
-@contextmanager
-def create_files(filedef, cleanup=True):
-    fdef = yaml.load(filedef)
-    cwd = os.getcwd()
-    tmpdir = tempfile.mkdtemp()
-    try:
-        Filemaker(tmpdir, fdef)
-        yield tmpdir
-    finally:
-        os.chdir(cwd)
-        if cleanup:
-            shutil.rmtree(tmpdir, ignore_errors=True)
-
-
-def empty():
-    args = pydeps.parse_args(['foo'])
-    args.pop('fname')
-    return args
-
-
-def simpledeps(item):
-    return ["%s -> %s" % (a.name, b.name) for a, b in py2dep('relimp', **empty())]
+from tests.filemaker import create_files
+from tests.simpledeps import simpledeps
 
 
 def test_relative_imports():
@@ -62,23 +33,24 @@ def test_relative_imports2():
         ]
 
 
-def xtest_circular():
+def test_hierarchy():
     files = """
-        circ:
-            - base.py: |
-                from a import amodule
+        relimp:
+            - __init__.py
             - a:
+                - __init__.py
                 - amodule.py: |
-                    # from ..b import bmodule
-                    from circ.b import bmodule
+                    from ..b import bmodule
             - b:
-                - bmodule.py: |
-                    # from .. import base
-                    from circ import base
+                - __init__.py
+                - bmodule.py
+
     """
-    with create_files(files, cleanup=False) as workdir:
+    with create_files(files, cleanup=True) as workdir:
         os.system("tree " + workdir)
-        assert simpledeps('relimp') == ['relimp.b -> relimp.a']
+        assert simpledeps('relimp') == [
+            'relimp.b.bmodule -> relimp.a.amodule'
+        ]
 
 
 

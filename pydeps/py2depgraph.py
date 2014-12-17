@@ -247,7 +247,7 @@ def py2dep(pattern, **kw):
     mf.run_script(fname)
     os.unlink(fname)
 
-    if kw.get('verbose', 0) >= 4:
+    if kw.get('verbose', 0) >= 4:  # pragma: nocover
         print
         print "mf27._depgraph:", mf._depgraph
         print "mf27._types:   ", mf._types
