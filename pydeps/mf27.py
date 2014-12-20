@@ -123,11 +123,15 @@ class ModuleFinder:
     def import_hook(self, name, caller=None, fromlist=None, level=-1):
         self.msg(3, "import_hook: name(%s) caller(%s) fromlist(%s) level(%s)" % (name, caller, fromlist, level))
         parent = self.determine_parent(caller, level=level)
+        # print "  import_hook parent:", parent
         q, tail = self.find_head_package(parent, name)
+        # print "  q:", q, "tail:", tail
         m = self.load_tail(q, tail)
+        # print "  m:", m
         if not fromlist:
             return q
         if m.__path__:
+            # print "  ensuring fromlist, m:", m, "fromlist:", fromlist
             self.ensure_fromlist(m, fromlist)
         return None
 
@@ -208,17 +212,17 @@ class ModuleFinder:
         self.msgout(4, "load_tail ->", m)
         return m
 
-    def ensure_fromlist(self, m, fromlist, recursive=0):
-        self.msg(4, "ensure_fromlist", m, fromlist, recursive)
+    def ensure_fromlist(self, module, fromlist, recursive=0):
+        self.msg(4, "ensure_fromlist", module, fromlist, recursive)
         for sub in fromlist:
             if sub == "*":
                 if not recursive:
-                    all = self.find_all_submodules(m)
-                    if all:
-                        self.ensure_fromlist(m, all, 1)
-            elif not hasattr(m, sub):
-                subname = "%s.%s" % (m.__name__, sub)
-                submod = self.import_module(sub, subname, m)
+                    submodules = self.find_all_submodules(module)
+                    if submodules:
+                        self.ensure_fromlist(module, submodules, 1)
+            elif not hasattr(module, sub):
+                subname = "%s.%s" % (module.__name__, sub)
+                submod = self.import_module(sub, subname, module)
                 if not submod:
                     raise ImportError, "No module named " + subname
 
@@ -283,9 +287,9 @@ class ModuleFinder:
         suffix, mode, type = file_info
         self.msgin(2, "load_module", fqname, fp and "fp", pathname)
         if type == imp.PKG_DIRECTORY:
-            m = self.load_package(fqname, pathname)
-            self.msgout(2, "load_module ->", m)
-            return m
+            module = self.load_package(fqname, pathname)
+            self.msgout(2, "load_module ->", module)
+            return module
         if type == imp.PY_SOURCE:
             co = compile(fp.read() + '\n', pathname, 'exec')
         elif type == imp.PY_COMPILED:
@@ -296,15 +300,15 @@ class ModuleFinder:
             co = marshal.load(fp)
         else:
             co = None
-        m = self.add_module(fqname)
-        m.__file__ = pathname
+        module = self.add_module(fqname)
+        module.__file__ = pathname
         if co:
             if self.replace_paths:
                 co = self.replace_paths_in_code(co)
-            m.__code__ = co
-            self.scan_code(co, m)
-        self.msgout(2, "load_module ->", m)
-        return m
+            module.__code__ = co
+            self.scan_code(co, module)
+        self.msgout(2, "load_module ->", module)
+        return module
 
     def _add_badmodule(self, name, caller):
         if name not in self.badmodules:
@@ -331,6 +335,7 @@ class ModuleFinder:
                         self._add_badmodule(sub, caller)
                         continue
                     try:
+                        # print "    self.import_hook(name=%s, caller=%s, [sub]=%s, level=%s)" % (name, caller, [sub], level)
                         self.import_hook(name, caller, [sub], level=level)
                     except ImportError, msg:
                         self.msg(2, "ImportError:", str(msg))
@@ -392,16 +397,17 @@ class ModuleFinder:
             else:
                 code = code[1:]
 
-    def scan_code(self, co, m):
+    def scan_code(self, co, module):
         code = co.co_code
         if sys.version_info >= (2, 5):
             scanner = self.scan_opcodes_25
         else:
             scanner = self.scan_opcodes
         for what, args in scanner(co):
+            # print "WHAT:", what, args
             if what == "store":
                 name, = args
-                m.globalnames[name] = 1
+                module.globalnames[name] = 1
             elif what in ("import", "absolute_import"):
                 fromlist, name = args
                 have_star = 0
@@ -413,43 +419,46 @@ class ModuleFinder:
                     level = 0
                 else:
                     level = -1
-                self._safe_import_hook(name, m, fromlist, level=level)
+                self._safe_import_hook(name, module, fromlist, level=level)
                 if have_star:
                     # We've encountered an "import *". If it is a Python module,
                     # the code has already been parsed and we can suck out the
                     # global names.
                     mm = None
-                    if m.__path__:
+                    if module.__path__:
                         # At this point we don't know whether 'name' is a
-                        # submodule of 'm' or a global module. Let's just try
+                        # submodule of 'module' or a global module. Let's just try
                         # the full name first.
-                        mm = self.modules.get(m.__name__ + "." + name)
+                        mm = self.modules.get(module.__name__ + "." + name)
                     if mm is None:
                         mm = self.modules.get(name)
                     if mm is not None:
-                        m.globalnames.update(mm.globalnames)
-                        m.starimports.update(mm.starimports)
+                        module.globalnames.update(mm.globalnames)
+                        module.starimports.update(mm.starimports)
                         if mm.__code__ is None:
-                            m.starimports[name] = 1
+                            module.starimports[name] = 1
                     else:
-                        m.starimports[name] = 1
+                        module.starimports[name] = 1
             elif what == "relative_import":
                 level, fromlist, name = args
                 if name:
-                    self._safe_import_hook(name, m, fromlist, level=level)
+                    self._safe_import_hook(name, module, fromlist, level=level)
                 else:
-                    parent = self.determine_parent(m, level=level)
+                    parent = self.determine_parent(module, level=level)
+                    # print "  NAME:", parent
+                    # print "  CALLER:", module
+                    # print "  FROMLIST:", fromlist
+                    # print "  LEVEL:", 0
                     # m is still the caller here... [bp]
-                    # self._safe_import_hook(parent.__name__, None, fromlist, level=0)
-                    self._safe_import_hook(parent.__name__, m, fromlist, level=0)
+                    self._safe_import_hook(parent.__name__, module, fromlist, level=0)
                     # self._safe_import_hook(parent.__name__, None, fromlist, level=0)
             else:
                 # We don't expect anything else from the generator.
                 raise RuntimeError(what)
 
-        for c in co.co_consts:
-            if isinstance(c, type(co)):
-                self.scan_code(c, m)
+        for literal in co.co_consts:
+            if isinstance(literal, type(co)):
+                self.scan_code(literal, module)
 
     def load_package(self, fqname, pathname):
         self.msgin(2, "load_package", fqname, pathname)

@@ -2,8 +2,8 @@
 import json
 import pprint
 import enum
-# from . import colors
-import colors
+from . import colors
+# import colors
 
 
 class imp(enum.Enum):

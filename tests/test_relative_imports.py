@@ -33,6 +33,24 @@ def test_relative_imports2():
         ]
 
 
+def test_pydeps_colors():
+    files = """
+        pdeps:
+            - __init__.py
+            - colors.py: |
+                import colorsys
+            - depgraph.py: |
+                import json
+                import pprint
+                import enum
+                from . import colors
+    """
+    with create_files(files, cleanup=False) as workdir:
+        assert simpledeps('pdeps') == [
+            'pdeps.colors -> pdeps.depgraph',
+        ]
+
+
 def test_hierarchy():
     files = """
         relimp:

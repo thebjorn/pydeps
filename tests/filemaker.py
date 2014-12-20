@@ -89,6 +89,8 @@ def create_files(filedef, cleanup=True):
     tmpdir = tempfile.mkdtemp()
     try:
         Filemaker(tmpdir, fdef)
+        if not cleanup:
+            print "TMPDIR =", tmpdir
         yield tmpdir
     finally:
         os.chdir(cwd)
