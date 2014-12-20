@@ -13,7 +13,7 @@ To create graphs you need to install Graphviz_ (make sure the ``dot`` command is
 
 This is the result of running ``pydeps`` on itself (``pydeps --show pydeps``):
 
-.. image:: pydeps.svg
+.. image:: https://dl.dropboxusercontent.com/u/94882440/pydeps.svg
 
 An attempt has been made to keep the intermediate formats readable, eg. the output from
 ``pydeps --show-deps ..`` looks like this::
