@@ -221,7 +221,6 @@ def _create_dummy_module(package_name, **args):
         print >>fp, "except:"
         print >>fp, "    pass"
 
-
     if is_module(package):
         if args['verbose']: print "found package"
         with open(dummy, 'w') as fp:
@@ -239,8 +238,9 @@ def _create_dummy_module(package_name, **args):
 
     else:
         if args['verbose']: print "found file"
-        with open(dummy, 'w') as fp:
-            print >>fp, "import", package_name
+        return package_name
+        # with open(dummy, 'w') as fp:
+        #     print >>fp, "import", package_name
 
     return dummy
 
@@ -262,11 +262,15 @@ def py2dep(pattern, **kw):
     fname = _create_dummy_module(pattern, **kw)
     path = sys.path[:]
     path.insert(0, os.path.dirname(fname))
+
+    # remove exclude so we don't pass it twice to modulefinder
     exclude = ['migrations'] + kw.pop('exclude', [])
     mf = MyModuleFinder(path, exclude, **kw)
-
     mf.run_script(fname)
+
+    # remove dummy file and restore exclude argument
     os.unlink(fname)
+    kw['exclude'] = exclude
 
     if kw.get('verbose', 0) >= 4:  # pragma: nocover
         print

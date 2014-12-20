@@ -32,7 +32,7 @@ def _pydeps(**kw):
 
     svg = dot(dotsrc, T=kw['format'])
 
-    with open(output, 'w') as fp:
+    with open(output, 'wb') as fp:
         verbose("Writing output to:", output)
         fp.write(svg)
 
@@ -55,9 +55,10 @@ def parse_args(argv=()):
     p.add_argument('--show-deps', action='store_true', help="show output of dependency analysis")
     p.add_argument('--show-dot', action='store_true', help="show output of dot conversion")
     p.add_argument('--debug', action='store_true', help="turn on all the show and verbose options")
+    p.add_argument('--noise-level', type=int, metavar="INT", default=200, help="exclude sources or sinks with degree greater than noise-level")
     p.add_argument('--pylib', action='store_true', help="include python std lib modules")
     p.add_argument('--pylib-all', action='store_true', help="include python all std lib modules (incl. C modules)")
-    p.add_argument('-x', '--exclude', nargs="+", default=[], help="input files to skip")
+    p.add_argument('-x', '--exclude', nargs="+", metavar="FNAME", default=[], help="input files to skip")
 
     _args = p.parse_args(argv)
     if _args.verbose >= 2:

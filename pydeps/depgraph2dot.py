@@ -25,8 +25,6 @@ import json
 import sys
 import getopt
 import imp
-from . import colors
-#import colors
 from .render_context import RenderContext
 
 

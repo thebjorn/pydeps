@@ -3,7 +3,7 @@ import json
 import pprint
 import enum
 from . import colors
-# import colors
+import sys
 
 
 class imp(enum.Enum):
@@ -20,7 +20,7 @@ class imp(enum.Enum):
 
 
 class Source(object):
-    def __init__(self, name, kind=imp.UNKNOWN, path=None, imports=(), args=None):
+    def __init__(self, name, kind=imp.UNKNOWN, path=None, imports=(), exclude=False, args=None):
         self.args = args or {}
         if name == "__main__" and path:
             self.name = path.replace('\\', '/').replace('/', '.')
@@ -28,17 +28,43 @@ class Source(object):
                 print "changing __main__ =>", self.name
         else:
             self.name = name
-        self.path = path            # needed here..?
         self.kind = kind
-        self.imports = set(imports) # modules we import
-        self.imported_by = set()    # modules that import us
+        self.path = path             # needed here..?
+        self.imports = set(imports)  # modules we import
+        self.imported_by = set()     # modules that import us
+        self.bacon_distance = sys.maxint
+        self.excluded = exclude
+
+    @property
+    def in_degree(self):
+        "Number of incoming arrows."
+        return len(self.imports)
+
+    @property
+    def out_degree(self):
+        "Number of outgoing arrows."
+        return len(self.imported_by)
+
+    @property
+    def degree(self):
+        return self.in_degree + self.out_degree
+
+    def is_noise(self):
+        """Is this module just noise?  (too common either at top or bottom of
+           the graph).
+        """
+        noise = self.args['noise_level']
+        return ((not self.in_degree and self.out_degree > noise) or
+                (not self.out_degree and self.in_degree > noise))
 
     def __json__(self):
         res = dict(
             name=self.name,
             path=self.path,
-            kind=str(self.kind)
+            kind=str(self.kind),
         )
+        if self.excluded:
+            res['excluded'] = 'EXCLUDED'
         if self.imports:
             res['imports'] = list(sorted(self.imports))
         if self.imported_by:
@@ -144,13 +170,16 @@ class DepGraph(object):
     def __init__(self, depgraf, types, **args):
         self.args = args
         self.sources = {}             # module_name -> Source
+        self.skiplist = set(args['exclude'])
+
         for name, imports in depgraf.items():
             self.verbose(4, "depgraph:", name, imports)
             src = Source(
                 name=name,
                 kind=imp(types.get(name, 0)),
                 imports=imports.keys(),
-                args=args
+                args=args,
+                exclude=name in self.skiplist
             )
             self.add_source(src)
             for iname, path in imports.items():
@@ -158,11 +187,25 @@ class DepGraph(object):
                     name=iname,
                     kind=imp(types.get(name, 0)),
                     path=path,
-                    args=args
+                    args=args,
+                    exclude=iname in self.skiplist
                 )
                 self.add_source(src)
-        self.verbose(1, "there are", len(self.sources), "modules")
+
+        self.module_count = len(self.sources)
+        self.verbose(1, "there are", self.module_count, "total modules")
+
         self.connect_generations()
+        self.exclude_noise()
+
+        excluded = [v for v in self.sources.values() if v.excluded]
+        self.skip_count = len(excluded)
+        self.verbose(1, "skipping", self.skip_count, "modules")
+        for module in excluded:
+            self.verbose(2, "  ", module.name)
+
+        self.remove_excluded()
+
         if not self.args['show_deps']:
             self.verbose(3, self)
 
@@ -188,6 +231,7 @@ class DepGraph(object):
             visited.add(src.name)
             for name in src.imports:
                 impmod = self.sources[name]
+                # if impmod.path:  # and not impmod.path.endswith('__init__.py'):
                 if impmod.path and not impmod.path.endswith('__init__.py'):
                     yield impmod, src
                 visit(impmod)
@@ -205,5 +249,24 @@ class DepGraph(object):
         "Traverse depth-first adding imported_by."
         for src in self.sources.values():
             for _child in src.imports:
-                child = self.sources[_child]
-                child.imported_by.add(src.name)
+                if _child in self.sources:
+                    child = self.sources[_child]
+                    child.imported_by.add(src.name)
+
+    def exclude_noise(self):
+        for src in self.sources.values():
+            if src.excluded:
+                continue
+            if src.is_noise():
+                self.verbose(2, "excluding", src, "because it is noisy:", src.degree)
+                src.excluded = True
+                self.skiplist.add(src.name)
+
+    def remove_excluded(self):
+        "Remove all sources marked as excluded."
+        sources = self.sources.values()
+        for src in sources:
+            if src.excluded:
+                del self.sources[src.name]
+            src.imports = [m for m in src.imports if m not in self.skiplist]
+            src.imported_by = [m for m in src.imported_by if m not in self.skiplist]
