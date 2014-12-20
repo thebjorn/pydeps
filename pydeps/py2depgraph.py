@@ -238,9 +238,11 @@ def _create_dummy_module(package_name, **args):
 
     else:
         if args['verbose']: print "found file"
-        return package_name
-        # with open(dummy, 'w') as fp:
-        #     print >>fp, "import", package_name
+        # This return was an attempt at being able to analyze standalone
+        # filenames with dashes (foo-bar.py). It does not work.
+        # return package_name
+        with open(dummy, 'w') as fp:
+            print >>fp, "import", package_name
 
     return dummy
 
