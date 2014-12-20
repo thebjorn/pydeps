@@ -4,6 +4,12 @@ pydeps
 .. image:: https://travis-ci.org/thebjorn/pydeps.svg
    :target: https://travis-ci.org/thebjorn/pydeps
 
+
+.. image:: https://coveralls.io/repos/thebjorn/pydeps/badge.png
+   :target: https://coveralls.io/r/thebjorn/pydeps
+
+
+
 Python Dependency visualization. This package installs the ``pydeps``, and normal
 usage will be to use it from the command line.
 
