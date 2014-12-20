@@ -19,7 +19,6 @@ def cmd2args(cmd):
 def pipe(cmd, txt):
     """Pipe `txt` into the command `cmd` and return the output.
     """
-    cmd = cmd2args(cmd)
     return Popen(
         cmd2args(cmd),
         stdout=subprocess.PIPE,
