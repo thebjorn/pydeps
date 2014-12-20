@@ -39,8 +39,8 @@ class PyDepGraphDot(object):
             for a, b in depgraph:
                 # b imports a
                 ctx.write_rule(a.name, b.name,
-                               weight=b.weight(a),
-                               minlen=b.alien(a))
+                               weight=depgraph.proximity_metric(a, b),
+                               minlen=depgraph.dissimilarity_metric(a, b))
                 visited.add(a)
                 visited.add(b)
 

@@ -1,9 +1,18 @@
 # -*- coding: utf-8 -*-
+from itertools import izip_longest
 import json
+import os
 import pprint
 import enum
 from . import colors
 import sys
+
+# we're normally not interested in imports of std python packages.
+PYLIB_PATH = {
+    # in virtualenvs that see the system libs, these will be different.
+    os.path.split(os.path.split(pprint.__file__)[0])[0].lower(),
+    os.path.split(os.__file__)[0].lower()
+}
 
 
 class imp(enum.Enum):
@@ -34,6 +43,15 @@ class Source(object):
         self.imported_by = set()     # modules that import us
         self.bacon_distance = sys.maxint
         self.excluded = exclude
+
+    @property
+    def name_parts(self):
+        return self.name.split('.')
+
+    @property
+    def path_parts(self):
+        p = self.path or ""
+        return p.replace('\\', '/').lower().split('/')
 
     @property
     def in_degree(self):
@@ -135,37 +153,51 @@ class Source(object):
             else:
                 return self.name[:i]
 
-    def weight(self, other):
-        """Return the weight of the dependency from a to b. Higher weights
-           usually have shorter straighter edges. Return 1 if it has normal
-           weight. A value of 4 is usually good for ensuring that a related
-           pair of modules are drawn next to each other. This is a default
-           policy - please override.
-        """
-        if '_' + self.name == other.name:
-            return 6
-
-        if other.name.split('.')[-1].startswith('_'):
-            # A module that starts with an underscore. You need a special reason to
-            # import these (for example random imports _random), so draw them close
-            # together
-            return 4
-        return 1
-
-    def alien(self, other):
-        """Return non-zero if references to this module are strange, and
-            should be drawn extra-long. the value defines the length, in
-            rank. This is also good for putting some vertical space between
-            seperate subsystems. This is a default policy - please override.
-         """
-        return 0
-
 
 class DepGraph(object):
     skip_modules = """
         os sys qt time __future__ types re string bdb pdb __main__
         south
         """.split()
+
+    def _is_pylib(self, path):
+        return path in PYLIB_PATH
+
+    def proximity_metric(self, a, b):
+        """Return the weight of the dependency from a to b. Higher weights
+           usually have shorter straighter edges. Return 1 if it has normal
+           weight. A value of 4 is usually good for ensuring that a related
+           pair of modules are drawn next to each other.
+
+           Returns an int between 1 (unknown, default), and 4 (very related).
+        """
+        # if self._is_pylib(a) and self._is_pylib(b):
+        #     return 1
+
+        res = 1
+        for ap, bp, n in zip(a.path_parts, b.path_parts, range(4)):
+            res += ap == bp
+            if n >= 3:
+                break
+        return res
+
+    def dissimilarity_metric(self, a, b):
+        """Return non-zero if references to this module are strange, and
+           should be drawn extra-long. The value defines the length, in
+           rank. This is also good for putting some vertical space between
+           seperate subsystems.
+
+           Returns an int between 1 (default) and 4 (highly unrelated).
+        """
+        if self._is_pylib(a) and self._is_pylib(b):
+            return 1
+
+        res = 4
+        for an, bn, n in izip_longest(a.name_parts, b.name_parts, range(4)):
+            res -= an == bn
+            if n >= 3:
+                break
+        return res
 
     def __init__(self, depgraf, types, **args):
         self.args = args

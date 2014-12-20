@@ -28,18 +28,10 @@ from collections import defaultdict
 
 import enum
 
-import depgraph
-import mf27
+from . import depgraph
+from . import mf27
 
-# from . import depgraph
-# from . import mf27
-
-# we're not interested in imports of std python packages.
-PYLIB_PATH = {
-    # in virtualenvs that see the system libs, these will be different.
-    os.path.split(os.path.split(pprint.__file__)[0])[0].lower(),
-    os.path.split(os.__file__)[0].lower()
-}
+PYLIB_PATH = depgraph.PYLIB_PATH
 
 
 class imp(enum.Enum):

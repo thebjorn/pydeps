@@ -62,7 +62,7 @@ class RenderContext(object):
         with self.rule():
             self.write('%s -> %s' % (self._nodename(a), self._nodename(b)))
             self._delattr(attrs, 'weight', 1)
-            self._delattr(attrs, 'minlen', 0)
+            self._delattr(attrs, 'minlen', 1)
             self.write_attributes(attrs)
 
     def write_node(self, a, **attrs):
