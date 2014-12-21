@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 import colorsys
 
-
 # noinspection PyAugmentAssignment
-import hashlib
+# import hashlib
 
 
 def name2rgb(name, basename, hue):
@@ -51,10 +50,10 @@ def rgb2css((r, g, b)):
     """
     return '#%02x%02x%02x' % (r, g, b)
 
-
-def color_from_name(name):
-    """Convert `name` to a hex color.
-    """
-    r, g, b = name2rgb(name)
-    return '#%02x%02x%02x' % (r, g, b)
-
+#
+# def color_from_name(name):
+#     """Convert `name` to a hex color.
+#     """
+#     r, g, b = name2rgb(name)
+#     return '#%02x%02x%02x' % (r, g, b)
+#

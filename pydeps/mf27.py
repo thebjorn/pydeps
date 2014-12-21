@@ -12,7 +12,7 @@ import struct
 
 if hasattr(sys.__stdout__, "newlines"):
     READ_MODE = "U"  # universal line endings
-else:
+else:  # pragma: nocover
     # remain compatible with Python  < 2.3
     READ_MODE = "r"
 
@@ -32,7 +32,7 @@ HAVE_ARGUMENT = chr(dis.HAVE_ARGUMENT)
 packagePathMap = {}
 
 # A Public interface
-def AddPackagePath(packagename, path):
+def AddPackagePath(packagename, path):  # pragma: nocover
     paths = packagePathMap.get(packagename, [])
     paths.append(path)
     packagePathMap[packagename] = paths
@@ -49,7 +49,7 @@ def ReplacePackage(oldname, newname):
     replacePackageMap[oldname] = newname
 
 
-class Module:
+class Module:  # pragma: nocover
     def __init__(self, name, file=None, path=None):
         self.__name__ = name
         self.__file__ = file
@@ -86,7 +86,7 @@ class ModuleFinder:
         self.replace_paths = replace_paths
         self.processed_paths = []  # Used in debugging only
 
-    def msg(self, level, str, *args):
+    def msg(self, level, str, *args):  # pragma: nocover
         if level <= self.debug:
             for i in range(self.indent):
                 print "   ",
@@ -95,13 +95,13 @@ class ModuleFinder:
                 print repr(arg),
             print
 
-    def msgin(self, *args):
+    def msgin(self, *args):  # pragma: nocover
         level = args[0]
         if level <= self.debug:
             self.indent = self.indent + 1
             self.msg(*args)
 
-    def msgout(self, *args):
+    def msgout(self, *args):  # pragma: nocover
         level = args[0]
         if level <= self.debug:
             self.indent = self.indent - 1
@@ -212,7 +212,7 @@ class ModuleFinder:
         self.msgout(4, "load_tail ->", m)
         return m
 
-    def ensure_fromlist(self, module, fromlist, recursive=0):
+    def ensure_fromlist(self, module, fromlist, recursive=0):  # pragma: nocover
         self.msg(4, "ensure_fromlist", module, fromlist, recursive)
         for sub in fromlist:
             if sub == "*":
@@ -343,7 +343,7 @@ class ModuleFinder:
                         self._add_badmodule(fullname, caller)
 
     def scan_opcodes(self, co,
-                     unpack=struct.unpack):
+                     unpack=struct.unpack):  # pragma: nocover
         # Scan the code, and yield 'interesting' opcode combinations
         # Version for Python 2.4 and older
         code = co.co_code
@@ -477,7 +477,7 @@ class ModuleFinder:
         self.msgout(2, "load_package ->", m)
         return m
 
-    def add_module(self, fqname):
+    def add_module(self, fqname):  # pragma: nocover
         if fqname in self.modules:
             return self.modules[fqname]
         self.modules[fqname] = m = Module(fqname)
@@ -500,7 +500,7 @@ class ModuleFinder:
             path = self.path
         return imp.find_module(name, path)
 
-    def report(self):
+    def report(self):  # pragma: nocover
         """Print a report to stdout, listing the found modules with their
         paths, as well as modules that are missing, or seem to be missing.
         """
@@ -545,7 +545,7 @@ class ModuleFinder:
         missing, maybe = self.any_missing_maybe()
         return missing + maybe
 
-    def any_missing_maybe(self):
+    def any_missing_maybe(self):  # pragma: nocover
         """Return two lists, one with modules that are certainly missing
         and one with modules that *may* be missing. The latter names could
         either be submodules *or* just global names in the package.
@@ -619,7 +619,7 @@ class ModuleFinder:
                               co.co_freevars, co.co_cellvars)
 
 
-def test():
+def test():  # pragma: nocover
     # Parse command line
     import getopt
 
@@ -679,7 +679,7 @@ def test():
     return mf  # for -i debugging
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: nocover
     try:
         mf = test()
     except KeyboardInterrupt:

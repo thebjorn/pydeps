@@ -53,38 +53,6 @@ class PyDepGraphDot(object):
 
         return ctx.text()
 
-    def filter_modules(self, module_name, kind):
-        """Return true if this module is interesting and should be drawn.
-           Return false if it should be completely omitted. This is a
-           default policy - please override.
-        """
-        if module_name in ('os', 'sys', 'qt', 'time', '__future__', 'types', 're', 'string', 'bdb', 'pdb'):
-            # nearly all modules use all of these... more or less. They add nothing to
-            # our diagram.
-            return 0
-        if module_name.startswith('encodings.'):
-            return 0
-        # if s == '__main__':
-        #     return 0  # 1
-        if self.toocommon(module_name, kind):
-            # A module where we dont want to draw references _to_. Dot doesnt handle these
-            # well, so it is probably best to not draw them at all.
-            return 0
-        return 1
-
-    def toocommon(self, module_name, kind):
-        """Return true if references to this module are uninteresting. Such
-           references do not get drawn. This is a default policy - please override.
-        """
-        if module_name == '__main__':
-            # references *to* __main__ are never interesting. omitting them means
-            # that main floats to the top of the page
-            return 0
-        if kind == imp.PKG_DIRECTORY:
-            # dont draw references to packages.
-            return 1
-        return 0
-
 
 def dep2dot(depgraph, color=True):
     dotter = PyDepGraphDot(colored=color)
@@ -92,7 +60,7 @@ def dep2dot(depgraph, color=True):
     return dotter.render(depgraph, ctx)
 
 
-def depgraph2dot():
+def depgraph2dot():  # pragma: nocover
     opts, args = getopt.getopt(sys.argv[1:], '-f:', ['mono', 'file='])
 
     _colored = True
@@ -112,5 +80,5 @@ def depgraph2dot():
     _output.close()
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: nocover
     depgraph2dot()

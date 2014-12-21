@@ -79,5 +79,5 @@ def pydeps():
     _pydeps(**_args)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: nocover
     pydeps()

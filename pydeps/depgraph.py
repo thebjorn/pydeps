@@ -36,7 +36,7 @@ class Source(object):
         self.args = args or {}
         if name == "__main__" and path:
             self.name = path.replace('\\', '/').replace('/', '.')
-            if self.args.get('verbose', 0) >= 2:
+            if self.args.get('verbose', 0) >= 2:  # pragma: nocover
                 print "changing __main__ =>", self.name
         else:
             self.name = name
@@ -75,8 +75,9 @@ class Source(object):
            the graph).
         """
         noise = self.args['noise_level']
-        return ((not self.in_degree and self.out_degree > noise) or
-                (not self.out_degree and self.in_degree > noise))
+        if not (self.in_degree and self.out_degree):
+            return self.degree > noise
+        return False
 
     def __json__(self):
         res = dict(
@@ -103,7 +104,7 @@ class Source(object):
         return self.name == other.name
 
     def __repr__(self):
-        return pprint.pformat(self.__dict__)
+        return json.dumps(self.__json__(), indent=4)
 
     def __iadd__(self, other):
         assert self.name == other.name
@@ -113,9 +114,9 @@ class Source(object):
         self.imported_by |= other.imported_by
         return self
 
-    def imported_modules(self, depgraph):
-        for name in self.imports:
-            yield depgraph[name]
+    # def imported_modules(self, depgraph):
+    #     for name in self.imports:
+    #         yield depgraph[name]
 
     @property
     def label(self):
@@ -125,39 +126,6 @@ class Source(object):
         if len(self.name) > 14 and '.' in self.name:
             return '\\.\\n'.join(self.name.split('.'))
         return self.name
-
-    @property
-    def fillcolor(self):
-        """Return the node color for this module name. This is a default
-           policy - please override.
-
-           Calculate a color systematically based on the hash of the module
-           name. Modules in the same package have the same color. Unpackaged
-           modules are grey
-        """
-        return self.colors()['bg']
-
-    @property
-    def fontcolor(self):
-        return self.colors()['fg']
-
-    def colors(self):
-        black = (0, 0, 0)
-        white = (255, 255, 255)
-        red = (255, 0, 0)
-        green = (0, 255, 0)
-        blue = (0, 0, 255)
-        gray1 = (50, 50, 50)
-        gray25 = (64, 64, 64)
-        gray50 = (128, 128, 128)
-        gray75 = (192, 192, 192)
-
-        bg = colors.name2rgb(self._color_base)
-        # fg = colors.foreground(bg, white, black, red, green, blue)
-        # fg = colors.foreground(bg, gray25, gray75)
-        fg = colors.foreground(bg, red, green, blue)
-        print bg, fg
-        return dict(bg=colors.rgb2css(*bg), fg=colors.rgb2css(*fg))
 
     @property
     def basename(self):
