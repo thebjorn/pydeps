@@ -20,8 +20,8 @@ class RenderContext(object):
         self.dedent("""
             digraph G {
                 concentrate = true;
-                ordering = out;
-                ranksep=1.0;
+                //ordering = out;
+                //ranksep=1.0;
                 node [style=filled,fillcolor="%s",fontcolor="%s",fontname=Helvetica,fontsize=10];
 
         """ % (fillcolor, fontcolor))

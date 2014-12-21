@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+from collections import defaultdict
+import fnmatch
 from itertools import izip_longest
 import json
 import os
 import pprint
+import re
 import enum
 from . import colors
 import sys
@@ -41,7 +44,7 @@ class Source(object):
         self.path = path             # needed here..?
         self.imports = set(imports)  # modules we import
         self.imported_by = set()     # modules that import us
-        self.bacon_distance = sys.maxint
+        self.bacon = sys.maxint      # bacon distance
         self.excluded = exclude
 
     @property
@@ -80,6 +83,7 @@ class Source(object):
             name=self.name,
             path=self.path,
             kind=str(self.kind),
+            bacon=self.bacon,
         )
         if self.excluded:
             res['excluded'] = 'EXCLUDED'
@@ -138,13 +142,26 @@ class Source(object):
         return self.colors()['fg']
 
     def colors(self):
+        black = (0, 0, 0)
+        white = (255, 255, 255)
+        red = (255, 0, 0)
+        green = (0, 255, 0)
+        blue = (0, 0, 255)
+        gray1 = (50, 50, 50)
+        gray25 = (64, 64, 64)
+        gray50 = (128, 128, 128)
+        gray75 = (192, 192, 192)
+
         bg = colors.name2rgb(self._color_base)
-        fg = colors.foreground(bg, (255, 255, 255), (0, 0, 0))
+        # fg = colors.foreground(bg, white, black, red, green, blue)
+        # fg = colors.foreground(bg, gray25, gray75)
+        fg = colors.foreground(bg, red, green, blue)
+        print bg, fg
         return dict(bg=colors.rgb2css(*bg), fg=colors.rgb2css(*fg))
 
     @property
-    def _color_base(self):
-        if self.kind == imp.PKG_DIRECTORY:
+    def basename(self):
+        if self.kind == imp.PKG_DIRECTORY or self.path.endswith('__init__.py'):
             return self.name
         else:
             i = self.name.rfind('.')
@@ -159,6 +176,21 @@ class DepGraph(object):
         os sys qt time __future__ types re string bdb pdb __main__
         south
         """.split()
+
+    def levelcounts(self):
+        pass
+
+    def get_colors(self, src):
+        if src.basename not in self.colors:
+            h = self.curhue
+            self.curhue += 13  # relative prime with 360
+            self.curhue %= 360
+            bg = colors.name2rgb(src.name, src.basename, h)
+            black = (0, 0, 0)
+            white = (255, 255, 255)
+            fg = colors.foreground(bg, black, white)
+            self.colors[src.basename] = bg, fg
+        return self.colors[src.basename]
 
     def _is_pylib(self, path):
         return path in PYLIB_PATH
@@ -199,10 +231,16 @@ class DepGraph(object):
                 break
         return res
 
+    def _exclude(self, name):
+        return any(skip.match(name) for skip in self.skiplist)
+
     def __init__(self, depgraf, types, **args):
+        self.curhue = 0
+        self.colors = {}
+
         self.args = args
         self.sources = {}             # module_name -> Source
-        self.skiplist = set(args['exclude'])
+        self.skiplist = [re.compile(fnmatch.translate(arg)) for arg in args['exclude']]
 
         for name, imports in depgraf.items():
             self.verbose(4, "depgraph:", name, imports)
@@ -211,7 +249,7 @@ class DepGraph(object):
                 kind=imp(types.get(name, 0)),
                 imports=imports.keys(),
                 args=args,
-                exclude=name in self.skiplist
+                exclude=self._exclude(name),
             )
             self.add_source(src)
             for iname, path in imports.items():
@@ -220,7 +258,7 @@ class DepGraph(object):
                     kind=imp(types.get(name, 0)),
                     path=path,
                     args=args,
-                    exclude=iname in self.skiplist
+                    exclude=self._exclude(iname)
                 )
                 self.add_source(src)
 
@@ -228,7 +266,13 @@ class DepGraph(object):
         self.verbose(1, "there are", self.module_count, "total modules")
 
         self.connect_generations()
+        self.calculate_bacon()
+        if self.args['show_raw_deps']:
+            print self
+
         self.exclude_noise()
+        self.exclude_bacon(self.args['max_bacon'])
+        self.exclude_init()
 
         excluded = [v for v in self.sources.values() if v.excluded]
         self.skip_count = len(excluded)
@@ -285,6 +329,25 @@ class DepGraph(object):
                     child = self.sources[_child]
                     child.imported_by.add(src.name)
 
+    def calculate_bacon(self):
+        count = defaultdict(int)
+
+        def bacon(src, n):
+            count[src.name] += 1
+            # print 'bacon:', src, src.bacon, n,
+            if src.bacon <= n:
+                # print 'returning'
+                return
+            src.bacon = min(src.bacon, n)
+            # print 'new bacon', src.bacon
+            for imp in src.imports:
+                bacon(self.sources[imp], n + 1)
+
+        bacon(self.sources['__main__'], 0)
+        # ritems = [(v, k) for k, v in count.items()]
+        # for i, (v, k) in enumerate(sorted(ritems, reverse=True)):
+        #     print k.rjust(25), v
+
     def exclude_noise(self):
         for src in self.sources.values():
             if src.excluded:
@@ -292,7 +355,18 @@ class DepGraph(object):
             if src.is_noise():
                 self.verbose(2, "excluding", src, "because it is noisy:", src.degree)
                 src.excluded = True
-                self.skiplist.add(src.name)
+                self._add_skip(src.name)
+
+    def exclude_bacon(self, limit):
+        "Exclude models that are more than `limit` hops away from __main__."
+        for src in self.sources.values():
+            if src.bacon > limit:
+                src.excluded = True
+                self._add_skip(src.name)
+
+    def exclude_init(self):
+        """Exclude mo
+        """
 
     def remove_excluded(self):
         "Remove all sources marked as excluded."
@@ -300,5 +374,8 @@ class DepGraph(object):
         for src in sources:
             if src.excluded:
                 del self.sources[src.name]
-            src.imports = [m for m in src.imports if m not in self.skiplist]
-            src.imported_by = [m for m in src.imported_by if m not in self.skiplist]
+            src.imports = [m for m in src.imports if not self._exclude(m)]
+            src.imported_by = [m for m in src.imported_by if not self._exclude(m)]
+
+    def _add_skip(self, name):
+        self.skiplist.append(re.compile(fnmatch.translate(name)))

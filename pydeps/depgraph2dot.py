@@ -25,6 +25,7 @@ import json
 import sys
 import getopt
 import imp
+from . import colors
 from .render_context import RenderContext
 
 
@@ -45,10 +46,10 @@ class PyDepGraphDot(object):
                 visited.add(b)
 
             for src in visited:
-                ctx.write_node(src.name,
-                               label=src.label,
-                               fillcolor=src.fillcolor,
-                               fontcolor=src.fontcolor)
+                bg, fg = depgraph.get_colors(src)
+                ctx.write_node(src.name, label=src.label,
+                               fillcolor=colors.rgb2css(bg),
+                               fontcolor=colors.rgb2css(fg))
 
         return ctx.text()
 
