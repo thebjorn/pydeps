@@ -180,7 +180,8 @@ class DepGraph(object):
         return self.sources[item]
 
     def __iter__(self):
-        visited = set(self.skip_modules)
+        print "ARGS:", self.args
+        visited = set(self.skip_modules) + set(self.args['exclude'])
 
         def visit(src):
             if src.name in visited:

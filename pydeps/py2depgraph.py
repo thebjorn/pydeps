@@ -166,7 +166,7 @@ def fname2modname(fname, package):
     return fname.replace('\\', '.').replace('/', '.')
 
 
-def _pyfiles(directory, package=True):
+def _pyfiles(directory, package=True, **args):
     for root, dirs, files in os.walk(directory):
         if package and '__init__.py' not in files:
             continue
@@ -174,7 +174,7 @@ def _pyfiles(directory, package=True):
         for d in dotdirs:
             dirs.remove(d)
         for fname in files:
-            if pysource(fname):
+            if pysource(fname):  # and fname not in args['exclude']:
                 yield os.path.abspath(os.path.join(root, fname))
 
 
@@ -188,8 +188,18 @@ def _create_dummy_module(package_name, **args):
     dummy = '_dummy.py'
     package = os.path.abspath(package_name)
 
+    def legal_module_name(name):
+        for part in name.split('.'):
+            try:
+                exec "%s = 42" % part in {}, {}
+            except:
+                return False
+        return True
+
     def print_import(fp, module):
         if 'migrations' in module:
+            return
+        if not legal_module_name(module):
             return
         print >>fp, "try:"
         print >>fp, "    import", module
@@ -200,7 +210,7 @@ def _create_dummy_module(package_name, **args):
     if is_module(package):
         if args['verbose']: print "found package"
         with open(dummy, 'w') as fp:
-            for fname in _pyfiles(package):
+            for fname in _pyfiles(package, **args):
                 modname = fname2modname(fname, package)
                 print_import(fp, modname)
 
