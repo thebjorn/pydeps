@@ -64,3 +64,6 @@ docs/_build/
 # pydeps build files.
 pydeps.svg
 README.html
+*.rst#
+pydeps-pylib-all.svg
+pydeps-pylib.svg

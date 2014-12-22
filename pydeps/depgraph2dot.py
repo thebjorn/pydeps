@@ -1,4 +1,3 @@
-"""
 # Based on original code, Copyright 2004 Toby Dickenson,
 # with changes 2014 (c) Bjorn Pettersen
 #
@@ -20,11 +19,10 @@
 # CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-"""
+
 import json
 import sys
 import getopt
-import imp
 from . import colors
 from .render_context import RenderContext
 

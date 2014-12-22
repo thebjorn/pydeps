@@ -30,13 +30,13 @@ class RenderContext(object):
 
     def text(self):
         if self.out:
-            self.out.close()
+            self.out.close()  # pragma: nocover
         return self.fp.getvalue()
 
     def write(self, txt):
         self.fp.write(txt)
         if self.out:
-            self.out.write(txt)
+            self.out.write(txt)  # pragma: nocover
 
     def writeln(self, txt):
         self.write(txt + '\n')
@@ -47,7 +47,8 @@ class RenderContext(object):
     def write_attributes(self, attrs):
         if attrs:
             self.write(' [' + ','.join('%s="%s"' % kv for kv in attrs.items()) + ']')
-            # self.write(' [' + ','.join(attrs) + ']')
+        else:  # pragma: nocover
+            pass
 
     def _nodename(self, x):
         "Return a valid node name."

@@ -151,7 +151,7 @@ class DepGraph(object):
     def get_colors(self, src):
         if src.basename not in self.colors:
             h = self.curhue
-            self.curhue += 13  # relative prime with 360
+            self.curhue += 37  # relative prime with 360
             self.curhue %= 360
             bg = colors.name2rgb(src.name, src.basename, h)
             black = (0, 0, 0)
@@ -203,7 +203,7 @@ class DepGraph(object):
         return any(skip.match(name) for skip in self.skiplist)
 
     def __init__(self, depgraf, types, **args):
-        self.curhue = 0
+        self.curhue = 150  # start with a green-ish color
         self.colors = {}
 
         self.args = args
@@ -267,8 +267,7 @@ class DepGraph(object):
         return self.sources[item]
 
     def __iter__(self):
-        print "ARGS:", self.args
-        visited = set(self.skip_modules) + set(self.args['exclude'])
+        visited = set(self.skip_modules) | set(self.args['exclude'])
 
         def visit(src):
             if src.name in visited:

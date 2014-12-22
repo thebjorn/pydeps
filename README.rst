@@ -10,22 +10,44 @@ pydeps
 
 
 
-Python Dependency visualization. This package installs the ``pydeps``, and normal
-usage will be to use it from the command line.
+Python Dependency visualization. This package installs the ``pydeps``,
+and normal usage will be to use it from the command line.
 
-To create graphs you need to install Graphviz_ (make sure the ``dot`` command is on your path).
+To create graphs you need to install Graphviz_ (make sure the ``dot``
+command is on your path).
 
-.. Note:: to display the resulting `.svg` files, it currently calls ``firefox foo.svg``.
-          This is a bug/limitation that will hopefully be fixed soon'ish. I would suggest
-          creating a script file called ``firefox`` that redirects to your favorite viewer
-          if you can't use ``firefox``. Pull requests are very welcome.
+.. Note:: to display the resulting `.svg` files, it currently calls
+          ``firefox foo.svg``.  This is a bug/limitation that will
+          hopefully be fixed soon'ish. I would suggest creating a
+          script file called ``firefox`` that redirects to your
+          favorite viewer if you can't use ``firefox``. Pull requests
+          are very welcome.
 
 This is the result of running ``pydeps`` on itself (``pydeps --show pydeps``):
 
 .. image:: https://dl.dropboxusercontent.com/u/94882440/pydeps.svg
 
-An attempt has been made to keep the intermediate formats readable, eg. the output from
-``pydeps --show-deps ..`` looks like this::
+``pydeps`` also contains an Erdős-like scoring function (a.k.a. Bacon number,
+from `Six degrees of Kevin Bacon`_[2]) that lets you filter out modules that
+are more than a given number of 'hops' away from the module you're interested in.
+This is useful for finding the interface a module has to the rest of the world.
+
+To find pydeps' interface to the Python stdlib (less some very common modules).
+::
+
+    pydeps pydeps --show --max-bacon 2 --pylib -x os re types _* enum
+
+.. image:: https://dl.dropboxusercontent.com/u/94882440/pydeps-pylib.svg
+
+``--max-bacon 2`` gives the modules that are at most 2 hops away, and modules
+that belong together have similar colors.  Compare that to the output
+without the ``--max-bacon 2`` filter:
+
+.. image:: https://dl.dropboxusercontent.com/u/94882440/pydeps-pylib-all.svg
+   :width: 40%
+
+An attempt has been made to keep the intermediate formats readable,
+eg. the output from ``pydeps --show-deps ..`` looks like this::
 
     ...
     "pydeps.mf27": {
@@ -75,8 +97,9 @@ Usage::
       -x EXCLUDE [EXCLUDE ...], --exclude EXCLUDE [EXCLUDE ...]
                             input files to skip
 
-You can of course import ``pydeps`` from Python (look in the ``tests/test_relative_imports.py`` file
-for examples.
+You can of course import ``pydeps`` from Python (look in the
+``tests/test_relative_imports.py`` file for examples.
 
 .. _Graphviz: http://www.graphviz.org/Download.php
 
+.. _[2]:: http://en.wikipedia.org/wiki/Six_Degrees_of_Kevin_Bacon
