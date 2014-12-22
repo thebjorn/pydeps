@@ -1,6 +1,7 @@
 
 import setuptools
-from distutils.core import setup
+from setuptools import setup
+#from distutils.core import setup
 
 setup(
     name='pydeps',
@@ -11,8 +12,8 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'py2dep = pydeps.py2depgraph:py2depgraph',
-            'dep2dot = pydeps.depgraph2dot:depgraph2dot',
+            #'py2dep = pydeps.py2depgraph:py2depgraph',
+            #'dep2dot = pydeps.depgraph2dot:depgraph2dot',
             'pydeps = pydeps.pydeps:pydeps',
         ]
     },
