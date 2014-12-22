@@ -52,11 +52,15 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
+# PyCharm files with paths
 .idea/workspace.xml
-*.py~
-*.py#
-pydeps.svg
 .idea/pydeps.iml
 .idea/misc.xml
-.idea/misc.xml
+
+# emacs temp files
+*.py~
+*.py#
+
+# pydeps build files.
+pydeps.svg
 README.html
