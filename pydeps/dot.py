@@ -19,7 +19,6 @@ def cmd2args(cmd):
 def pipe(cmd, txt):
     """Pipe `txt` into the command `cmd` and return the output.
     """
-    cmd = cmd2args(cmd)
     return Popen(
         cmd2args(cmd),
         stdout=subprocess.PIPE,
@@ -48,32 +47,32 @@ def dot(src, **kw):
     return pipe(cmd, dotsrc)
 
 
-class Digraph(list):
-    def __init__(self, content=None, name='G'):
-        self.name = name
-        if content is not None:
-            if isinstance(content, list):
-                self.extend(content)
-            elif isinstance(content, basestring):
-                self.append(content)
-
-    @property
-    def content(self):
-        return ';\n    '.join(self)
-
-    def __eq__(self, other):
-        aval = re.sub(r'\s+', ' ', unicode(self)).strip()
-        bval = re.sub(r'\s+', ' ', unicode(other)).strip()
-        return aval == bval
-
-    def __unicode__(self):
-        return textwrap.dedent(u"""
-           digraph {self.name} {{
-               {self.content}
-           }}
-        """.format(self=self))
-
-    def __str__(self):
-        return unicode(self).encode('utf-8')
-
-    __repr__ = __str__
+# class Digraph(list):
+#     def __init__(self, content=None, name='G'):
+#         self.name = name
+#         if content is not None:
+#             if isinstance(content, list):
+#                 self.extend(content)
+#             elif isinstance(content, basestring):
+#                 self.append(content)
+#
+#     @property
+#     def content(self):
+#         return ';\n    '.join(self)
+#
+#     def __eq__(self, other):
+#         aval = re.sub(r'\s+', ' ', unicode(self)).strip()
+#         bval = re.sub(r'\s+', ' ', unicode(other)).strip()
+#         return aval == bval
+#
+#     def __unicode__(self):
+#         return textwrap.dedent(u"""
+#            digraph {self.name} {{
+#                {self.content}
+#            }}
+#         """.format(self=self))
+#
+#     def __str__(self):
+#         return unicode(self).encode('utf-8')
+#
+#     __repr__ = __str__

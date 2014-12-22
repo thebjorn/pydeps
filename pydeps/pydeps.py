@@ -2,6 +2,7 @@
 import argparse
 import os
 import pprint
+import sys
 from .py2depgraph import py2dep
 from .depgraph2dot import dep2dot
 from .dot import dot
@@ -31,7 +32,7 @@ def _pydeps(**kw):
 
     svg = dot(dotsrc, T=kw['format'])
 
-    with open(output, 'w') as fp:
+    with open(output, 'wb') as fp:
         verbose("Writing output to:", output)
         fp.write(svg)
 
@@ -40,7 +41,7 @@ def _pydeps(**kw):
         os.system("firefox " + output)
 
 
-def pydeps():
+def parse_args(argv=()):
     p = argparse.ArgumentParser()
     p.add_argument('fname', help='filename')
     # -v    informative (steps, input/output, statistics)
@@ -52,13 +53,16 @@ def pydeps():
     p.add_argument('-T', dest='format', default='svg', help="output format (svg|png)")
     p.add_argument('--show', action='store_true', help="call external program to display graph")
     p.add_argument('--show-deps', action='store_true', help="show output of dependency analysis")
+    p.add_argument('--show-raw-deps', action='store_true', help="show output of dependency analysis before removing skips")
     p.add_argument('--show-dot', action='store_true', help="show output of dot conversion")
     p.add_argument('--debug', action='store_true', help="turn on all the show and verbose options")
+    p.add_argument('--noise-level', type=int, metavar="INT", default=200, help="exclude sources or sinks with degree greater than noise-level")
+    p.add_argument('--max-bacon', type=int, metavar="INT", default=200, help="exclude nodes that are more than n hops away")
     p.add_argument('--pylib', action='store_true', help="include python std lib modules")
     p.add_argument('--pylib-all', action='store_true', help="include python all std lib modules (incl. C modules)")
-    p.add_argument('-x', '--exclude', nargs="+", default=[], help="input files to skip")
+    p.add_argument('-x', '--exclude', nargs="+", metavar="FNAME", default=[], help="input files to skip")
 
-    _args = p.parse_args()
+    _args = p.parse_args(argv)
     if _args.verbose >= 2:
         print _args
     if _args.debug:
@@ -67,18 +71,13 @@ def pydeps():
         _args.show_deps = True
         _args.show_dot = True
 
-    _pydeps(**vars(_args))
-    #     fname=_args.fname,
-    #     fmt=_args.format,
-    #     output=_args.output,
-    #     verbose=_args.verbose,
-    #     show=_args.show,
-    #     show_deps=_args.show_deps,
-    #     show_dot=_args.show_dot,
-    #     pylib=_args.pylib,
-    #     pylib_all=_args.pylib_all,
-    # )
+    return vars(_args)
 
 
-if __name__ == '__main__':
+def pydeps():
+    _args = parse_args(sys.argv[1:])
+    _pydeps(**_args)
+
+
+if __name__ == '__main__':  # pragma: nocover
     pydeps()

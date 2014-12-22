@@ -24,18 +24,14 @@
 import os
 import pprint
 import sys
-import enum
 from collections import defaultdict
-import depgraph, mf27
-# from . import depgraph
-# from . import mf27
 
-# we're not interested in imports of std python packages.
-PYLIB_PATH = {
-    # in virtualenvs that see the system libs, these will be different.
-    os.path.split(os.path.split(pprint.__file__)[0])[0].lower(),
-    os.path.split(os.__file__)[0].lower()
-}
+import enum
+
+from . import depgraph
+from . import mf27
+
+PYLIB_PATH = depgraph.PYLIB_PATH
 
 
 class imp(enum.Enum):
@@ -96,9 +92,9 @@ class MyModuleFinder(mf27.ModuleFinder):
 
         debug = 5 if self.verbose >= 4 else 0
         mf27.ModuleFinder.__init__(self,
-                                           path=fname,
-                                           debug=debug,
-                                           excludes=kwargs.get('excludes', []))
+                                   path=fname,
+                                   debug=debug,
+                                   excludes=kwargs.get('excludes', []))
 
     def add_module(self, fqname):
         if fqname in self.modules:
@@ -110,6 +106,7 @@ class MyModuleFinder(mf27.ModuleFinder):
         old_last_caller = self._last_caller
         try:
             self._last_caller = caller
+            # print "      last_CALLER:", caller, "OLD-lastcaller:", old_last_caller
             return mf27.ModuleFinder.import_hook(self, name, caller, fromlist, level)
         finally:
             self._last_caller = old_last_caller
@@ -140,6 +137,26 @@ class MyModuleFinder(mf27.ModuleFinder):
         if module is not None:
             self._types[module.__name__] = kind
         return module
+
+    def ensure_fromlist(self, module, fromlist, recursive=0):
+        self.msg(4, "ensure_fromlist", module, fromlist, recursive)
+        for sub in fromlist:
+            # print "  for sub:", sub, "in fromlisst:", fromlist, "hasattr(module, sub):", hasattr(module, sub)
+            if sub == "*":
+                # print "STAR"
+                if not recursive:
+                    submodules = self.find_all_submodules(module)
+                    if submodules:
+                        self.ensure_fromlist(module, submodules, 1)
+            elif not hasattr(module, sub):
+                # print "ELIF......"
+                subname = "%s.%s" % (module.__name__, sub)
+                submod = self.import_module(sub, subname, module)
+                if not submod:
+                    raise ImportError, "No module named " + subname
+            else:
+                self._add_import(getattr(module, sub))
+                # print "  SUB:", sub, "lastcaller:", self._last_caller
 
 
 class RawDependencies(object):
@@ -206,7 +223,6 @@ def _create_dummy_module(package_name, **args):
         print >>fp, "except:"
         print >>fp, "    pass"
 
-
     if is_module(package):
         if args['verbose']: print "found package"
         with open(dummy, 'w') as fp:
@@ -224,6 +240,9 @@ def _create_dummy_module(package_name, **args):
 
     else:
         if args['verbose']: print "found file"
+        # This return was an attempt at being able to analyze standalone
+        # filenames with dashes (foo-bar.py). It does not work.
+        # return package_name
         with open(dummy, 'w') as fp:
             print >>fp, "import", package_name
 
@@ -247,13 +266,17 @@ def py2dep(pattern, **kw):
     fname = _create_dummy_module(pattern, **kw)
     path = sys.path[:]
     path.insert(0, os.path.dirname(fname))
+
+    # remove exclude so we don't pass it twice to modulefinder
     exclude = ['migrations'] + kw.pop('exclude', [])
     mf = MyModuleFinder(path, exclude, **kw)
-
     mf.run_script(fname)
-    os.unlink(fname)
 
-    if kw.get('verbose', 0) >= 4:
+    # remove dummy file and restore exclude argument
+    os.unlink(fname)
+    kw['exclude'] = exclude
+
+    if kw.get('verbose', 0) >= 4:  # pragma: nocover
         print
         print "mf27._depgraph:", mf._depgraph
         print "mf27._types:   ", mf._types

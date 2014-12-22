@@ -20,8 +20,8 @@ class RenderContext(object):
         self.dedent("""
             digraph G {
                 concentrate = true;
-                ordering = out;
-                ranksep=1.0;
+                //ordering = out;
+                //ranksep=1.0;
                 node [style=filled,fillcolor="%s",fontcolor="%s",fontname=Helvetica,fontsize=10];
 
         """ % (fillcolor, fontcolor))
@@ -62,7 +62,7 @@ class RenderContext(object):
         with self.rule():
             self.write('%s -> %s' % (self._nodename(a), self._nodename(b)))
             self._delattr(attrs, 'weight', 1)
-            self._delattr(attrs, 'minlen', 0)
+            self._delattr(attrs, 'minlen', 1)
             self.write_attributes(attrs)
 
     def write_node(self, a, **attrs):
