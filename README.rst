@@ -1,3 +1,6 @@
+.. -*- coding: utf-8 -*-
+
+
 pydeps
 ======
 
@@ -27,10 +30,13 @@ This is the result of running ``pydeps`` on itself (``pydeps --show pydeps``):
 
 .. image:: https://dl.dropboxusercontent.com/u/94882440/pydeps.svg
 
-``pydeps`` also contains an Erdős-like scoring function (a.k.a. Bacon number,
-from `Six degrees of Kevin Bacon`_[2]) that lets you filter out modules that
-are more than a given number of 'hops' away from the module you're interested in.
-This is useful for finding the interface a module has to the rest of the world.
+``pydeps`` also contains an Erdős-like scoring function (a.k.a. Bacon
+number, from Six degrees of Kevin Bacon
+(http://en.wikipedia.org/wiki/Six_Degrees_of_Kevin_Bacon) that lets
+you filter out modules that are more than a given number of 'hops'
+away from the module you're interested in.  This is useful for finding
+the interface a module has to the rest of the world.
+
 
 To find pydeps' interface to the Python stdlib (less some very common modules).
 ::
@@ -100,6 +106,7 @@ Usage::
 You can of course import ``pydeps`` from Python (look in the
 ``tests/test_relative_imports.py`` file for examples.
 
+
 .. _Graphviz: http://www.graphviz.org/Download.php
 
-.. _[2]:: http://en.wikipedia.org/wiki/Six_Degrees_of_Kevin_Bacon
+

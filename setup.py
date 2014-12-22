@@ -1,15 +1,16 @@
 
 import setuptools
-from setuptools import setup
-#from distutils.core import setup
+#from setuptools import setup
+from distutils.core import setup
 
 setup(
     name='pydeps',
-    version='0.9.3',
+    version='1.0.0',
     packages=['pydeps'],
     install_requires=[
         'enum34'
     ],
+    long_description=open('README.rst').read(),
     entry_points={
         'console_scripts': [
             #'py2dep = pydeps.py2depgraph:py2depgraph',
@@ -21,5 +22,15 @@ setup(
     license='BSD',
     author='bjorn',
     author_email='bp@datakortet.no',
-    description='Display module dependencies'
+    description='Display module dependencies',
+    classifiers=[
+        'Intended Audience :: Developers',
+        'Natural Language :: English',
+        'License :: OSI Approved :: BSD License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+    ]
 )
