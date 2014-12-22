@@ -4,6 +4,10 @@
 pydeps
 ======
 
+.. image:: https://readthedocs.org/projects/pydeps/badge/?version=latest
+   :target: https://readthedocs.org/projects/pydeps/?badge=latest
+   :alt: Documentation Status
+
 .. image:: https://travis-ci.org/thebjorn/pydeps.svg
    :target: https://travis-ci.org/thebjorn/pydeps
 
