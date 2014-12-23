@@ -45,6 +45,7 @@ the interface a module has to the rest of the world.
 
 
 To find pydeps' interface to the Python stdlib (less some very common modules).
+
 ::
 
     pydeps pydeps --show --max-bacon 2 --pylib -x os re types _* enum
