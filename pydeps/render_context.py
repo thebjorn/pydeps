@@ -14,17 +14,17 @@ class RenderContext(object):
         self.fontcolor = '#000000'
 
     @contextmanager
-    def graph(self, name='G', fillcolor='#ffffff', fontcolor='#000000'):
-        self.fillcolor = fillcolor
-        self.fontcolor = fontcolor
+    def graph(self, **kw):
+        self.name = kw.get('name', 'G')
+        self.fillcolor = kw.get('fillcolor', '#ffffff')
+        self.fontcolor = kw.get('fontcolor', '#000000')
+        self.concentrate = 'concentrate = true;' if kw.get('concentrate', True) else ''
         self.dedent("""
-            digraph G {
-                concentrate = true;
-                //ordering = out;
-                //ranksep=1.0;
-                node [style=filled,fillcolor="%s",fontcolor="%s",fontname=Helvetica,fontsize=10];
+            digraph {self.name} {{
+                {self.concentrate}
+                node [style=filled,fillcolor="{self.fillcolor}",fontcolor="{self.fontcolor}",fontname=Helvetica,fontsize=10];
 
-        """ % (fillcolor, fontcolor))
+        """.format(self=self))
         yield
         self.writeln('}')
 

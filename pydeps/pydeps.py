@@ -4,7 +4,7 @@ import os
 import pprint
 import sys
 from .py2depgraph import py2dep
-from .depgraph2dot import dep2dot
+from .depgraph2dot import dep2dot, cycles2dot
 from .dot import dot
 
 
@@ -25,7 +25,10 @@ def _pydeps(**kw):
         verbose("DEPS:")
         pprint.pprint(g)
 
-    dotsrc = dep2dot(g)
+    if kw.get('show_cycles'):
+        dotsrc = cycles2dot(g)
+    else:
+        dotsrc = dep2dot(g)
     if kw.get('show_dot'):
         verbose("DOTSRC:")
         print dotsrc
@@ -36,7 +39,7 @@ def _pydeps(**kw):
         verbose("Writing output to:", output)
         fp.write(svg)
 
-    if kw.get('show'):
+    if kw.get('show') or kw.get('show_cycles'):
         verbose("firefox " + output)
         os.system("firefox " + output)
 
@@ -55,6 +58,7 @@ def parse_args(argv=()):
     p.add_argument('--show-deps', action='store_true', help="show output of dependency analysis")
     p.add_argument('--show-raw-deps', action='store_true', help="show output of dependency analysis before removing skips")
     p.add_argument('--show-dot', action='store_true', help="show output of dot conversion")
+    p.add_argument('--show-cycles', action='store_true', help="show only import cycles")
     p.add_argument('--debug', action='store_true', help="turn on all the show and verbose options")
     p.add_argument('--noise-level', type=int, metavar="INT", default=200, help="exclude sources or sinks with degree greater than noise-level")
     p.add_argument('--max-bacon', type=int, metavar="INT", default=200, help="exclude nodes that are more than n hops away")

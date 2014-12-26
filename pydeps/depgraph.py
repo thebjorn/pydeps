@@ -205,6 +205,9 @@ class DepGraph(object):
     def __init__(self, depgraf, types, **args):
         self.curhue = 150  # start with a green-ish color
         self.colors = {}
+        self.cycles = []
+        self.cyclenodes = set()
+        self.cyclerelations = set()
 
         self.args = args
         self.sources = {}             # module_name -> Source
@@ -234,13 +237,14 @@ class DepGraph(object):
         self.verbose(1, "there are", self.module_count, "total modules")
 
         self.connect_generations()
+        if self.args['show_cycles']:
+            self.find_import_cycles()
         self.calculate_bacon()
         if self.args['show_raw_deps']:
             print self
 
         self.exclude_noise()
         self.exclude_bacon(self.args['max_bacon'])
-        self.exclude_init()
 
         excluded = [v for v in self.sources.values() if v.excluded]
         self.skip_count = len(excluded)
@@ -275,7 +279,7 @@ class DepGraph(object):
             visited.add(src.name)
             for name in src.imports:
                 impmod = self.sources[name]
-                # if impmod.path:  # and not impmod.path.endswith('__init__.py'):
+
                 if impmod.path and not impmod.path.endswith('__init__.py'):
                     yield impmod, src
                 visit(impmod)
@@ -288,6 +292,29 @@ class DepGraph(object):
     def __repr__(self):
         return json.dumps(self.sources, indent=4, sort_keys=True,
                           default=lambda obj: obj.__json__() if hasattr(obj, '__json__') else obj)
+
+    def find_import_cycles(self):
+        def traverse(node, path):
+            if node.name in self.cyclenodes:
+                return
+            
+            if node.name in path:
+                # found cycle
+                cycle = path[path.index(node.name):] + [node.name]
+                self.cycles.append(cycle)
+                for nodename in cycle:
+                    self.cyclenodes.add(nodename)
+                for i in range(len(cycle)-1):
+                    self.cyclerelations.add(
+                        (cycle[i], cycle[i+1])
+                    )
+                return
+
+            for impmod in node.imports:
+                traverse(self.sources[impmod], path + [node.name])
+        
+        for src in self.sources.values():
+            traverse(src, [])
 
     def connect_generations(self):
         "Traverse depth-first adding imported_by."
@@ -331,10 +358,6 @@ class DepGraph(object):
             if src.bacon > limit:
                 src.excluded = True
                 self._add_skip(src.name)
-
-    def exclude_init(self):
-        """Exclude mo
-        """
 
     def remove_excluded(self):
         "Remove all sources marked as excluded."

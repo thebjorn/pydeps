@@ -34,26 +34,98 @@ class PyDepGraphDot(object):
     def render(self, depgraph, ctx):
         with ctx.graph():
             visited = set()
+            drawn = set()
+
+            for aname, bname in depgraph.cyclerelations:
+                try:
+                    a = depgraph.sources[aname]
+                    b = depgraph.sources[bname]
+                except KeyError:
+                    continue
+                drawn.add((bname, aname))
+                ctx.write_rule(aname, bname,
+                               weight=depgraph.proximity_metric(a, b),
+                               minlen=depgraph.dissimilarity_metric(a, b),
+                               #style='dotted',
+                               )
 
             for a, b in depgraph:
                 # b imports a
-                ctx.write_rule(a.name, b.name,
+                aname = a.name
+                bname = b.name
+                if (bname, aname) in drawn:
+                    continue
+                drawn.add((bname, aname))
+
+                ctx.write_rule(aname, bname,
                                weight=depgraph.proximity_metric(a, b),
                                minlen=depgraph.dissimilarity_metric(a, b))
+                
                 visited.add(a)
                 visited.add(b)
 
             for src in visited:
                 bg, fg = depgraph.get_colors(src)
-                ctx.write_node(src.name, label=src.label,
-                               fillcolor=colors.rgb2css(bg),
-                               fontcolor=colors.rgb2css(fg))
+                if src.name in depgraph.cyclenodes:
+                    ctx.write_node(src.name, label=src.label,
+                                   fillcolor=colors.rgb2css(bg),
+                                   fontcolor=colors.rgb2css(fg),
+                                   shape='octagon')
+                else:
+                    ctx.write_node(src.name, label=src.label,
+                                   fillcolor=colors.rgb2css(bg),
+                                   fontcolor=colors.rgb2css(fg))
+
+        return ctx.text()
+
+
+class CycleGraphDot(object):
+    def __init__(self, colored=True):
+        self.colored = colored
+
+    def render(self, depgraph, ctx):
+        with ctx.graph(concentrate=False):
+            visited = set()
+            drawn = set()
+
+            for aname, bname in depgraph.cyclerelations:
+                try:
+                    a = depgraph.sources[aname]
+                    b = depgraph.sources[bname]
+                except KeyError:
+                    continue
+                drawn.add((bname, aname))
+                ctx.write_rule(aname, bname,
+                               weight=depgraph.proximity_metric(a, b),
+                               minlen=depgraph.dissimilarity_metric(a, b),
+                               # style='dotted',
+                )
+                visited.add(a)
+                visited.add(b)
+
+            for src in visited:
+                bg, fg = depgraph.get_colors(src)
+                if src.name in depgraph.cyclenodes:
+                    ctx.write_node(src.name, label=src.label,
+                                   fillcolor=colors.rgb2css(bg),
+                                   fontcolor=colors.rgb2css(fg),
+                                   shape='octagon')
+                else:
+                    ctx.write_node(src.name, label=src.label,
+                                   fillcolor=colors.rgb2css(bg),
+                                   fontcolor=colors.rgb2css(fg))
 
         return ctx.text()
 
 
 def dep2dot(depgraph, color=True):
     dotter = PyDepGraphDot(colored=color)
+    ctx = RenderContext()
+    return dotter.render(depgraph, ctx)
+
+
+def cycles2dot(depgraph):
+    dotter = CycleGraphDot()
     ctx = RenderContext()
     return dotter.render(depgraph, ctx)
 
