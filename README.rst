@@ -71,7 +71,7 @@ uses yaml to define a directory structure, like in the tests)::
             - b.py: |
                 from . import a
 
-``pydeps relimp --show-cycles`` displays::
+``pydeps relimp --show-cycles`` displays:
 
 .. image:: https://dl.dropboxusercontent.com/u/94882440/pydeps-cycle.svg
 
