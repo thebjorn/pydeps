@@ -59,6 +59,22 @@ without the ``--max-bacon 2`` filter:
 .. image:: https://dl.dropboxusercontent.com/u/94882440/pydeps-pylib-all.svg
    :width: 40%
 
+``pydeps`` can detect and display cycles with the ``--show-cycles`` parameter.
+This will _only_ display the cycles, and for big libraries it is not a
+particularly fast operation.  Given a folder with the following contents (this
+uses yaml to define a directory structure, like in the tests)::
+
+        relimp:
+            - __init__.py
+            - a.py: |
+                from . import b
+            - b.py: |
+                from . import a
+
+``pydeps relimp --show-cycles`` displays::
+
+.. image:: https://dl.dropboxusercontent.com/u/94882440/pydeps-cycle.svg
+
 An attempt has been made to keep the intermediate formats readable,
 eg. the output from ``pydeps --show-deps ..`` looks like this::
 
