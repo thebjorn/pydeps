@@ -18,4 +18,3 @@ def test_cycle():
             'relimp.a -> relimp.b',
             'relimp.b -> relimp.a'
         ]
-        assert 0
