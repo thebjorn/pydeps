@@ -67,3 +67,4 @@ README.html
 *.rst#
 pydeps-pylib-all.svg
 pydeps-pylib.svg
+.pydeps~

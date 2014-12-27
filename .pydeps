@@ -1,0 +1,10 @@
+[pydeps]
+max_bacon = 2
+pylib = 1
+# exclude =
+#     os
+#     re
+#     types
+#     _*
+#     enum
+

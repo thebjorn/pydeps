@@ -25,12 +25,10 @@ command, and normal usage will be to use it from the command line. To install::
 To create graphs you need to install Graphviz_ (make sure the ``dot``
 command is on your path).
 
-.. Note:: to display the resulting `.svg` files, it currently calls
-          ``firefox foo.svg``.  This is a bug/limitation that will
-          hopefully be fixed soon'ish. I would suggest creating a
-          script file called ``firefox`` that redirects to your
-          favorite viewer if you can't use ``firefox``. Pull requests
-          are very welcome.
+.. Note:: to display the resulting `.svg` files, ``pydeps`` by default calls
+          ``firefox foo.svg``.  This is can be overridden with the ``--display PROGRAM``
+          option, where ``PROGRAM`` is an executable that can display the image file
+          of the graph.
 
 .. Note:: Please report bugs and feature requests on GitHub at
           https://github.com/thebjorn/pydeps/issues
@@ -61,6 +59,12 @@ without the ``--max-bacon 2`` filter:
 
 .. image:: https://dl.dropboxusercontent.com/u/94882440/pydeps-pylib-all.svg
    :width: 40%
+
+All options can also be set in a ``.pydeps`` file using ``.ini`` file syntax
+(parsable by ``ConfigParser``). Command line options override options in
+the ``.pydeps`` file in the current directory, which again overrides options
+in the user's home directory (``%USERPROFILE%\.pydeps`` on Windows and
+``${HOME}/.pydeps`` otherwise).
 
 ``pydeps`` can detect and display cycles with the ``--show-cycles`` parameter.
 This will _only_ display the cycles, and for big libraries it is not a
@@ -107,27 +111,40 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
 
 Usage::
 
-    usage: pydeps-script.py [-h] [-v] [-o file] [-T FORMAT] [--show] [--show-deps]
-                            [--show-dot] [--debug] [--pylib] [--pylib-all]
-                            [-x EXCLUDE [EXCLUDE ...]]
-                            fname
+    usage: pydeps-script.py [-h] [--config FILE] [--no-config] [-v] [-o file]
+                        [-T FORMAT] [--display PROGRAM] [--show] [--show-deps]
+                        [--show-raw-deps] [--show-dot] [--show-cycles]
+                        [--debug] [--noise-level INT] [--max-bacon INT]
+                        [--pylib] [--pylib-all] [-x FNAME [FNAME ...]]
+                        fname
 
     positional arguments:
       fname                 filename
 
     optional arguments:
       -h, --help            show this help message and exit
+      --config FILE         specify config file
+      --no-config           disable processing of config files
       -v, --verbose         be more verbose (-vv, -vvv for more verbosity)
       -o file               write output to 'file'
       -T FORMAT             output format (svg|png)
+      --display PROGRAM     program to use to display the graph (png or svg file
+                            depending on the T parameter)
       --show                call external program to display graph
       --show-deps           show output of dependency analysis
+      --show-raw-deps       show output of dependency analysis before removing
+                            skips
       --show-dot            show output of dot conversion
+      --show-cycles         show only import cycles
       --debug               turn on all the show and verbose options
+      --noise-level INT     exclude sources or sinks with degree greater than
+                            noise-level
+      --max-bacon INT       exclude nodes that are more than n hops away
       --pylib               include python std lib modules
       --pylib-all           include python all std lib modules (incl. C modules)
-      -x EXCLUDE [EXCLUDE ...], --exclude EXCLUDE [EXCLUDE ...]
+      -x FNAME [FNAME ...], --exclude FNAME [FNAME ...]
                             input files to skip
+
 
 You can of course import ``pydeps`` from Python (look in the
 ``tests/test_relative_imports.py`` file for examples.
