@@ -68,11 +68,11 @@ def parse_args(argv=()):
         conf = ConfigParser.SafeConfigParser()
 
         conf.read(config_files)
-        defaults.update(dict(conf.items("pydeps")))
         try:
+            defaults.update(dict(conf.items("pydeps")))
             defaults['exclude'] = [x for x in conf.get('pydeps', 'exclude').split()
                                    if x]
-        except ConfigParser.NoOptionError:
+        except (ConfigParser.NoOptionError, ConfigParser.NoSectionError):
             pass
 
         if not defaults['exclude']:
