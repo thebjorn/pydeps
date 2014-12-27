@@ -32,6 +32,9 @@ command is on your path).
           favorite viewer if you can't use ``firefox``. Pull requests
           are very welcome.
 
+.. Note:: Please report bugs and feature requests on GitHub at
+          https://github.com/thebjorn/pydeps/issues
+
 This is the result of running ``pydeps`` on itself (``pydeps --show pydeps``):
 
 .. image:: https://dl.dropboxusercontent.com/u/94882440/pydeps.svg
