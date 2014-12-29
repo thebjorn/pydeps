@@ -149,6 +149,14 @@ Usage::
 You can of course import ``pydeps`` from Python (look in the
 ``tests/test_relative_imports.py`` file for examples.
 
+Contributing
+~~~~~~~~~~~~
+#. Fork it
+#. Create your feature branch (git checkout -b my-new-feature)
+#. Commit your changes (git commit -am 'Add some feature')
+#. Push to the branch (git push origin my-new-feature)
+#. Create new Pull Request
+
 
 .. _Graphviz: http://www.graphviz.org/Download.php
 
