@@ -5,7 +5,7 @@ from distutils.core import setup
 
 setup(
     name='pydeps',
-    version='1.2.0',
+    version='1.2.1',
     packages=['pydeps'],
     install_requires=[
         'enum34'

@@ -95,7 +95,7 @@ class CycleGraphDot(object):
                 except KeyError:
                     continue
                 drawn.add((bname, aname))
-                ctx.write_rule(aname, bname,
+                ctx.write_rule(bname, aname,
                                weight=depgraph.proximity_metric(a, b),
                                minlen=depgraph.dissimilarity_metric(a, b),
                                # style='dotted',
