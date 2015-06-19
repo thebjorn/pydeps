@@ -173,14 +173,14 @@ def pysource(fname):
     return not fname.startswith('.') and fname.endswith('.py')
 
 
-def fname2modname(fname, package):
+def fname2modname(fname, package, prefix=""):
     pkg_dir, pkg_name = os.path.split(package)
     if fname.endswith('__init__.py'):
         return pkg_name
 
     if fname.startswith(package):
         fname = fname[len(pkg_dir)+1:-3]
-    return fname.replace('\\', '.').replace('/', '.')
+    return prefix + fname.replace('\\', '.').replace('/', '.')
 
 
 def _pyfiles(directory, package=True, **args):
@@ -205,6 +205,17 @@ def _create_dummy_module(package_name, **args):
     dummy = '_dummy.py'
     package = os.path.abspath(package_name)
 
+    prefix = []
+    base, mod = os.path.split(package)
+    while 1:
+        if not is_module(base):
+            break
+        base, mod = os.path.split(base)
+        prefix.insert(0, mod)
+    prefix = '.'.join(prefix)
+    if prefix:
+        prefix += '.'
+
     def legal_module_name(name):
         for part in name.split('.'):
             try:
@@ -227,7 +238,7 @@ def _create_dummy_module(package_name, **args):
         if args['verbose']: print "found package"
         with open(dummy, 'w') as fp:
             for fname in _pyfiles(package, **args):
-                modname = fname2modname(fname, package)
+                modname = fname2modname(fname, package, prefix)
                 print_import(fp, modname)
 
     elif os.path.isdir(package):
