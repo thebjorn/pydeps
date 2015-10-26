@@ -68,3 +68,6 @@ README.html
 pydeps-pylib-all.svg
 pydeps-pylib.svg
 .pydeps~
+.lintscore6
+*.json
+source.jdb
