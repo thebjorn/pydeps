@@ -18,7 +18,18 @@ pydeps
 
 
 Python module dependency visualization. This package installs the ``pydeps``
-command, and normal usage will be to use it from the command line. To install::
+command, and normal usage will be to use it from the command line. 
+
+New in version 1.2.5: The defaults are now sensible, such that::
+
+    pydeps mypackage
+
+will likely do what you want. It is the same as ``pydeps --show --max-bacon=2 mypackage``
+which means display the dependency graph in your browser, but limit it to two hops (which
+includes only the modules that your module imports -- not continuing down the import chain).
+The old default behavior is available with ``pydeps --noshow --max-bacon=0 mypackage``.
+
+To install::
 
     pip install pydeps
 
@@ -33,7 +44,7 @@ command is on your path).
 .. Note:: Please report bugs and feature requests on GitHub at
           https://github.com/thebjorn/pydeps/issues
 
-This is the result of running ``pydeps`` on itself (``pydeps --show pydeps``):
+This is the result of running ``pydeps`` on itself (``pydeps pydeps``):
 
 .. image:: https://dl.dropboxusercontent.com/u/94882440/pydeps.svg
 
@@ -53,9 +64,9 @@ To find pydeps' interface to the Python stdlib (less some very common modules).
 
 .. image:: https://dl.dropboxusercontent.com/u/94882440/pydeps-pylib.svg
 
-``--max-bacon 2`` gives the modules that are at most 2 hops away, and modules
-that belong together have similar colors.  Compare that to the output
-without the ``--max-bacon 2`` filter:
+``--max-bacon 2`` (the default) gives the modules that are at most 2 hops away, 
+and modules that belong together have similar colors.  Compare that to the output
+with the ``--max-bacon=0`` (infinite) filter:
 
 .. image:: https://dl.dropboxusercontent.com/u/94882440/pydeps-pylib-all.svg
    :width: 40%
@@ -111,41 +122,43 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
 
 Usage::
 
-    usage: pydeps-script.py [-h] [--config FILE] [--no-config] [-v] [-o file]
-                        [-T FORMAT] [--display PROGRAM] [--show] [--show-deps]
-                        [--show-raw-deps] [--show-dot] [--show-cycles]
-                        [--debug] [--noise-level INT] [--max-bacon INT]
-                        [--pylib] [--pylib-all] [-x FNAME [FNAME ...]]
-                        fname
-
-    positional arguments:
-      fname                 filename
-
-    optional arguments:
-      -h, --help            show this help message and exit
-      --config FILE         specify config file
-      --no-config           disable processing of config files
-      -v, --verbose         be more verbose (-vv, -vvv for more verbosity)
-      -o file               write output to 'file'
-      -T FORMAT             output format (svg|png)
-      --display PROGRAM     program to use to display the graph (png or svg file
-                            depending on the T parameter)
-      --show                call external program to display graph
-      --show-deps           show output of dependency analysis
-      --show-raw-deps       show output of dependency analysis before removing
-                            skips
-      --show-dot            show output of dot conversion
-      --show-cycles         show only import cycles
-      --debug               turn on all the show and verbose options
-      --noise-level INT     exclude sources or sinks with degree greater than
-                            noise-level
-      --max-bacon INT       exclude nodes that are more than n hops away
-      --pylib               include python std lib modules
-      --pylib-all           include python all std lib modules (incl. C modules)
-      -x FNAME [FNAME ...], --exclude FNAME [FNAME ...]
-                            input files to skip
-
-
+     usage: pydeps-script.py [-h] [--config FILE] [--no-config] [-v] [-o file]
+                             [-T FORMAT] [--display PROGRAM] [--noshow]
+                             [--show-deps] [--show-raw-deps] [--show-dot]
+                             [--show-cycles] [--debug] [--noise-level INT]
+                             [--max-bacon INT] [--pylib] [--pylib-all]
+                             [-x FNAME [FNAME ...]]
+                             fname
+     
+     positional arguments:
+       fname                 filename
+     
+     optional arguments:
+       -h, --help            show this help message and exit
+       --config FILE         specify config file
+       --no-config           disable processing of config files
+       -v, --verbose         be more verbose (-vv, -vvv for more verbosity)
+       -o file               write output to 'file'
+       -T FORMAT             output format (svg|png)
+       --display PROGRAM     program to use to display the graph (png or svg file
+                             depending on the T parameter)
+       --noshow              don't call external program to display graph
+       --show-deps           show output of dependency analysis
+       --show-raw-deps       show output of dependency analysis before removing
+                             skips
+       --show-dot            show output of dot conversion
+       --show-cycles         show only import cycles
+       --debug               turn on all the show and verbose options
+       --noise-level INT     exclude sources or sinks with degree greater than
+                             noise-level
+       --max-bacon INT       exclude nodes that are more than n hops away
+                             (default=2, 0 -> infinite)
+       --pylib               include python std lib modules
+       --pylib-all           include python all std lib modules (incl. C modules)
+       -x FNAME [FNAME ...], --exclude FNAME [FNAME ...]
+                             input files to skip
+     
+     
 You can of course import ``pydeps`` from Python (look in the
 ``tests/test_relative_imports.py`` file for examples.
 

@@ -90,19 +90,26 @@ def parse_args(argv=()):
     p.add_argument('-o', dest='output', metavar="file", help="write output to 'file'")
     p.add_argument('-T', dest='format', help="output format (svg|png)")
     p.add_argument('--display', help="program to use to display the graph (png or svg file depending on the T parameter)", metavar="PROGRAM")
-    p.add_argument('--show', action='store_true', help="call external program to display graph")
+    # p.add_argument('--show', action='store_true', help="call external program to display graph")
+    p.add_argument('--noshow', action='store_true', help="don't call external program to display graph")
     p.add_argument('--show-deps', action='store_true', help="show output of dependency analysis")
     p.add_argument('--show-raw-deps', action='store_true', help="show output of dependency analysis before removing skips")
     p.add_argument('--show-dot', action='store_true', help="show output of dot conversion")
     p.add_argument('--show-cycles', action='store_true', help="show only import cycles")
     p.add_argument('--debug', action='store_true', help="turn on all the show and verbose options")
     p.add_argument('--noise-level', type=int, metavar="INT", help="exclude sources or sinks with degree greater than noise-level")
-    p.add_argument('--max-bacon', type=int, metavar="INT", help="exclude nodes that are more than n hops away")
+    p.add_argument('--max-bacon', type=int, default=2, metavar="INT", help="exclude nodes that are more than n hops away (default=2, 0 -> infinite)")
     p.add_argument('--pylib', action='store_true', help="include python std lib modules")
     p.add_argument('--pylib-all', action='store_true', help="include python all std lib modules (incl. C modules)")
     p.add_argument('-x', '--exclude', nargs="+", default=[], metavar="FNAME", help="input files to skip")
 
     _args = p.parse_args(argv)
+    _args.show = True
+
+    if _args.noshow:
+        _args.show = False
+    if _args.max_bacon == 0:
+        _args.max_bacon = sys.maxint
     if _args.T and not _args.format:
         _args.format = _args.T
 

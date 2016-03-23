@@ -133,7 +133,15 @@ class MyModuleFinder(mf27.ModuleFinder):
         return module
     
     def load_module(self, fqname, fp, pathname, (suffix, mode, kind)):
-        module = mf27.ModuleFinder.load_module(self, fqname, fp, pathname, (suffix, mode, kind))
+        try:
+            module = mf27.ModuleFinder.load_module(
+                self, fqname, fp, pathname, (suffix, mode, kind)
+            )
+        except SyntaxError:
+            # this happened first when pyinvoke tried to load yaml3/2 based on
+            # an `if six.PY3`
+            module = None
+            
         if module is not None:
             self._types[module.__name__] = kind
         return module
