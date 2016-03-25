@@ -7,8 +7,11 @@
       <excludeFolder url="file://$MODULE_DIR$/htmlcov" />
       <excludeFolder url="file://$MODULE_DIR$/pydeps.egg-info" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 2.7.3 virtualenv at C:\srv\venv\pydeps1" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 2.7.11 virtualenv at C:\srv\venv\pydeps" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+  <component name="PyDocumentationSettings">
+    <option name="myDocStringFormat" value="Plain" />
   </component>
   <component name="TestRunnerService">
     <option name="projectConfiguration" value="py.test" />

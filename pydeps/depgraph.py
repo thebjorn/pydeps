@@ -148,17 +148,22 @@ class DepGraph(object):
     def levelcounts(self):
         pass
 
-    def get_colors(self, src):
-        if src.basename not in self.colors:
-            h = self.curhue
-            self.curhue += 37  # relative prime with 360
-            self.curhue %= 360
-            bg = colors.name2rgb(src.name, src.basename, h)
-            black = (0, 0, 0)
-            white = (255, 255, 255)
-            fg = colors.foreground(bg, black, white)
-            self.colors[src.basename] = bg, fg
-        return self.colors[src.basename]
+    def get_colors(self, src, colorspace=None):
+        if colorspace is None:
+            if src.basename not in self.colors:
+                h = self.curhue
+                # self.curhue += 7  # relative prime with 360
+                self.curhue += 37  # relative prime with 360
+                self.curhue %= 360
+                # print "NAME:", src.name, "BASENAME:", src.basename
+                bg = colors.name2rgb(src.name, src.basename, h)
+                black = (0, 0, 0)
+                white = (255, 255, 255)
+                fg = colors.foreground(bg, black, white)
+                self.colors[src.basename] = bg, fg
+            return self.colors[src.basename]
+        else:
+            return colorspace.color(src)
 
     def _is_pylib(self, path):
         return path in PYLIB_PATH

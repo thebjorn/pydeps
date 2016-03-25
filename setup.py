@@ -1,11 +1,10 @@
 
 import setuptools
-#from setuptools import setup
 from distutils.core import setup
 
 setup(
     name='pydeps',
-    version='1.2.5',
+    version='1.2.6',
     packages=['pydeps'],
     install_requires=[
         'enum34'
@@ -13,8 +12,6 @@ setup(
     long_description=open('README.rst').read(),
     entry_points={
         'console_scripts': [
-            #'py2dep = pydeps.py2depgraph:py2depgraph',
-            #'dep2dot = pydeps.depgraph2dot:depgraph2dot',
             'pydeps = pydeps.pydeps:pydeps',
         ]
     },

@@ -64,8 +64,11 @@ class PyDepGraphDot(object):
                 visited.add(a)
                 visited.add(b)
 
+            space = colors.ColorSpace(visited)
+            # print space
+
             for src in visited:
-                bg, fg = depgraph.get_colors(src)
+                bg, fg = depgraph.get_colors(src, space)
                 if src.name in depgraph.cyclenodes:
                     ctx.write_node(src.name, label=src.label,
                                    fillcolor=colors.rgb2css(bg),
@@ -103,8 +106,9 @@ class CycleGraphDot(object):
                 visited.add(a)
                 visited.add(b)
 
+            space = colors.ColorSpace(visited)
             for src in visited:
-                bg, fg = depgraph.get_colors(src)
+                bg, fg = depgraph.get_colors(src, space)
                 if src.name in depgraph.cyclenodes:
                     ctx.write_node(src.name, label=src.label,
                                    fillcolor=colors.rgb2css(bg),
