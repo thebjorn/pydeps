@@ -17,5 +17,5 @@ def test_dep2dot():
         assert simpledeps('foo') == [
             'foo.b -> foo.a'
         ]
-        pydeps._pydeps(**pydeps.parse_args(["foo"]))
+        pydeps._pydeps(**pydeps.parse_args(["foo", "--noshow"]))
         assert os.path.exists(os.path.join(workdir, 'foo.svg'))
