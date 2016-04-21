@@ -71,3 +71,4 @@ pydeps-pylib.svg
 .lintscore6
 *.json
 source.jdb
+.idea/deployment.xml

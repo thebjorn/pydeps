@@ -41,8 +41,12 @@ def _pydeps(**kw):
         fp.write(svg)
 
     if kw.get('show') or kw.get('show_cycles'):
-        verbose(kw['display'] + " " + output)
-        os.system(kw['display'] + " " + output)
+        if kw['display'] is None:
+            verbose("Displaying:", output)
+            os.startfile(output)
+        else:
+            verbose(kw['display'] + " " + output)
+            os.system(kw['display'] + " " + output)
 
 
 def parse_args(argv=()):
@@ -56,7 +60,7 @@ def parse_args(argv=()):
         noise_level=200,
         max_bacon=200,
         exclude=[],
-        display='firefox',
+        display=None,
     )
 
     if not _args.no_config:
@@ -115,6 +119,7 @@ def parse_args(argv=()):
 
     if _args.verbose >= 2:
         print _args
+        print
     if _args.debug:
         _args.verbose = True
         _args.show = True
