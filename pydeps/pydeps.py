@@ -28,25 +28,29 @@ def _pydeps(**kw):
 
     if kw.get('show_cycles'):
         dotsrc = cycles2dot(g)
-    else:
+    elif not kw.get('nodot'):
         dotsrc = dep2dot(g)
-    if kw.get('show_dot'):
-        verbose("DOTSRC:")
-        print dotsrc
+    else:
+        dotsrc = None
 
-    svg = dot(dotsrc, T=kw['format'])
+    if not kw.get('nodot'):
+        if kw.get('show_dot'):
+            verbose("DOTSRC:")
+            print dotsrc
 
-    with open(output, 'wb') as fp:
-        verbose("Writing output to:", output)
-        fp.write(svg)
+        svg = dot(dotsrc, T=kw['format'])
 
-    if kw.get('show') or kw.get('show_cycles'):
-        if kw['display'] is None:
-            verbose("Displaying:", output)
-            os.startfile(output)
-        else:
-            verbose(kw['display'] + " " + output)
-            os.system(kw['display'] + " " + output)
+        with open(output, 'wb') as fp:
+            verbose("Writing output to:", output)
+            fp.write(svg)
+
+        if kw.get('show') or kw.get('show_cycles'):
+            if kw['display'] is None:
+                verbose("Displaying:", output)
+                os.startfile(output)
+            else:
+                verbose(kw['display'] + " " + output)
+                os.system(kw['display'] + " " + output)
 
 
 def parse_args(argv=()):
@@ -99,6 +103,7 @@ def parse_args(argv=()):
     p.add_argument('--show-deps', action='store_true', help="show output of dependency analysis")
     p.add_argument('--show-raw-deps', action='store_true', help="show output of dependency analysis before removing skips")
     p.add_argument('--show-dot', action='store_true', help="show output of dot conversion")
+    p.add_argument('--nodot', action='store_true', help="skip dot conversion")
     p.add_argument('--show-cycles', action='store_true', help="show only import cycles")
     p.add_argument('--debug', action='store_true', help="turn on all the show and verbose options")
     p.add_argument('--noise-level', type=int, metavar="INT", help="exclude sources or sinks with degree greater than noise-level")
@@ -112,6 +117,11 @@ def parse_args(argv=()):
 
     if _args.noshow:
         _args.show = False
+    if _args.nodot and _args.show_cycles:
+        print "Can't use --nodot and --show-cycles together"
+        sys.exit(1)
+    if _args.nodot:
+        _args.show_dot = False
     if _args.max_bacon == 0:
         _args.max_bacon = sys.maxint
     if _args.T and not _args.format:
