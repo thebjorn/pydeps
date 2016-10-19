@@ -1,12 +1,19 @@
 # -*- coding: utf-8 -*-
 import ConfigParser
 import argparse
+import json
 import os
 import pprint
 import sys
 from .py2depgraph import py2dep
 from .depgraph2dot import dep2dot, cycles2dot
 from .dot import dot
+import logging
+logging.basicConfig(
+    level=logging.CRITICAL,
+    # level=logging.DEBUG,
+    format='%(filename)s:%(lineno)d: %(levelname)s: %(message)s'
+)
 
 
 def _pydeps(**kw):
@@ -111,8 +118,19 @@ def parse_args(argv=()):
     p.add_argument('--pylib', action='store_true', help="include python std lib modules")
     p.add_argument('--pylib-all', action='store_true', help="include python all std lib modules (incl. C modules)")
     p.add_argument('-x', '--exclude', nargs="+", default=[], metavar="FNAME", help="input files to skip")
+    p.add_argument('--externals', action='store_true', help='create list of direct external dependencies')
 
     _args = p.parse_args(argv)
+
+    if _args.externals:
+        return dict(
+            T='svg', config=None, debug=False, display=None, exclude=[], externals=True,
+            fname=_args.fname, format='svg', max_bacon=2, no_config=False, nodot=False,
+            noise_level=200, noshow=True, output=None, pylib=False, pylib_all=False,
+            show=False, show_cycles=False, show_deps=False, show_dot=False,
+            show_raw_deps=False, verbose=0
+        )
+
     _args.show = True
 
     if _args.noshow:
@@ -139,10 +157,47 @@ def parse_args(argv=()):
     return vars(_args)
 
 
+def externals(pkgname):
+    kw = dict(
+            T='svg', config=None, debug=False, display=None, exclude=[], externals=True,
+            format='svg', max_bacon=5, no_config=False, nodot=False,
+            noise_level=200, noshow=True, output=None, pylib=False, pylib_all=False,
+            show=False, show_cycles=False, show_deps=False, show_dot=False,
+            show_raw_deps=False, verbose=0
+        )
+    depgraph = py2dep(pkgname, **kw)
+
+    res = {}
+    ext = set()
+    # print len(depgraph.sources), depgraph.sources.keys()
+    for k, src in depgraph.sources.items():
+        # print k, src.imports
+        if k.startswith('_'):
+            continue
+        if not k.startswith(pkgname):
+            continue
+        if src.imports:
+            imps = [imp for imp in src.imports if not imp.startswith(pkgname)]
+            if imps:
+                for imp in imps:
+                    ext.add(imp.split('.')[0])
+                res[k] = imps
+    # return res  # debug
+    return list(sorted(ext))
+
+
 def pydeps():
     _args = parse_args(sys.argv[1:])
-    _pydeps(**_args)
+    if _args['externals']:
+        fname = _args['fname']
+        del _args['fname']
+        # print "FNAME:", fname
+        exts = externals(fname)  #, **_args)
+        print json.dumps(exts, indent=4)
+    else:
+        _pydeps(**_args)
 
 
 if __name__ == '__main__':  # pragma: nocover
     pydeps()
+

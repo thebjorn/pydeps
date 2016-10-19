@@ -20,6 +20,28 @@ pydeps
 Python module dependency visualization. This package installs the ``pydeps``
 command, and normal usage will be to use it from the command line. 
 
+New in version 1.2.8: A shortcut for finding the direct external dependencies of
+a package was added::
+
+    pydeps --externals mypackage
+
+which will print a json formatted list of module names to the screen, e.g.::
+
+    (dev) go|c:\srv\lib\dk-tasklib> pydeps --externals dktasklib
+    [
+        "dkfileutils"
+    ]
+
+which meaans that the ``dktasklib`` package only depends on the ``dkfileutils``
+package.
+
+This functionality is also available programatically::
+
+    import os
+    from pydeps.pydeps import externals
+    os.chdir('package-directory')  # the one that contains setup.py (one level up from actual package)
+    print externals('mypackage')
+
 New in version 1.2.5: The defaults are now sensible, such that::
 
     pydeps mypackage
@@ -163,7 +185,7 @@ You can of course import ``pydeps`` from Python (look in the
 ``tests/test_relative_imports.py`` file for examples.
 
 Contributing
-~~~~~~~~~~~~
+------------
 #. Fork it
 #. Create your feature branch (git checkout -b my-new-feature)
 #. Commit your changes (git commit -am 'Add some feature')

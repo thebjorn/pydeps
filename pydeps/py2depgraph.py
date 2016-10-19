@@ -1,4 +1,3 @@
-"""
 # Copyright 2004,2009 Toby Dickenson
 # Changes 2014 (c) Bjorn Pettersen
 #
@@ -20,7 +19,6 @@
 # CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-"""
 import os
 import pprint
 import sys
@@ -30,6 +28,8 @@ import enum
 
 from . import depgraph
 from . import mf27
+import logging
+log = logging.getLogger(__name__)
 
 PYLIB_PATH = depgraph.PYLIB_PATH
 
@@ -303,6 +303,7 @@ def py2dep(pattern, **kw):
         print
         print "last caller:           ", mf._last_caller
 
+    log.debug("Returning depgraph.")
     return depgraph.DepGraph(mf._depgraph, mf._types, **kw)
 
 
