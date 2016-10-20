@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-import re
+
 import sys
 from subprocess import Popen
 import subprocess
 import shlex
-import textwrap
 
 
 win32 = sys.platform == 'win32'

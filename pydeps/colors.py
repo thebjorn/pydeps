@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import colorsys, random
+import colorsys
 
 # noinspection PyAugmentAssignment
 # import hashlib
@@ -15,16 +15,6 @@ def frange(start, end, step):
 def distinct_hues(count):
     for i in frange(0., 360., 360. / count):
         yield i / 360.
-
-    # colors=[]
-    # for i in frange(0., 360., 360. / count):
-    #     hue = i/360.
-    #     saturation = 0.8  # (90 + random.random() * 10)/100.
-    #     lightness = 0.4  # (50 + random.random() * 10)/100.
-    #     colors.append(
-    #         rgb2eightbit(colorsys.hls_to_rgb(hue, lightness, saturation))
-    #     )
-    # return colors
 
 
 class ColorSpace(object):
@@ -68,7 +58,7 @@ def rgb2eightbit((r, g, b)):
     return tuple(int(x * 256) for x in [r, g, b])
 
 
-def name2rgb(name, basename, hue):
+def name2rgb(hue):
     r, g, b = colorsys.hsv_to_rgb(hue / 360.0, .8, .7)
     return tuple(int(x * 256) for x in [r, g, b])
 
@@ -112,11 +102,3 @@ def rgb2css((r, g, b)):
     """Convert rgb to hex.
     """
     return '#%02x%02x%02x' % (r, g, b)
-
-#
-# def color_from_name(name):
-#     """Convert `name` to a hex color.
-#     """
-#     r, g, b = name2rgb(name)
-#     return '#%02x%02x%02x' % (r, g, b)
-#

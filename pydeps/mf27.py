@@ -86,11 +86,11 @@ class ModuleFinder:
         self.replace_paths = replace_paths
         self.processed_paths = []  # Used in debugging only
 
-    def msg(self, level, str, *args):  # pragma: nocover
+    def msg(self, level, msgtxt, *args):  # pragma: nocover
         if level <= self.debug:
-            for i in range(self.indent):
+            for _i in range(self.indent):
                 print "   ",
-            print str,
+            print msgtxt,
             for arg in args:
                 print repr(arg),
             print
@@ -114,7 +114,7 @@ class ModuleFinder:
         self.load_module('__main__', fp, pathname, stuff)
 
     def load_file(self, pathname):
-        dir, name = os.path.split(pathname)
+        _dir, name = os.path.split(pathname)
         name, ext = os.path.splitext(name)
         fp = open(pathname, READ_MODE)
         stuff = (ext, "r", imp.PY_SOURCE)
@@ -208,7 +208,7 @@ class ModuleFinder:
             m = self.import_module(head, mname, m)
             if not m:
                 self.msgout(4, "raise ImportError: No module named", mname)
-                raise ImportError, "No module named " + mname
+                raise ImportError("No module named " + mname)
         self.msgout(4, "load_tail ->", m)
         return m
 
@@ -236,11 +236,11 @@ class ModuleFinder:
         suffixes = []
         for triple in imp.get_suffixes():
             suffixes.append(triple[0])
-        for dir in m.__path__:
+        for dirname in m.__path__:
             try:
-                names = os.listdir(dir)
+                names = os.listdir(dirname)
             except os.error:
-                self.msg(2, "can't list directory", dir)
+                self.msg(2, "can't list directory", dirname)
                 continue
             for name in names:
                 mod = None
@@ -284,15 +284,15 @@ class ModuleFinder:
         return m
 
     def load_module(self, fqname, fp, pathname, file_info):
-        suffix, mode, type = file_info
+        suffix, mode, kind = file_info
         self.msgin(2, "load_module", fqname, fp and "fp", pathname)
-        if type == imp.PKG_DIRECTORY:
+        if kind == imp.PKG_DIRECTORY:
             module = self.load_package(fqname, pathname)
             self.msgout(2, "load_module ->", module)
             return module
-        if type == imp.PY_SOURCE:
+        if kind == imp.PY_SOURCE:
             co = compile(fp.read() + '\n', pathname, 'exec')
-        elif type == imp.PY_COMPILED:
+        elif kind == imp.PY_COMPILED:
             if fp.read(4) != imp.get_magic():
                 self.msgout(2, "raise ImportError: Bad magic number", pathname)
                 raise ImportError, "Bad magic number in %s" % pathname

@@ -156,7 +156,7 @@ class DepGraph(object):
                 self.curhue += 37  # relative prime with 360
                 self.curhue %= 360
                 # print "NAME:", src.name, "BASENAME:", src.basename
-                bg = colors.name2rgb(src.name, src.basename, h)
+                bg = colors.name2rgb(h)
                 black = (0, 0, 0)
                 white = (255, 255, 255)
                 fg = colors.foreground(bg, black, white)
