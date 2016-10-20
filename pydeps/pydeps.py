@@ -10,6 +10,7 @@ import sys
 from .py2depgraph import py2dep
 from .depgraph2dot import dep2dot, cycles2dot
 from .dot import dot
+from . import __version__
 import logging
 logging.basicConfig(
     level=logging.CRITICAL,
@@ -69,7 +70,12 @@ def parse_args(argv=()):
     _p = argparse.ArgumentParser(add_help=False)
     _p.add_argument('--config', help="specify config file", metavar="FILE")
     _p.add_argument('--no-config', help="disable processing of config files", action='store_true')
+    _p.add_argument('--version', action='store_true', help='print pydeps version')
     _args, argv = _p.parse_known_args(argv)
+
+    if _args.version:
+        print "pydeps v" + __version__
+        sys.exit(0)
 
     defaults = dict(
         T='svg',
