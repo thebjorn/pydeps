@@ -39,17 +39,20 @@ This functionality is also available programatically::
 
     import os
     from pydeps.pydeps import externals
-    os.chdir('package-directory')  # the one that contains setup.py (one level up from actual package)
+    # the directory that contains setup.py (one level up from actual package):
+    os.chdir('package-directory')  
     print externals('mypackage')
 
 New in version 1.2.5: The defaults are now sensible, such that::
 
     pydeps mypackage
 
-will likely do what you want. It is the same as ``pydeps --show --max-bacon=2 mypackage``
-which means display the dependency graph in your browser, but limit it to two hops (which
-includes only the modules that your module imports -- not continuing down the import chain).
-The old default behavior is available with ``pydeps --noshow --max-bacon=0 mypackage``.
+will likely do what you want. It is the same as
+``pydeps --show --max-bacon=2 mypackage`` which means display the
+dependency graph in your browser, but limit it to two hops (which
+includes only the modules that your module imports -- not continuing
+down the import chain).  The old default behavior is available with
+``pydeps --noshow --max-bacon=0 mypackage``.
 
 To install::
 
@@ -58,10 +61,10 @@ To install::
 To create graphs you need to install Graphviz_ (make sure the ``dot``
 command is on your path).
 
-.. Note:: to display the resulting `.svg` files, ``pydeps`` by default calls
-          ``firefox foo.svg``.  This is can be overridden with the ``--display PROGRAM``
-          option, where ``PROGRAM`` is an executable that can display the image file
-          of the graph.
+.. Note:: to display the resulting `.svg` files, ``pydeps`` by default
+          calls ``firefox foo.svg``.  This is can be overridden with
+          the ``--display PROGRAM`` option, where ``PROGRAM`` is an
+          executable that can display the image file of the graph.
 
 .. Note:: Please report bugs and feature requests on GitHub at
           https://github.com/thebjorn/pydeps/issues
@@ -78,7 +81,8 @@ away from the module you're interested in.  This is useful for finding
 the interface a module has to the rest of the world.
 
 
-To find pydeps' interface to the Python stdlib (less some very common modules).
+To find pydeps' interface to the Python stdlib (less some very common
+modules).
 
 ::
 
@@ -86,23 +90,26 @@ To find pydeps' interface to the Python stdlib (less some very common modules).
 
 .. image:: https://dl.dropboxusercontent.com/u/94882440/pydeps-pylib.svg
 
-``--max-bacon 2`` (the default) gives the modules that are at most 2 hops away, 
-and modules that belong together have similar colors.  Compare that to the output
-with the ``--max-bacon=0`` (infinite) filter:
+``--max-bacon 2`` (the default) gives the modules that are at most 2
+hops away, and modules that belong together have similar colors.
+Compare that to the output with the ``--max-bacon=0`` (infinite)
+filter:
 
 .. image:: https://dl.dropboxusercontent.com/u/94882440/pydeps-pylib-all.svg
    :width: 40%
 
-All options can also be set in a ``.pydeps`` file using ``.ini`` file syntax
-(parsable by ``ConfigParser``). Command line options override options in
-the ``.pydeps`` file in the current directory, which again overrides options
-in the user's home directory (``%USERPROFILE%\.pydeps`` on Windows and
-``${HOME}/.pydeps`` otherwise).
+All options can also be set in a ``.pydeps`` file using ``.ini`` file
+syntax (parsable by ``ConfigParser``). Command line options override
+options in the ``.pydeps`` file in the current directory, which again
+overrides options in the user's home directory
+(``%USERPROFILE%\.pydeps`` on Windows and ``${HOME}/.pydeps``
+otherwise).
 
-``pydeps`` can detect and display cycles with the ``--show-cycles`` parameter.
-This will _only_ display the cycles, and for big libraries it is not a
-particularly fast operation.  Given a folder with the following contents (this
-uses yaml to define a directory structure, like in the tests)::
+``pydeps`` can detect and display cycles with the ``--show-cycles``
+parameter.  This will _only_ display the cycles, and for big libraries
+it is not a particularly fast operation.  Given a folder with the
+following contents (this uses yaml to define a directory structure,
+like in the tests)::
 
         relimp:
             - __init__.py
@@ -162,7 +169,7 @@ Usage::
        -v, --verbose         be more verbose (-vv, -vvv for more verbosity)
        -o file               write output to 'file'
        -T FORMAT             output format (svg|png)
-       --display PROGRAM     program to use to display the graph (png or svg file
+       --display PROGRAM     program used to display the graph (png or svg file
                              depending on the T parameter)
        --noshow              don't call external program to display graph
        --show-deps           show output of dependency analysis
@@ -176,7 +183,7 @@ Usage::
        --max-bacon INT       exclude nodes that are more than n hops away
                              (default=2, 0 -> infinite)
        --pylib               include python std lib modules
-       --pylib-all           include python all std lib modules (incl. C modules)
+       --pylib-all           include all std lib modules (incl. C modules)
        -x FNAME [FNAME ...], --exclude FNAME [FNAME ...]
                              input files to skip
      

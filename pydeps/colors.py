@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+"""Color calculations.
+"""
 import colorsys
 
 # noinspection PyAugmentAssignment
@@ -6,6 +8,8 @@ import colorsys
 
 
 def frange(start, end, step):
+    """Like range(), but with floats.
+    """
     val = start
     while val < end:
         yield val
@@ -13,6 +17,8 @@ def frange(start, end, step):
 
 
 def distinct_hues(count):
+    """Return ``count`` hues, equidistantly spaced.
+    """
     for i in frange(0., 360., 360. / count):
         yield i / 360.
 
@@ -42,7 +48,8 @@ class ColorSpace(object):
         saturation = min(0.95, 0.4 + 0.1 * (src.out_degree - 1))
         lightness = max(0.3, 0.5 - 0.02 * (src.in_degree - 1))
         # lightness = 0.4
-        # print "src: %s H=%s S=%s L=%s, in=%d, out=%d" % (src.name, hue, saturation, lightness, src.in_degree, src.out_degree)
+        # print "src: %s H=%s S=%s L=%s, in=%d, out=%d" % (
+        #  src.name, hue, saturation, lightness, src.in_degree, src.out_degree)
         bg = rgb2eightbit(colorsys.hls_to_rgb(hue, lightness, saturation))
         black = (0, 0, 0)
         white = (255, 255, 255)
@@ -55,10 +62,14 @@ class ColorSpace(object):
 
 
 def rgb2eightbit((r, g, b)):
+    """Convert floats in [0..1] to integers in [0..256)
+    """
     return tuple(int(x * 256) for x in [r, g, b])
 
 
 def name2rgb(hue):
+    """Originally used to calculate color based on module name.
+    """
     r, g, b = colorsys.hsv_to_rgb(hue / 360.0, .8, .7)
     return tuple(int(x * 256) for x in [r, g, b])
 

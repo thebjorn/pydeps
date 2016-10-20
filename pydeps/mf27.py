@@ -31,6 +31,7 @@ HAVE_ARGUMENT = chr(dis.HAVE_ARGUMENT)
 # Note this is a mapping is lists of paths.
 packagePathMap = {}
 
+
 # A Public interface
 def AddPackagePath(packagename, path):  # pragma: nocover
     paths = packagePathMap.get(packagename, [])
@@ -39,6 +40,7 @@ def AddPackagePath(packagename, path):  # pragma: nocover
 
 
 replacePackageMap = {}
+
 
 # This ReplacePackage mechanism allows modulefinder to work around the
 # way the _xmlplus package injects itself under the name "xml" into
@@ -150,7 +152,7 @@ class ModuleFinder:
                 self.msgout(4, "determine_parent ->", parent)
                 return parent
             if pname.count(".") < level:
-                raise ImportError, "relative importpath too deep"
+                raise ImportError("relative importpath too deep")
             pname = ".".join(pname.split(".")[:-level])
             parent = self.modules[pname]
             self.msgout(4, "determine_parent ->", parent)
@@ -195,7 +197,7 @@ class ModuleFinder:
                 self.msgout(4, "find_head_package ->", (q, tail))
                 return q, tail
         self.msgout(4, "raise ImportError: No module named", qname)
-        raise ImportError, "No module named " + qname
+        raise ImportError("No module named " + qname)
 
     def load_tail(self, q, tail):
         self.msgin(4, "load_tail", q, tail)
@@ -224,7 +226,7 @@ class ModuleFinder:
                 subname = "%s.%s" % (module.__name__, sub)
                 submod = self.import_module(sub, subname, module)
                 if not submod:
-                    raise ImportError, "No module named " + subname
+                    raise ImportError("No module named " + subname)
 
     def find_all_submodules(self, m):
         if not m.__path__:
@@ -295,7 +297,7 @@ class ModuleFinder:
         elif kind == imp.PY_COMPILED:
             if fp.read(4) != imp.get_magic():
                 self.msgout(2, "raise ImportError: Bad magic number", pathname)
-                raise ImportError, "Bad magic number in %s" % pathname
+                raise ImportError("Bad magic number in %s" % pathname)
             fp.read(4)
             co = marshal.load(fp)
         else:
@@ -325,7 +327,7 @@ class ModuleFinder:
             return
         try:
             self.import_hook(name, caller, level=level)
-        except ImportError, msg:
+        except ImportError as msg:
             self.msg(2, "ImportError:", str(msg))
             self._add_badmodule(name, caller)
         else:
@@ -337,7 +339,7 @@ class ModuleFinder:
                     try:
                         # print "    self.import_hook(name=%s, caller=%s, [sub]=%s, level=%s)" % (name, caller, [sub], level)
                         self.import_hook(name, caller, [sub], level=level)
-                    except ImportError, msg:
+                    except ImportError as msg:
                         self.msg(2, "ImportError:", str(msg))
                         fullname = name + "." + sub
                         self._add_badmodule(fullname, caller)
@@ -491,7 +493,7 @@ class ModuleFinder:
             fullname = name
         if fullname in self.excludes:
             self.msgout(3, "find_module -> Excluded", fullname)
-            raise ImportError, name
+            raise ImportError(name)
 
         if path is None:
             if name in sys.builtin_module_names:
@@ -625,7 +627,7 @@ def test():  # pragma: nocover
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "dmp:qx:")
-    except getopt.error, msg:
+    except getopt.error as msg:
         print msg
         return
 

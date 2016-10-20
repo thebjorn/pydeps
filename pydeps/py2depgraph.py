@@ -161,7 +161,7 @@ class MyModuleFinder(mf27.ModuleFinder):
                 subname = "%s.%s" % (module.__name__, sub)
                 submod = self.import_module(sub, subname, module)
                 if not submod:
-                    raise ImportError, "No module named " + subname
+                    raise ImportError("No module named " + subname)
             else:
                 self._add_import(getattr(module, sub))
                 # print "  SUB:", sub, "lastcaller:", self._last_caller
@@ -187,7 +187,7 @@ def fname2modname(fname, package, prefix=""):
         return pkg_name
 
     if fname.startswith(package):
-        fname = fname[len(pkg_dir)+1:-3]
+        fname = fname[len(pkg_dir) + 1: -3]
     return prefix + fname.replace('\\', '.').replace('/', '.')
 
 
@@ -272,7 +272,7 @@ def _find_files(start, **args):
     if os.path.isdir(start):
         filenames = os.listdir(start)
         if '__init__.py' in filenames:
-            if args['verbose'] >= 1:  print 'found package:', start
+            if args['verbose'] >= 1: print 'found package:', start
             yield _create_dummy_module(start)
         else:
             for fname in filenames:

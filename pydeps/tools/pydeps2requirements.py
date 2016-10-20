@@ -23,6 +23,8 @@ skiplist = {
 
 
 def dep2req(name, imported_by):
+    """Convert dependency to requirement.
+    """
     lst = [item for item in sorted(imported_by) if not item.startswith(name)]
     res = '%-15s # from: ' % name
     imps = ', '.join(lst)
@@ -32,6 +34,8 @@ def dep2req(name, imported_by):
 
 
 def pydeps2reqs(deps):
+    """Convert a deps instance into requirements.
+    """
     reqs = defaultdict(set)
     for k, v in deps.items():
         # not a built-in
@@ -52,6 +56,8 @@ def pydeps2reqs(deps):
 
 
 def main():
+    """Cli entrypoint.
+    """
     if len(sys.argv) == 2:
         fname = sys.argv[1]
         data = json.load(open(fname, 'rb'))

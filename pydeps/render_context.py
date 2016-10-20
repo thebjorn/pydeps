@@ -12,13 +12,20 @@ class RenderContext(object):
         self.fp = StringIO()
         self.fillcolor = '#ffffff'
         self.fontcolor = '#000000'
+        self.name = None
+        self.concentrate = None
 
     @contextmanager
     def graph(self, **kw):
+        """Set up a graphviz graph context.
+        """
         self.name = kw.get('name', 'G')
         self.fillcolor = kw.get('fillcolor', '#ffffff')
         self.fontcolor = kw.get('fontcolor', '#000000')
-        self.concentrate = 'concentrate = true;' if kw.get('concentrate', True) else ''
+        if kw.get('concentrate', True):
+            self.concentrate = 'concentrate = true;'
+        else:
+            self.concentrate = ''
         self.dedent("""
             digraph {self.name} {{
                 {self.concentrate}
@@ -29,24 +36,38 @@ class RenderContext(object):
         self.writeln('}')
 
     def text(self):
+        """Get value of output stream (StringIO).
+        """
         if self.out:
             self.out.close()  # pragma: nocover
         return self.fp.getvalue()
 
     def write(self, txt):
+        """Write ``txt`` to file and output stream (StringIO).
+        """
         self.fp.write(txt)
         if self.out:
             self.out.write(txt)  # pragma: nocover
 
     def writeln(self, txt):
+        """Write ``txt`` and add newline.
+        """
         self.write(txt + '\n')
 
     def dedent(self, txt):
+        """Write ``txt`` dedented.
+        """
         self.write(textwrap.dedent(txt))
 
     def write_attributes(self, attrs):
+        """Write comma separated attribute values (if exists).
+        """
         if attrs:
-            self.write(' [' + ','.join('%s="%s"' % kv for kv in attrs.items()) + ']')
+            self.write(
+                ' ['
+                + ','.join('%s="%s"' % kv for kv in attrs.items())
+                + ']'
+            )
         else:  # pragma: nocover
             pass
 
@@ -78,6 +99,8 @@ class RenderContext(object):
 
     @contextmanager
     def rule(self):
+        """Write indented rule.
+        """
         self.write('    ')
         yield
         self.writeln(';')

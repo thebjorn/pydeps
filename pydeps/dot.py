@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Graphviz interface.
+"""
 
 import sys
 from subprocess import Popen
@@ -10,6 +13,8 @@ win32 = sys.platform == 'win32'
 
 
 def cmd2args(cmd):
+    """Prepare a command line for execution by Popen.
+    """
     if isinstance(cmd, basestring):
         return cmd if win32 else shlex.split(cmd)
     return cmd

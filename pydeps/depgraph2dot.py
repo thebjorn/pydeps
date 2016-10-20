@@ -20,9 +20,6 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import json
-import sys
-import getopt
 from . import colors
 from .render_context import RenderContext
 
@@ -43,11 +40,12 @@ class PyDepGraphDot(object):
                 except KeyError:
                     continue
                 drawn.add((bname, aname))
-                ctx.write_rule(aname, bname,
-                               weight=depgraph.proximity_metric(a, b),
-                               minlen=depgraph.dissimilarity_metric(a, b),
-                               #style='dotted',
-                               )
+                ctx.write_rule(
+                    aname, bname,
+                    weight=depgraph.proximity_metric(a, b),
+                    minlen=depgraph.dissimilarity_metric(a, b),
+                    #style='dotted',
+                )
 
             for a, b in depgraph:
                 # b imports a
@@ -57,10 +55,11 @@ class PyDepGraphDot(object):
                     continue
                 drawn.add((bname, aname))
 
-                ctx.write_rule(aname, bname,
-                               weight=depgraph.proximity_metric(a, b),
-                               minlen=depgraph.dissimilarity_metric(a, b))
-                
+                ctx.write_rule(
+                    aname, bname,
+                    weight=depgraph.proximity_metric(a, b),
+                    minlen=depgraph.dissimilarity_metric(a, b))
+
                 visited.add(a)
                 visited.add(b)
 
@@ -98,10 +97,11 @@ class CycleGraphDot(object):
                 except KeyError:
                     continue
                 drawn.add((bname, aname))
-                ctx.write_rule(bname, aname,
-                               weight=depgraph.proximity_metric(a, b),
-                               minlen=depgraph.dissimilarity_metric(a, b),
-                               # style='dotted',
+                ctx.write_rule(
+                    bname, aname,
+                    weight=depgraph.proximity_metric(a, b),
+                    minlen=depgraph.dissimilarity_metric(a, b),
+                    # style='dotted',
                 )
                 visited.add(a)
                 visited.add(b)

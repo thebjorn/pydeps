@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+"""cli entrypoints.
+"""
 import ConfigParser
 import argparse
 import json
@@ -19,10 +21,10 @@ logging.basicConfig(
 def _pydeps(**kw):
     fname = kw.pop('fname')
     if kw.get('verbose'):
-        def verbose(*args):
+        def verbose(*args):  # pylint:disable=C0321,W0613,C0111
             print ' '.join(str(a) for a in args)
     else:
-        def verbose(*args): pass
+        def verbose(*args): pass  # pylint:disable=C0321,W0613,C0111
 
     output = kw.get('output')
     if not output:
@@ -60,7 +62,10 @@ def _pydeps(**kw):
                 os.system(kw['display'] + " " + output)
 
 
+# pylint:disable=C0301,R0915
 def parse_args(argv=()):
+    """Parse command line arguments, and return a dict.
+    """
     _p = argparse.ArgumentParser(add_help=False)
     _p.add_argument('--config', help="specify config file", metavar="FILE")
     _p.add_argument('--no-config', help="disable processing of config files", action='store_true')
@@ -158,13 +163,15 @@ def parse_args(argv=()):
 
 
 def externals(pkgname):
+    """Return a list of direct external dependencies of ``pkgname``.
+    """
     kw = dict(
-            T='svg', config=None, debug=False, display=None, exclude=[], externals=True,
-            format='svg', max_bacon=5, no_config=False, nodot=False,
-            noise_level=200, noshow=True, output=None, pylib=False, pylib_all=False,
-            show=False, show_cycles=False, show_deps=False, show_dot=False,
-            show_raw_deps=False, verbose=0
-        )
+        T='svg', config=None, debug=False, display=None, exclude=[], externals=True,
+        format='svg', max_bacon=5, no_config=False, nodot=False,
+        noise_level=200, noshow=True, output=None, pylib=False, pylib_all=False,
+        show=False, show_cycles=False, show_deps=False, show_dot=False,
+        show_raw_deps=False, verbose=0
+    )
     depgraph = py2dep(pkgname, **kw)
 
     res = {}
@@ -187,12 +194,14 @@ def externals(pkgname):
 
 
 def pydeps():
+    """Entry point for the ``pydeps`` command.
+    """
     _args = parse_args(sys.argv[1:])
     if _args['externals']:
         fname = _args['fname']
         del _args['fname']
         # print "FNAME:", fname
-        exts = externals(fname)  #, **_args)
+        exts = externals(fname)
         print json.dumps(exts, indent=4)
     else:
         _pydeps(**_args)
@@ -200,4 +209,3 @@ def pydeps():
 
 if __name__ == '__main__':  # pragma: nocover
     pydeps()
-
