@@ -39,7 +39,7 @@ def test_foreground():
 def test_name2rgb():
     def fg(name):
         return foreground(
-            name2rgb("", "", 13),
+            name2rgb(13),
             black, white)
 
     assert fg('hello') == fg('hello.world')
