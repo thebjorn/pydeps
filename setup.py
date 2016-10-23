@@ -4,10 +4,11 @@ from distutils.core import setup
 
 setup(
     name='pydeps',
-    version='1.3.1',
+    version='1.3.2',
     packages=['pydeps'],
     install_requires=[
-        'enum34'
+        'enum34',
+        'stdlib_list',
     ],
     long_description=open('README.rst').read(),
     entry_points={
