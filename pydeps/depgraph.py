@@ -7,8 +7,12 @@ import os
 import pprint
 import re
 import enum
+import yaml
+
 from . import colors
 import sys
+import logging
+log = logging.getLogger(__name__)
 
 # we're normally not interested in imports of std python packages.
 PYLIB_PATH = {
@@ -40,6 +44,7 @@ class Source(object):
                 print "changing __main__ =>", self.name
         else:
             self.name = name
+
         self.kind = kind
         self.path = path             # needed here..?
         self.imports = set(imports)  # modules we import
@@ -58,12 +63,14 @@ class Source(object):
 
     @property
     def in_degree(self):
-        "Number of incoming arrows."
+        """Number of incoming arrows.
+        """
         return len(self.imports)
 
     @property
     def out_degree(self):
-        "Number of outgoing arrows."
+        """Number of outgoing arrows.
+        """
         return len(self.imported_by)
 
     @property
@@ -107,11 +114,18 @@ class Source(object):
         return json.dumps(self.__json__(), indent=4)
 
     def __iadd__(self, other):
+        if self.name == other.name and self.imports == other.imports and self.bacon == other.bacon:
+            return self
+        log.debug("iadd lhs: %r", self)
+        log.debug("iadd rhs: %r", other)
         assert self.name == other.name
         self.path = self.path or other.path
         self.kind = self.kind or other.kind
         self.imports |= other.imports
         self.imported_by |= other.imported_by
+        self.bacon = min(self.bacon, other.bacon)
+        self.excluded = self.excluded or other.excluded
+        log.debug("iadd result: %r", self)
         return self
 
     # def imported_modules(self, depgraph):
@@ -166,6 +180,7 @@ class DepGraph(object):
             return colorspace.color(src)
 
     def _is_pylib(self, path):
+        log.info('path %r in PYLIB_PATH %r => %s', path, PYLIB_PATH, path in PYLIB_PATH)
         return path in PYLIB_PATH
 
     def proximity_metric(self, a, b):
@@ -194,8 +209,8 @@ class DepGraph(object):
 
            Returns an int between 1 (default) and 4 (highly unrelated).
         """
-        if self._is_pylib(a) and self._is_pylib(b):
-            return 1
+        # if self._is_pylib(a) and self._is_pylib(b):
+        #     return 1
 
         res = 4
         for an, bn, n in izip_longest(a.name_parts, b.name_parts, range(4)):
@@ -205,6 +220,10 @@ class DepGraph(object):
         return res
 
     def _exclude(self, name):
+        # excl = any(skip.match(name) for skip in self.skiplist)
+        # if 'metar' in name:
+        #     print "Exclude?", name, excl
+        #     print [s.pattern for s in self.skiplist]
         return any(skip.match(name) for skip in self.skiplist)
 
     def __init__(self, depgraf, types, **args):
@@ -215,15 +234,17 @@ class DepGraph(object):
         self.cyclerelations = set()
 
         self.args = args
+
         self.sources = {}             # module_name -> Source
         self.skiplist = [re.compile(fnmatch.translate(arg)) for arg in args['exclude']]
+        # print "SKPLIST:", self.skiplist[0].pattern
 
         for name, imports in depgraf.items():
-            self.verbose(4, "depgraph:", name, imports)
+            log.debug("depgraph name=%r imports=%r", name, imports)
             src = Source(
                 name=name,
                 kind=imp(types.get(name, 0)),
-                imports=imports.keys(),
+                imports=imports.keys(),  # XXX: throwing away .values(), which is abspath!
                 args=args,
                 exclude=self._exclude(name),
             )
@@ -252,9 +273,11 @@ class DepGraph(object):
         self.exclude_bacon(self.args['max_bacon'])
 
         excluded = [v for v in self.sources.values() if v.excluded]
+        # print "EXCLUDED:", excluded
         self.skip_count = len(excluded)
         self.verbose(1, "skipping", self.skip_count, "modules")
         for module in excluded:
+            # print 'exclude:', module.name
             self.verbose(2, "  ", module.name)
 
         self.remove_excluded()
@@ -268,8 +291,10 @@ class DepGraph(object):
 
     def add_source(self, src):
         if src.name in self.sources:
+            log.info("ADD-SOURCE[+=]\n%r", src)
             self.sources[src.name] += src
         else:
+            log.info("ADD-SOURCE[=]\n%r", src)
             self.sources[src.name] = src
 
     def __getitem__(self, item):
@@ -322,7 +347,8 @@ class DepGraph(object):
             traverse(src, [])
 
     def connect_generations(self):
-        "Traverse depth-first adding imported_by."
+        """Traverse depth-first adding imported_by.
+        """
         for src in self.sources.values():
             for _child in src.imports:
                 if _child in self.sources:
@@ -355,17 +381,22 @@ class DepGraph(object):
             if src.is_noise():
                 self.verbose(2, "excluding", src, "because it is noisy:", src.degree)
                 src.excluded = True
+                print "Exluding noise:", src.name
                 self._add_skip(src.name)
 
     def exclude_bacon(self, limit):
-        "Exclude models that are more than `limit` hops away from __main__."
+        """Exclude models that are more than `limit` hops away from __main__.
+        """
         for src in self.sources.values():
             if src.bacon > limit:
                 src.excluded = True
+                # print "Excluding bacon:", src.name
                 self._add_skip(src.name)
 
     def remove_excluded(self):
-        "Remove all sources marked as excluded."
+        """Remove all sources marked as excluded.
+        """
+        # print yaml.dump({k:v.__json__() for k,v in self.sources.items()}, default_flow_style=False)
         sources = self.sources.values()
         for src in sources:
             if src.excluded:
@@ -374,4 +405,5 @@ class DepGraph(object):
             src.imported_by = [m for m in src.imported_by if not self._exclude(m)]
 
     def _add_skip(self, name):
+        # print 'add skip:', name
         self.skiplist.append(re.compile(fnmatch.translate(name)))

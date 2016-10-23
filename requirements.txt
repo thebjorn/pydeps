@@ -1,8 +1,9 @@
-PyYAML==3.11
+PyYAML==3.12
 cov-core==1.15.0
-coverage==3.7.1
+coverage==4.2
 enum34==1.0.4
-py==1.4.26
-pytest==2.6.4
-pytest-cov==1.8.1
-Sphinx==1.2.3
+py==1.4.31
+pytest==3.0.3
+pytest-cov==2.4.0
+Sphinx==1.4.8
+stdlib-list>=0.3.3

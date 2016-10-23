@@ -387,10 +387,13 @@ class ModuleFinder:
                 oparg_1, oparg_2, oparg_3 = unpack('<xHxHxH', code[:9])
                 level = consts[oparg_1]
                 if level == -1:  # normal import
+                    # print "import", (consts[oparg_2], names[oparg_3])
                     yield "import", (consts[oparg_2], names[oparg_3])
                 elif level == 0:  # absolute import
+                    # print "absolute_import", (consts[oparg_2], names[oparg_3])
                     yield "absolute_import", (consts[oparg_2], names[oparg_3])
                 else:  # relative import
+                    # print "relative_import", (level, consts[oparg_2], names[oparg_3])
                     yield "relative_import", (level, consts[oparg_2], names[oparg_3])
                 code = code[9:]
                 continue

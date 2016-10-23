@@ -19,12 +19,15 @@
 # CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+import json
 import os
 import pprint
 import sys
 from collections import defaultdict
 
 import enum
+import yaml
+from .pystdlib import pystdlib
 
 from . import depgraph
 from . import mf27
@@ -83,6 +86,7 @@ class MyModuleFinder(mf27.ModuleFinder):
         self.include_pylib_all = kwargs.pop('pylib_all', False)
 
         # include python std lib modules.
+        # self.include_pylib = kwargs.pop('pylib', self.include_pylib_all)
         self.include_pylib = kwargs.pop('pylib', self.include_pylib_all)
 
         self._depgraph = defaultdict(dict)
@@ -121,7 +125,8 @@ class MyModuleFinder(mf27.ModuleFinder):
                         pass
                     else:
                         rpath = os.path.split(module.__file__)[0].lower()
-                        pylib_p = [rpath.startswith(pp) for pp in PYLIB_PATH]
+                        if 'site-packages' not in rpath:
+                            pylib_p = [rpath.startswith(pp) for pp in PYLIB_PATH]
                     if self.include_pylib or not any(pylib_p):
                         # if self._last_caller.__name__ != module.__name__:
                         #     self._depgraph[self._last_caller.__name__][module.__name__] = module.__file__
@@ -288,23 +293,42 @@ def py2dep(pattern, **kw):
 
     # remove exclude so we don't pass it twice to modulefinder
     exclude = ['migrations'] + kw.pop('exclude', [])
+    log.debug("Exclude: %r", exclude)
+    log.debug("KW: %r", kw)
     mf = MyModuleFinder(path, exclude, **kw)
     mf.run_script(fname)
+    log.debug("mf._depgraph:\n%s", json.dumps(dict(mf._depgraph), indent=4))
 
     # remove dummy file and restore exclude argument
     os.unlink(fname)
     kw['exclude'] = exclude
 
-    if kw.get('verbose', 0) >= 4:  # pragma: nocover
-        print
-        print "mf27._depgraph:", mf._depgraph
-        print "mf27._types:   ", mf._types
-        print "mf27.modules:  ", pprint.pformat(mf.modules)
-        print
-        print "last caller:           ", mf._last_caller
+    if kw.get('pylib'):
+        mf_depgraph = mf._depgraph
+        for k, v in mf._depgraph.items():
+            log.debug('depgraph item: %r %r', k, v)
+        # mf_modules = {k: os.path.abspath(v.__file__)
+        #               for k, v in mf.modules.items()}
+    else:
+        pylib = pystdlib()
+        mf_depgraph = {}
+        for k, v in mf._depgraph.items():
+            log.debug('depgraph item: %r %r', k, v)
+            if k in pylib:
+                continue
+            vals = {vk: vv for vk, vv in v.items() if vk not in pylib}
+            mf_depgraph[k] = vals
 
-    log.debug("Returning depgraph.")
-    return depgraph.DepGraph(mf._depgraph, mf._types, **kw)
+        # mf_modules = {k: os.path.abspath(v.__file__)
+        #               for k, v in mf.modules.items()
+        #               if k not in pylib}
+
+    log.debug("mf_depgraph:\n%s",
+              yaml.dump(dict(mf_depgraph), default_flow_style=False))
+    # log.error("mf._types:\n%s", yaml.dump(mf._types, default_flow_style=False))
+    # log.debug("mf_modules:\n%s", yaml.dump(mf_modules, default_flow_style=False))
+
+    return depgraph.DepGraph(mf_depgraph, mf._types, **kw)
 
 
 def py2depgraph():

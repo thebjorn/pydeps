@@ -7,16 +7,13 @@ import json
 import os
 import pprint
 import sys
+import textwrap
+
 from .py2depgraph import py2dep
 from .depgraph2dot import dep2dot, cycles2dot
 from .dot import dot
 from . import __version__
 import logging
-logging.basicConfig(
-    level=logging.CRITICAL,
-    # level=logging.DEBUG,
-    format='%(filename)s:%(lineno)d: %(levelname)s: %(message)s'
-)
 
 
 def _pydeps(**kw):
@@ -71,7 +68,20 @@ def parse_args(argv=()):
     _p.add_argument('--config', help="specify config file", metavar="FILE")
     _p.add_argument('--no-config', help="disable processing of config files", action='store_true')
     _p.add_argument('--version', action='store_true', help='print pydeps version')
+    _p.add_argument('-L', '--log', help=textwrap.dedent('''
+        set log-level to one of CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET.
+    '''))
     _args, argv = _p.parse_known_args(argv)
+
+    if _args.log:
+        loglevel = getattr(logging, _args.log)
+    else:
+        loglevel = None
+
+    logging.basicConfig(
+        level=loglevel,
+        format='%(filename)s:%(lineno)d: %(levelname)s: %(message)s'
+    )
 
     if _args.version:
         print "pydeps v" + __version__
@@ -136,7 +146,7 @@ def parse_args(argv=()):
     if _args.externals:
         return dict(
             T='svg', config=None, debug=False, display=None, exclude=[], externals=True,
-            fname=_args.fname, format='svg', max_bacon=2, no_config=False, nodot=False,
+            fname=_args.fname, format='svg', max_bacon=10, no_config=False, nodot=False,
             noise_level=200, noshow=True, output=None, pylib=False, pylib_all=False,
             show=False, show_cycles=False, show_deps=False, show_dot=False,
             show_raw_deps=False, verbose=0
@@ -173,8 +183,8 @@ def externals(pkgname):
     """
     kw = dict(
         T='svg', config=None, debug=False, display=None, exclude=[], externals=True,
-        format='svg', max_bacon=5, no_config=False, nodot=False,
-        noise_level=200, noshow=True, output=None, pylib=False, pylib_all=False,
+        format='svg', max_bacon=2**65, no_config=False, nodot=False,
+        noise_level=2**65, noshow=True, output=None, pylib=False, pylib_all=True,
         show=False, show_cycles=False, show_deps=False, show_dot=False,
         show_raw_deps=False, verbose=0
     )
