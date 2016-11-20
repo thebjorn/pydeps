@@ -54,7 +54,11 @@ def _pydeps(**kw):
         if kw.get('show') or kw.get('show_cycles'):
             if kw['display'] is None:
                 verbose("Displaying:", output)
-                os.startfile(output)
+                if sys.platform == 'win32':
+                    os.startfile(output)
+                else:
+                    opener = "open" if sys.platform == "darwin" else "xdg-open"
+                    subprocess.call([opener, output])
             else:
                 verbose(kw['display'] + " " + output)
                 os.system(kw['display'] + " " + output)
