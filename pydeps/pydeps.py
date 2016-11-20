@@ -142,6 +142,7 @@ def parse_args(argv=()):
     p.add_argument('--max-bacon', type=int, default=2, metavar="INT", help="exclude nodes that are more than n hops away (default=2, 0 -> infinite)")
     p.add_argument('--pylib', action='store_true', help="include python std lib modules")
     p.add_argument('--pylib-all', action='store_true', help="include python all std lib modules (incl. C modules)")
+    p.add_argument('--include-missing', action='store_true', help="include modules that are not installed (or can't be found on sys.path)")
     p.add_argument('-x', '--exclude', nargs="+", default=[], metavar="FNAME", help="input files to skip")
     p.add_argument('--externals', action='store_true', help='create list of direct external dependencies')
 
@@ -153,7 +154,7 @@ def parse_args(argv=()):
             fname=_args.fname, format='svg', max_bacon=10, no_config=False, nodot=False,
             noise_level=200, noshow=True, output=None, pylib=False, pylib_all=False,
             show=False, show_cycles=False, show_deps=False, show_dot=False,
-            show_raw_deps=False, verbose=0
+            show_raw_deps=False, verbose=0, include_missing=True,
         )
 
     _args.show = True
@@ -190,7 +191,7 @@ def externals(pkgname):
         format='svg', max_bacon=2**65, no_config=False, nodot=False,
         noise_level=2**65, noshow=True, output=None, pylib=False, pylib_all=True,
         show=False, show_cycles=False, show_deps=False, show_dot=False,
-        show_raw_deps=False, verbose=0
+        show_raw_deps=False, verbose=0, include_missing=True,
     )
     depgraph = py2dep(pkgname, **kw)
 

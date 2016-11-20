@@ -291,10 +291,10 @@ class DepGraph(object):
 
     def add_source(self, src):
         if src.name in self.sources:
-            log.info("ADD-SOURCE[+=]\n%r", src)
+            log.debug("ADD-SOURCE[+=]\n%r", src)
             self.sources[src.name] += src
         else:
-            log.info("ADD-SOURCE[=]\n%r", src)
+            log.debug("ADD-SOURCE[=]\n%r", src)
             self.sources[src.name] = src
 
     def __getitem__(self, item):
