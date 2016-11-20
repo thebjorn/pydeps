@@ -98,6 +98,7 @@ class MyModuleFinder(mf27.ModuleFinder):
         mf27.ModuleFinder.__init__(self,
                                    path=fname,
                                    debug=debug,
+                                   # debug=3,
                                    excludes=kwargs.get('excludes', []))
 
     def add_module(self, fqname):
@@ -145,6 +146,7 @@ class MyModuleFinder(mf27.ModuleFinder):
         except SyntaxError:
             # this happened first when pyinvoke tried to load yaml3/2 based on
             # an `if six.PY3`
+            # print "SYNTAX_ERROR"
             module = None
             
         if module is not None:
@@ -295,9 +297,25 @@ def py2dep(pattern, **kw):
     exclude = ['migrations'] + kw.pop('exclude', [])
     log.debug("Exclude: %r", exclude)
     log.debug("KW: %r", kw)
+
     mf = MyModuleFinder(path, exclude, **kw)
     mf.run_script(fname)
-    log.debug("mf._depgraph:\n%s", json.dumps(dict(mf._depgraph), indent=4))
+    log.info("mf._depgraph:\n%s", json.dumps(dict(mf._depgraph), indent=4))
+    log.info("mf.badmodules:\n%s", json.dumps(mf.badmodules, indent=4))
+
+    if kw.get('include_missing'):
+        for k, vdict in mf.badmodules.items():
+            if k not in mf._depgraph:
+                mf._depgraph[k] = {}
+            for v in vdict.keys():
+                if v not in mf._depgraph['__main__']:
+                    mf._depgraph['__main__'][v] = None
+                if v in mf._depgraph:
+                    mf._depgraph[v][k] = None
+                else:
+                    mf._depgraph[v] = {k:None}
+
+    log.info("mf._depgraph:\n%s", json.dumps(dict(mf._depgraph), indent=4))
 
     # remove dummy file and restore exclude argument
     os.unlink(fname)
@@ -323,7 +341,7 @@ def py2dep(pattern, **kw):
         #               for k, v in mf.modules.items()
         #               if k not in pylib}
 
-    log.debug("mf_depgraph:\n%s",
+    log.info("mf_depgraph:\n%s",
               yaml.dump(dict(mf_depgraph), default_flow_style=False))
     # log.error("mf._types:\n%s", yaml.dump(mf._types, default_flow_style=False))
     # log.debug("mf_modules:\n%s", yaml.dump(mf_modules, default_flow_style=False))
