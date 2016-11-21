@@ -1,4 +1,4 @@
-
+# pragma: nocover
 from invoke import Collection
 from dktasklib import version
 from dktasklib import upversion

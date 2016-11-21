@@ -1,4 +1,4 @@
-
+# pragma: nocover
 import setuptools
 from distutils.core import setup
 
