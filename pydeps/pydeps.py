@@ -8,6 +8,7 @@ import os
 import pprint
 import sys
 import textwrap
+import subprocess
 
 from .py2depgraph import py2dep
 from .depgraph2dot import dep2dot, cycles2dot
