@@ -184,7 +184,7 @@ def parse_args(argv=()):
     return vars(_args)
 
 
-def externals(pkgname):
+def externals(pkgname, **kwargs):
     """Return a list of direct external dependencies of ``pkgname``.
     """
     kw = dict(
@@ -194,6 +194,7 @@ def externals(pkgname):
         show=False, show_cycles=False, show_deps=False, show_dot=False,
         show_raw_deps=False, verbose=0, include_missing=True,
     )
+    kw.update(kwargs)
     depgraph = py2dep(pkgname, **kw)
 
     res = {}
@@ -222,8 +223,7 @@ def pydeps():
     if _args['externals']:
         fname = _args['fname']
         del _args['fname']
-        # print "FNAME:", fname
-        exts = externals(fname)
+        exts = externals(fname, **_args)
         print json.dumps(exts, indent=4)
     else:
         _pydeps(**_args)

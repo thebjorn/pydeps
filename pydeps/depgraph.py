@@ -381,7 +381,7 @@ class DepGraph(object):
             if src.is_noise():
                 self.verbose(2, "excluding", src, "because it is noisy:", src.degree)
                 src.excluded = True
-                print "Exluding noise:", src.name
+                # print "Exluding noise:", src.name
                 self._add_skip(src.name)
 
     def exclude_bacon(self, limit):
