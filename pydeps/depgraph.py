@@ -238,21 +238,26 @@ class DepGraph(object):
         self.sources = {}             # module_name -> Source
         self.skiplist = [re.compile(fnmatch.translate(arg)) for arg in args['exclude']]
         # print "SKPLIST:", self.skiplist[0].pattern
+        depgraf = {name: imports for (name, imports) in depgraf.items() if not name.endswith('.py')}
 
         for name, imports in depgraf.items():
             log.debug("depgraph name=%r imports=%r", name, imports)
+            if name.endswith('.py'):
+                name = name[:-3]
             src = Source(
                 name=name,
-                kind=imp(types.get(name, 0)),
+                # kind=imp(types.get(name, 0)),
                 imports=imports.keys(),  # XXX: throwing away .values(), which is abspath!
                 args=args,
                 exclude=self._exclude(name),
             )
             self.add_source(src)
             for iname, path in imports.items():
+                if iname.endswith('.py'):
+                    iname = iname[:-3]
                 src = Source(
                     name=iname,
-                    kind=imp(types.get(name, 0)),
+                    # kind=imp(types.get(name, 0)),
                     path=path,
                     args=args,
                     exclude=self._exclude(iname)
@@ -369,6 +374,7 @@ class DepGraph(object):
             for imp in src.imports:
                 bacon(self.sources[imp], n + 1)
 
+        # print "SOURCES:", self.sources
         bacon(self.sources['__main__'], 0)
         # ritems = [(v, k) for k, v in count.items()]
         # for i, (v, k) in enumerate(sorted(ritems, reverse=True)):

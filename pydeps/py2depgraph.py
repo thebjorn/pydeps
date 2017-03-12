@@ -120,7 +120,7 @@ class MyModuleFinder(mf27.ModuleFinder):
         if module is not None:
             if self._last_caller:
                 # self._depgraph[self._last_caller.__name__][module.__name__] = module.__file__
-                if module.__file__ or self.include_pylib_all:
+                if hasattr(module, '__file__') or self.include_pylib_all:
                     pylib_p = []
                     if not module.__file__:
                         pass
@@ -266,11 +266,8 @@ def _create_dummy_module(package_name, **args):
 
     else:
         if args['verbose']: print "found file"
-        # This return was an attempt at being able to analyze standalone
-        # filenames with dashes (foo-bar.py). It does not work.
-        # return package_name
         with open(dummy, 'w') as fp:
-            print >>fp, "import", package_name
+            print_import(fp, os.path.splitext(package_name)[0])
 
     return dummy
 

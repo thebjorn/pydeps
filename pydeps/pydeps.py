@@ -15,6 +15,7 @@ from .depgraph2dot import dep2dot, cycles2dot
 from .dot import dot
 from . import __version__
 import logging
+log = logging.getLogger(__name__)
 
 
 def _pydeps(**kw):
@@ -189,19 +190,20 @@ def externals(pkgname, **kwargs):
     """
     kw = dict(
         T='svg', config=None, debug=False, display=None, exclude=[], externals=True,
-        format='svg', max_bacon=2**65, no_config=False, nodot=False,
-        noise_level=2**65, noshow=True, output=None, pylib=False, pylib_all=True,
+        format='svg', max_bacon=2**65, no_config=True, nodot=False,
+        noise_level=2**65, noshow=True, output=None, pylib=True, pylib_all=True,
         show=False, show_cycles=False, show_deps=False, show_dot=False,
         show_raw_deps=False, verbose=0, include_missing=True,
     )
     kw.update(kwargs)
     depgraph = py2dep(pkgname, **kw)
+    log.info("DEPGRAPH: %s", depgraph)
+    pkgname = os.path.splitext(pkgname)[0]
 
     res = {}
     ext = set()
-    # print len(depgraph.sources), depgraph.sources.keys()
+
     for k, src in depgraph.sources.items():
-        # print k, src.imports
         if k.startswith('_'):
             continue
         if not k.startswith(pkgname):
@@ -220,13 +222,30 @@ def pydeps():
     """Entry point for the ``pydeps`` command.
     """
     _args = parse_args(sys.argv[1:])
-    if _args['externals']:
-        fname = _args['fname']
-        del _args['fname']
-        exts = externals(fname, **_args)
-        print json.dumps(exts, indent=4)
-    else:
-        _pydeps(**_args)
+    cwd = os.getcwd()
+    try:
+        fname = os.path.abspath(_args['fname'])
+        if not os.path.exists(fname):
+            print >>sys.stderr, "No such file:", fname
+            sys.exit(1)
+
+        os.chdir(os.path.dirname(fname))
+        fname = os.path.basename(fname)
+
+        # curdir = os.getcwd()
+        # print "CURDIR:", curdir, os.path.basename(fname)
+        # relpath = os.path.relpath(fname, curdir)
+        # print "RELPATH:", relpath
+
+        _args['fname'] = fname
+        if _args['externals']:
+            del _args['fname']
+            exts = externals(fname, **_args)
+            print json.dumps(exts, indent=4)
+        else:
+            _pydeps(**_args)
+    finally:
+        os.chdir(cwd)
 
 
 if __name__ == '__main__':  # pragma: nocover
