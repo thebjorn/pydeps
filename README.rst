@@ -15,7 +15,9 @@ pydeps
 .. image:: https://coveralls.io/repos/thebjorn/pydeps/badge.png
    :target: https://coveralls.io/r/thebjorn/pydeps
 
-
+.. image:: https://landscape.io/github/thebjorn/pydeps/master/landscape.svg?style=flat
+   :target: https://landscape.io/github/thebjorn/pydeps/master
+   :alt: Code Health
 
 Python module dependency visualization. This package installs the ``pydeps``
 command, and normal usage will be to use it from the command line. 

@@ -7,3 +7,4 @@ pytest==3.0.3
 pytest-cov==2.4.0
 Sphinx==1.4.8
 stdlib-list>=0.3.3
+-e .
