@@ -7,7 +7,6 @@ import os
 import pprint
 import re
 import enum
-import yaml
 
 from . import colors
 import sys
@@ -339,9 +338,9 @@ class DepGraph(object):
                 self.cycles.append(cycle)
                 for nodename in cycle:
                     self.cyclenodes.add(nodename)
-                for i in range(len(cycle)-1):
+                for i in range(len(cycle) - 1):
                     self.cyclerelations.add(
-                        (cycle[i], cycle[i+1])
+                        (cycle[i], cycle[i + 1])
                     )
                 return
 
@@ -402,6 +401,7 @@ class DepGraph(object):
     def remove_excluded(self):
         """Remove all sources marked as excluded.
         """
+        # import yaml
         # print yaml.dump({k:v.__json__() for k,v in self.sources.items()}, default_flow_style=False)
         sources = self.sources.values()
         for src in sources:

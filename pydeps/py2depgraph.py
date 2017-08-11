@@ -21,12 +21,10 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import json
 import os
-import pprint
 import sys
 from collections import defaultdict
 
 import enum
-import yaml
 from .pystdlib import pystdlib
 
 from . import depgraph
@@ -338,17 +336,19 @@ def py2dep(pattern, **kw):
         #               for k, v in mf.modules.items()
         #               if k not in pylib}
 
-    log.info("mf_depgraph:\n%s",
-              yaml.dump(dict(mf_depgraph), default_flow_style=False))
-    # log.error("mf._types:\n%s", yaml.dump(mf._types, default_flow_style=False))
-    # log.debug("mf_modules:\n%s", yaml.dump(mf_modules, default_flow_style=False))
+    try:
+        import yaml
+        log.info("mf_depgraph:\n%s",
+                 yaml.dump(dict(mf_depgraph), default_flow_style=False))
+        # log.error("mf._types:\n%s", yaml.dump(mf._types, default_flow_style=False))
+        # log.debug("mf_modules:\n%s", yaml.dump(mf_modules, default_flow_style=False))
+    except ImportError:
+        log.info("mf_depgraph:\n%s", json.dumps(dict(mf_depgraph), indent=4))
 
     return depgraph.DepGraph(mf_depgraph, mf._types, **kw)
 
 
 def py2depgraph():
-    import json
-
     _fname = sys.argv[1]
     _graph = RawDependencies(_fname)
 
