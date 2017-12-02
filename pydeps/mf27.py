@@ -127,6 +127,8 @@ class ModuleFinder:
         parent = self.determine_parent(caller, level=level)
         # print "  import_hook parent:", parent
         q, tail = self.find_head_package(parent, name)
+        if q.shortname in ('__future__', 'future'):  # the future package causes recursion overflow
+            return None
         # print "  q:", q, "tail:", tail
         m = self.load_tail(q, tail)
         # print "  m:", m
