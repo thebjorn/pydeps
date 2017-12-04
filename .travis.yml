@@ -10,11 +10,11 @@ addons:
     - graphviz
 
 install:
-  - pip install -r requirements.txt --use-mirrors
+  - pip install -r requirements.txt
   - pip install coveralls
 
 script:
-  python runtests.py --cov=pydeps
+  py.test --cov=pydeps
 
 after_success:
   coveralls
