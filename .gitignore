@@ -57,6 +57,7 @@ docs/_build/
 .idea/pydeps.iml
 .idea/misc.xml
 .idea/codeStyles/
+.idea/dbnavigator.xml
 
 # emacs temp files
 *.py~

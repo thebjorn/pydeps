@@ -215,7 +215,7 @@ def is_module(directory):
 def _create_dummy_module(package_name, **args):
     """Create a module that imports all files inside the package
     """
-    dummy = '_dummy.py'
+    dummy = '_dummy_%s.py' % package_name
     package = os.path.abspath(package_name)
 
     prefix = []
