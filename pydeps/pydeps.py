@@ -47,7 +47,19 @@ def _pydeps(**kw):
             verbose("DOTSRC:")
             print dotsrc
 
-        svg = dot(dotsrc, T=kw['format'])
+        try:
+            svg = dot(dotsrc, T=kw['format'])
+        except OSError as e:
+            if e.errno == 2:
+                sys.stderr.write(textwrap.dedent("""
+                   ERROR: cannot find 'dot'
+
+                   pydeps calls dot (from graphviz) to create svg diagrams,
+                   please make sure that the dot executable is available
+                   on your path.
+                """))
+                sys.exit(1)
+            raise
 
         with open(output, 'wb') as fp:
             verbose("Writing output to:", output)
