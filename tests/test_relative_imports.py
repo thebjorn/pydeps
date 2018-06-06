@@ -27,10 +27,9 @@ def test_relative_imports2():
             - c.py
     """
     with create_files(files) as workdir:
-        assert simpledeps('relimp') == [
-            'relimp.c -> relimp.b',
-            'relimp.b -> relimp.a',
-        ]
+        deps = simpledeps('relimp')
+        assert 'relimp.c -> relimp.b' in deps
+        assert 'relimp.b -> relimp.a' in deps
 
 
 def test_relative_imports3():
