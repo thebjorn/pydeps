@@ -11,13 +11,23 @@ import shlex
 
 win32 = sys.platform == 'win32'
 
-
-def isunicode(s):
-    """Test unicode string with py3 support."""
+def is_unicode(s):
+    """Test unicode with py3 support."""
     try:
         return isinstance(s, unicode)
     except NameError:
         return False
+
+def to_bytes(s):
+    """Convert an item into bytes."""
+    if isinstance(s, bytes):
+        return s
+    if isinstance(s, str) or is_unicode(s):
+        return s.encode("utf-8")
+    try:
+        return unicode(s).encode("utf-8")
+    except NameError:
+        return str(s).encode("utf-8")
 
 def cmd2args(cmd):
     """Prepare a command line for execution by Popen.
@@ -48,16 +58,7 @@ def dot(src, **kw):
         else:
             cmd += " -%s%s" % (k, v)
 
-    if isunicode(src):
-        dotsrc = src.encode('utf-8')
-    elif isinstance(src, str):
-        dotsrc = src
-    elif sys.version_info < (3,):
-        dotsrc = unicode(src).encode('utf-8')
-    else:
-        dotsrc = str(src)
-
-    return pipe(cmd, dotsrc)
+    return pipe(cmd, to_bytes(src))
 
 
 # class Digraph(list):
