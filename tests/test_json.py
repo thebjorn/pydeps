@@ -11,7 +11,7 @@ def test_dep2dot():
         foo:
             - __init__.py
             - a.py: |
-                import b
+                from . import b
             - b.py
     """
     with create_files(files) as workdir:
