@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
+import sys
 from tests.filemaker import create_files
 from tests.simpledeps import simpledeps
-
+import pytest
 
 def test_relative_imports():
     files = """
@@ -43,7 +44,7 @@ def test_relative_imports3():
     with create_files(files) as workdir:
         assert simpledeps('relimp') == ['relimp.b -> relimp.a']
 
-
+@pytest.mark.skipif(sys.version_info < (3,), reason="implicit relative import is valid in py2")
 def test_relative_imports_same_name_with_std():
     files = """
         relimp:
