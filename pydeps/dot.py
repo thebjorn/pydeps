@@ -15,7 +15,7 @@ win32 = sys.platform == 'win32'
 def cmd2args(cmd):
     """Prepare a command line for execution by Popen.
     """
-    if isinstance(cmd, basestring):
+    if isinstance(cmd, str):
         return cmd if win32 else shlex.split(cmd)
     return cmd
 
@@ -35,18 +35,18 @@ def dot(src, **kw):
     """Execute the dot command to create an svg output.
     """
     cmd = "dot -T%s" % kw.pop('T', 'svg')
-    for k, v in kw.items():
+    for k, v in list(kw.items()):
         if v is True:
             cmd += " -%s" % k
         else:
             cmd += " -%s%s" % (k, v)
 
-    if isinstance(src, unicode):
+    if isinstance(src, str):
         dotsrc = src.encode('utf-8')
     elif isinstance(src, str):
         dotsrc = src
     else:
-        dotsrc = unicode(src).encode('utf-8')
+        dotsrc = str(src).encode('utf-8')
 
     return pipe(cmd, dotsrc)
 

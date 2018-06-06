@@ -17,7 +17,7 @@ def test_dep2dot():
     with create_files(files) as workdir:
         g = depgrf("foo")
         d = json.loads(repr(g))
-        print d
+        print(d)
         assert '__main__' in d['foo']['imported_by']
         assert g.sources['foo.a'] == g.sources['foo.a']
         assert str(g.sources['foo.a']).startswith('foo.a')
