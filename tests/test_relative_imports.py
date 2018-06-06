@@ -33,6 +33,29 @@ def test_relative_imports2():
         ]
 
 
+def test_relative_imports3():
+    files = """
+        relimp:
+            - __init__.py
+            - a.py: |
+                from .b import c
+            - b.py
+    """
+    with create_files(files) as workdir:
+        assert simpledeps('relimp') == ['relimp.b -> relimp.a']
+
+
+def test_relative_imports_same_name_with_std():
+    files = """
+        relimp:
+            - __init__.py
+            - io.py: |
+                import io
+    """
+    with create_files(files) as workdir:
+        assert simpledeps('relimp', '--pylib') == ['io -> relimp.io']
+
+
 def test_pydeps_colors():
     files = """
         pdeps:
