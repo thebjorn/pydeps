@@ -21,8 +21,7 @@ IMPORT_NAME = chr(dis.opname.index('IMPORT_NAME'))
 STORE_NAME = chr(dis.opname.index('STORE_NAME'))
 STORE_GLOBAL = chr(dis.opname.index('STORE_GLOBAL'))
 STORE_OPS = [STORE_NAME, STORE_GLOBAL]
-# FIXME: why chr?
-HAVE_ARGUMENT = dis.HAVE_ARGUMENT
+HAVE_ARGUMENT = chr(dis.HAVE_ARGUMENT)
 
 # Modulefinder does a good job at simulating Python's, but it can not
 # handle __path__ modifications packages make at runtime.  Therefore there
@@ -296,7 +295,7 @@ class ModuleFinder:
             self.msgout(2, "load_module ->", module)
             return module
         if kind == imp.PY_SOURCE:
-            co = compile(fp.read() + '\n', pathname, 'exec')
+            co = compile(fp.read() + '\n', pathname, 'exec', dont_inherit=True)
         elif kind == imp.PY_COMPILED:
             if fp.read(4) != imp.get_magic():
                 self.msgout(2, "raise ImportError: Bad magic number", pathname)
