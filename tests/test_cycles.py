@@ -14,7 +14,6 @@ def test_cycle():
     """
     with create_files(files, cleanup=False) as workdir:
         print("WORKDIR:", workdir)
-        assert simpledeps('relimp') == [
-            'relimp.a -> relimp.b',
-            'relimp.b -> relimp.a'
-        ]
+        deps = simpledeps('relimp')
+        assert 'relimp.a -> relimp.b' in deps
+        assert 'relimp.b -> relimp.a' in deps
