@@ -140,7 +140,7 @@ def parse_args(argv=()):
     # -vv   decision data (computed/converted/replaced values)
     # -vvv  status data (program state at fixed intervals, ie. not in loops)
     # -vvvv execution trace
-    p.add_argument('-v', '--verbose', action='count', help="be more verbose (-vv, -vvv for more verbosity)")
+    p.add_argument('-v', '--verbose', action='count', help="be more verbose (-vv, -vvv for more verbosity)", default=0)
     p.add_argument('-o', dest='output', metavar="file", help="write output to 'file'")
     p.add_argument('-T', dest='format', help="output format (svg|png)")
     p.add_argument('--display', help="program to use to display the graph (png or svg file depending on the T parameter)", metavar="PROGRAM")
@@ -189,7 +189,7 @@ def parse_args(argv=()):
         print(_args)
         print()
     if _args.debug:
-        _args.verbose = True
+        _args.verbose = 1
         _args.show = True
         _args.show_deps = True
         _args.show_dot = True
