@@ -27,7 +27,7 @@ def pipe(cmd, txt):
         cmd2args(cmd),
         stdout=subprocess.PIPE,
         stdin=subprocess.PIPE,
-        # shell=win32
+        shell=win32
     ).communicate(txt)[0]
 
 
