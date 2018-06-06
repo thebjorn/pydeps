@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from pydeps.dot import dot, cmd2args
 
-
 def test_svg(tmpdir):
     tmpdir.chdir()
     ab = tmpdir.join('ab.svg')
@@ -37,13 +36,20 @@ def test_boolopt(tmpdir):
 
 
 def test_obj(tmpdir):
-    class MyClass(object):
-        def __unicode__(self):
-            return """
-                digraph G {
-                    a -> b
-                }
-                """
+    GRAPH = """
+    digraph G {
+        a -> b
+    }
+    """
+    import sys
+    if sys.version_info >= (3,):
+        class MyClass:
+            def __str__(self):
+                return GRAPH
+    else:
+        class MyClass(object):
+            def __unicode__(self):
+                return GRAPH
 
     tmpdir.chdir()
     ab = tmpdir.join('ab.svg')
