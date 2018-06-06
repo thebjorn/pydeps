@@ -237,7 +237,7 @@ class DepGraph(object):
         self.sources = {}             # module_name -> Source
         self.skiplist = [re.compile(fnmatch.translate(arg)) for arg in args['exclude']]
         # print "SKPLIST:", self.skiplist[0].pattern
-        depgraf = {name: imports for (name, imports) in list(depgraf.items()) if not name.endswith('.py')}
+        depgraf = {name: imports for (name, imports) in list(depgraf.items()) if not name.endswith('.py')} # FIXME: we already checking the suffix in the following for loop
 
         for name, imports in list(depgraf.items()):
             log.debug("depgraph name=%r imports=%r", name, imports)
@@ -314,8 +314,9 @@ class DepGraph(object):
             for name in src.imports:
                 impmod = self.sources[name]
 
-                if impmod.path and not impmod.path.endswith('__init__.py'):
-                    yield impmod, src
+                # FIXME: why do we want to exclude **/*/__init__.py?
+                # if impmod.path and not impmod.path.endswith('__init__.py'):
+                yield impmod, src
                 visit(impmod)
 
         for _src in list(self.sources.values()):
@@ -331,7 +332,7 @@ class DepGraph(object):
         def traverse(node, path):
             if node.name in self.cyclenodes:
                 return
-            
+
             if node.name in path:
                 # found cycle
                 cycle = path[path.index(node.name):] + [node.name]
@@ -346,7 +347,7 @@ class DepGraph(object):
 
             for impmod in node.imports:
                 traverse(self.sources[impmod], path + [node.name])
-        
+
         for src in list(self.sources.values()):
             traverse(src, [])
 
