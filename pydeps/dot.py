@@ -12,6 +12,13 @@ import shlex
 win32 = sys.platform == 'win32'
 
 
+def isunicode(s):
+    """Test unicode string with py3 support."""
+    try:
+        return isinstance(s, unicode)
+    except NameError:
+        return False
+
 def cmd2args(cmd):
     """Prepare a command line for execution by Popen.
     """
@@ -41,7 +48,7 @@ def dot(src, **kw):
         else:
             cmd += " -%s%s" % (k, v)
 
-    if isinstance(src, str):
+    if isunicode(src):
         dotsrc = src.encode('utf-8')
     elif isinstance(src, str):
         dotsrc = src
