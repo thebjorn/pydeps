@@ -1,6 +1,6 @@
 """Find modules used by a script, using introspection."""
 # This module should be kept compatible with Python 2.2, see PEP 291.
-
+from __future__ import print_function
 
 import dis
 import imp

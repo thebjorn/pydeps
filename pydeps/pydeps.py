@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """cli entrypoints.
 """
+from __future__ import print_function
+
 import configparser
 import argparse
 import json

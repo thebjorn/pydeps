@@ -19,6 +19,8 @@
 # CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import print_function
+
 import json
 import os
 import sys
@@ -135,7 +137,7 @@ class MyModuleFinder(mf27.ModuleFinder):
         module = mf27.ModuleFinder.import_module(self, partnam, fqname, parent)
         self._add_import(module)
         return module
-    
+
     def load_module(self, fqname, fp, pathname, xxx_todo_changeme):
         (suffix, mode, kind) = xxx_todo_changeme
         try:
@@ -147,7 +149,7 @@ class MyModuleFinder(mf27.ModuleFinder):
             # an `if six.PY3`
             # print "SYNTAX_ERROR"
             module = None
-            
+
         if module is not None:
             self._types[module.__name__] = kind
         return module

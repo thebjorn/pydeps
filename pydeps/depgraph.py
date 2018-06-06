@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from collections import defaultdict
 import fnmatch
-from itertools import zip_longest
+try:
+    from itertools import zip_longest
+except ImportError:
+    from itertools import izip_longest as zip_longest
 import json
 import os
 import pprint
@@ -316,7 +319,21 @@ class DepGraph(object):
 
                 # FIXME: why do we want to exclude **/*/__init__.py?
                 # if impmod.path and not impmod.path.endswith('__init__.py'):
-                yield impmod, src
+                """
+                FIXME: If we have a *test.py* file::
+
+                    from a.b import c
+
+                It has following deps:
+
+                1. ``a``
+                2. ``a.b``
+                3. ``a.b.c``
+
+                However, users probably only care about ``test <- a.b.c``.
+                """
+                if not src.name.startswith(impmod.name + "."):
+                    yield impmod, src
                 visit(impmod)
 
         for _src in list(self.sources.values()):
