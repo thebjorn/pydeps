@@ -69,7 +69,7 @@ def test_pydeps_colors():
                 from . import colors
     """
     with create_files(files, cleanup=False) as workdir:
-        assert simpledeps('pdeps') == [
+        assert simpledeps('pdeps', '-x enum') == [
             'pdeps.colors -> pdeps.depgraph',
         ]
 
