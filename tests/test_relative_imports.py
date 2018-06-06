@@ -89,6 +89,7 @@ def test_hierarchy():
     with create_files(files, cleanup=True) as workdir:
         os.system("tree " + workdir)
         assert simpledeps('relimp') == [
+            'relimp.b -> relimp.a.amodule',
             'relimp.b.bmodule -> relimp.a.amodule'
         ]
 
