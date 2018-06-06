@@ -21,7 +21,8 @@ IMPORT_NAME = chr(dis.opname.index('IMPORT_NAME'))
 STORE_NAME = chr(dis.opname.index('STORE_NAME'))
 STORE_GLOBAL = chr(dis.opname.index('STORE_GLOBAL'))
 STORE_OPS = [STORE_NAME, STORE_GLOBAL]
-HAVE_ARGUMENT = chr(dis.HAVE_ARGUMENT)
+# FIXME: why chr?
+HAVE_ARGUMENT = dis.HAVE_ARGUMENT
 
 # Modulefinder does a good job at simulating Python's, but it can not
 # handle __path__ modifications packages make at runtime.  Therefore there
@@ -404,9 +405,30 @@ class ModuleFinder:
             else:
                 code = code[1:]
 
+    def scan_opcodes_34(self, co):
+        i = 0
+        bytecode = list(dis.Bytecode(co))
+        while i < len(bytecode):
+            if (
+                bytecode[i].opname == "LOAD_CONST" and
+                bytecode[i + 1].opname == "LOAD_CONST" and
+                bytecode[i + 2].opname == "IMPORT_NAME"
+            ):
+                level = bytecode[i].argval
+                fromlist = bytecode[i + 1].argval
+                import_name = bytecode[i + 2].argval
+                if level == 0:
+                    yield "absolute_import", (fromlist, import_name)
+                else:
+                    yield "relative_import", (level, fromlist, import_name)
+                i += 2
+            i += 1
+
     def scan_code(self, co, module):
         code = co.co_code
-        if sys.version_info >= (2, 5):
+        if sys.version_info >= (3, 4):
+            scanner = self.scan_opcodes_34
+        elif sys.version_info >= (2, 5):
             scanner = self.scan_opcodes_25
         else:
             scanner = self.scan_opcodes
