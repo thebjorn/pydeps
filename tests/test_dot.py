@@ -49,7 +49,7 @@ def test_obj(tmpdir):
     else:
         class MyClass(object):
             def __unicode__(self):
-                return GRAPH
+                return unicode(GRAPH)
 
     tmpdir.chdir()
     ab = tmpdir.join('ab.svg')

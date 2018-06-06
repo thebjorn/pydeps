@@ -52,8 +52,10 @@ def dot(src, **kw):
         dotsrc = src.encode('utf-8')
     elif isinstance(src, str):
         dotsrc = src
+    elif sys.version_info < (3,):
+        dotsrc = unicode(src).encode('utf-8')
     else:
-        dotsrc = str(src).encode('utf-8')
+        dotsrc = str(src)
 
     return pipe(cmd, dotsrc)
 
