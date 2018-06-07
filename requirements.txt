@@ -1,7 +1,7 @@
 PyYAML==3.12
 cov-core==1.15.0
 coverage==4.2
-enum34==1.0.4
+enum34==1.0.4; python_version < "3.4"
 py==1.4.31
 pytest==3.0.3
 pytest-cov==2.4.0

@@ -36,7 +36,7 @@ setup(
     version=version,
     packages=['pydeps'],
     install_requires=[
-        'enum34',
+        'enum34; python_version < "3.4"',
         'stdlib_list',
     ],
     long_description=io.open('README.rst', encoding='utf8').read(),
