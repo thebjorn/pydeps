@@ -11,11 +11,28 @@ import shlex
 
 win32 = sys.platform == 'win32'
 
+def is_unicode(s):
+    """Test unicode with py3 support."""
+    try:
+        return isinstance(s, unicode)
+    except NameError:
+        return False
+
+def to_bytes(s):
+    """Convert an item into bytes."""
+    if isinstance(s, bytes):
+        return s
+    if isinstance(s, str) or is_unicode(s):
+        return s.encode("utf-8")
+    try:
+        return unicode(s).encode("utf-8")
+    except NameError:
+        return str(s).encode("utf-8")
 
 def cmd2args(cmd):
     """Prepare a command line for execution by Popen.
     """
-    if isinstance(cmd, basestring):
+    if isinstance(cmd, str):
         return cmd if win32 else shlex.split(cmd)
     return cmd
 
@@ -27,7 +44,7 @@ def pipe(cmd, txt):
         cmd2args(cmd),
         stdout=subprocess.PIPE,
         stdin=subprocess.PIPE,
-        # shell=win32
+        shell=win32
     ).communicate(txt)[0]
 
 
@@ -35,20 +52,13 @@ def dot(src, **kw):
     """Execute the dot command to create an svg output.
     """
     cmd = "dot -T%s" % kw.pop('T', 'svg')
-    for k, v in kw.items():
+    for k, v in list(kw.items()):
         if v is True:
             cmd += " -%s" % k
         else:
             cmd += " -%s%s" % (k, v)
 
-    if isinstance(src, unicode):
-        dotsrc = src.encode('utf-8')
-    elif isinstance(src, str):
-        dotsrc = src
-    else:
-        dotsrc = unicode(src).encode('utf-8')
-
-    return pipe(cmd, dotsrc)
+    return pipe(cmd, to_bytes(src))
 
 
 # class Digraph(list):

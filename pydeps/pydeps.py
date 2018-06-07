@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 """cli entrypoints.
 """
-import ConfigParser
+from __future__ import print_function
+
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
 import argparse
 import json
 import os
@@ -22,7 +27,7 @@ def _pydeps(**kw):
     fname = kw.pop('fname')
     if kw.get('verbose'):
         def verbose(*args):  # pylint:disable=C0321,W0613,C0111
-            print ' '.join(str(a) for a in args)
+            print(' '.join(str(a) for a in args))
     else:
         def verbose(*args): pass  # pylint:disable=C0321,W0613,C0111
 
@@ -45,7 +50,7 @@ def _pydeps(**kw):
     if not kw.get('nodot'):
         if kw.get('show_dot'):
             verbose("DOTSRC:")
-            print dotsrc
+            print(dotsrc)
 
         try:
             svg = dot(dotsrc, T=kw['format'])
@@ -102,7 +107,7 @@ def parse_args(argv=()):
     )
 
     if _args.version:
-        print "pydeps v" + __version__
+        print("pydeps v" + __version__)
         sys.exit(0)
 
     defaults = dict(
@@ -119,14 +124,14 @@ def parse_args(argv=()):
                         os.path.join(home, '.pydeps')]
         if _args.config:
             config_files.insert(0, _args.config)
-        conf = ConfigParser.SafeConfigParser()
+        conf = configparser.SafeConfigParser()
 
         conf.read(config_files)
         try:
             defaults.update(dict(conf.items("pydeps")))
             defaults['exclude'] = [x for x in conf.get('pydeps', 'exclude').split()
                                    if x]
-        except (ConfigParser.NoOptionError, ConfigParser.NoSectionError):
+        except (configparser.NoOptionError, configparser.NoSectionError):
             pass
 
         if not defaults['exclude']:
@@ -140,7 +145,7 @@ def parse_args(argv=()):
     # -vv   decision data (computed/converted/replaced values)
     # -vvv  status data (program state at fixed intervals, ie. not in loops)
     # -vvvv execution trace
-    p.add_argument('-v', '--verbose', action='count', help="be more verbose (-vv, -vvv for more verbosity)")
+    p.add_argument('-v', '--verbose', action='count', help="be more verbose (-vv, -vvv for more verbosity)", default=0)
     p.add_argument('-o', dest='output', metavar="file", help="write output to 'file'")
     p.add_argument('-T', dest='format', help="output format (svg|png)")
     p.add_argument('--display', help="program to use to display the graph (png or svg file depending on the T parameter)", metavar="PROGRAM")
@@ -176,20 +181,20 @@ def parse_args(argv=()):
     if _args.noshow:
         _args.show = False
     if _args.nodot and _args.show_cycles:
-        print "Can't use --nodot and --show-cycles together"
+        print("Can't use --nodot and --show-cycles together")
         sys.exit(1)
     if _args.nodot:
         _args.show_dot = False
     if _args.max_bacon == 0:
-        _args.max_bacon = sys.maxint
+        _args.max_bacon = sys.maxsize
     if _args.T and not _args.format:
         _args.format = _args.T
 
     if _args.verbose >= 2:
-        print _args
-        print
+        print(_args)
+        print()
     if _args.debug:
-        _args.verbose = True
+        _args.verbose = 1
         _args.show = True
         _args.show_deps = True
         _args.show_dot = True
@@ -215,7 +220,7 @@ def externals(pkgname, **kwargs):
     res = {}
     ext = set()
 
-    for k, src in depgraph.sources.items():
+    for k, src in list(depgraph.sources.items()):
         if k.startswith('_'):
             continue
         if not k.startswith(pkgname):
@@ -238,7 +243,7 @@ def pydeps():
     try:
         fname = os.path.abspath(_args['fname'])
         if not os.path.exists(fname):
-            print >>sys.stderr, "No such file:", fname
+            print("No such file:", fname, file=sys.stderr)
             sys.exit(1)
 
         os.chdir(os.path.dirname(fname))
@@ -253,7 +258,7 @@ def pydeps():
         if _args['externals']:
             del _args['fname']
             exts = externals(fname, **_args)
-            print json.dumps(exts, indent=4)
+            print(json.dumps(exts, indent=4))
         else:
             _pydeps(**_args)
     finally:

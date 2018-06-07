@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 
 
-from StringIO import StringIO
+from io import StringIO
 from contextlib import contextmanager
 import textwrap
 
+def to_unicode(s):
+    try:
+        return unicode(s)
+    except NameError:
+        return s
 
 class RenderContext(object):
     def __init__(self, out=None):
@@ -45,7 +50,7 @@ class RenderContext(object):
     def write(self, txt):
         """Write ``txt`` to file and output stream (StringIO).
         """
-        self.fp.write(txt)
+        self.fp.write(to_unicode(txt))
         if self.out:
             self.out.write(txt)  # pragma: nocover
 
@@ -65,7 +70,7 @@ class RenderContext(object):
         if attrs:
             self.write(
                 ' ['
-                + ','.join('%s="%s"' % kv for kv in attrs.items())
+                + ','.join('%s="%s"' % kv for kv in list(attrs.items()))
                 + ']'
             )
         else:  # pragma: nocover

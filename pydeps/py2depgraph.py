@@ -19,6 +19,8 @@
 # CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import print_function
+
 import json
 import os
 import sys
@@ -135,8 +137,9 @@ class MyModuleFinder(mf27.ModuleFinder):
         module = mf27.ModuleFinder.import_module(self, partnam, fqname, parent)
         self._add_import(module)
         return module
-    
-    def load_module(self, fqname, fp, pathname, (suffix, mode, kind)):
+
+    def load_module(self, fqname, fp, pathname, xxx_todo_changeme):
+        (suffix, mode, kind) = xxx_todo_changeme
         try:
             module = mf27.ModuleFinder.load_module(
                 self, fqname, fp, pathname, (suffix, mode, kind)
@@ -146,7 +149,7 @@ class MyModuleFinder(mf27.ModuleFinder):
             # an `if six.PY3`
             # print "SYNTAX_ERROR"
             module = None
-            
+
         if module is not None:
             self._types[module.__name__] = kind
         return module
@@ -232,7 +235,7 @@ def _create_dummy_module(package_name, **args):
     def legal_module_name(name):
         for part in name.split('.'):
             try:
-                exec "%s = 42" % part in {}, {}
+                exec("%s = 42" % part, {}, {})
             except:
                 return False
         return True
@@ -242,20 +245,20 @@ def _create_dummy_module(package_name, **args):
             return
         if not legal_module_name(module):
             return
-        print >>fp, "try:"
-        print >>fp, "    import", module
-        print >>fp, "except:"
-        print >>fp, "    pass"
+        print("try:", file=fp)
+        print("    import", module, file=fp)
+        print("except:", file=fp)
+        print("    pass", file=fp)
 
     if is_module(package):
-        if args['verbose']: print "found package"
+        if args['verbose']: print("found package")
         with open(dummy, 'w') as fp:
             for fname in _pyfiles(package, **args):
                 modname = fname2modname(fname, package, prefix)
                 print_import(fp, modname)
 
     elif os.path.isdir(package):
-        if args['verbose']: print "found directory"
+        if args['verbose']: print("found directory")
         dummy = os.path.join(package, dummy)
         with open(dummy, 'w') as fp:
             for fname in os.listdir(package):
@@ -263,7 +266,7 @@ def _create_dummy_module(package_name, **args):
                     print_import(fp, fname2modname(fname, package))
 
     else:
-        if args['verbose']: print "found file"
+        if args['verbose']: print("found file")
         with open(dummy, 'w') as fp:
             print_import(fp, os.path.splitext(package_name)[0])
 
@@ -274,7 +277,7 @@ def _find_files(start, **args):
     if os.path.isdir(start):
         filenames = os.listdir(start)
         if '__init__.py' in filenames:
-            if args['verbose'] >= 1: print 'found package:', start
+            if args['verbose'] >= 1: print('found package:', start)
             yield _create_dummy_module(start)
         else:
             for fname in filenames:
@@ -299,10 +302,10 @@ def py2dep(pattern, **kw):
     log.info("mf.badmodules:\n%s", json.dumps(mf.badmodules, indent=4))
 
     if kw.get('include_missing'):
-        for k, vdict in mf.badmodules.items():
+        for k, vdict in list(mf.badmodules.items()):
             if k not in mf._depgraph:
                 mf._depgraph[k] = {}
-            for v in vdict.keys():
+            for v in list(vdict.keys()):
                 if v not in mf._depgraph['__main__']:
                     mf._depgraph['__main__'][v] = None
                 if v in mf._depgraph:
@@ -318,18 +321,18 @@ def py2dep(pattern, **kw):
 
     if kw.get('pylib'):
         mf_depgraph = mf._depgraph
-        for k, v in mf._depgraph.items():
+        for k, v in list(mf._depgraph.items()):
             log.debug('depgraph item: %r %r', k, v)
         # mf_modules = {k: os.path.abspath(v.__file__)
         #               for k, v in mf.modules.items()}
     else:
         pylib = pystdlib()
         mf_depgraph = {}
-        for k, v in mf._depgraph.items():
+        for k, v in list(mf._depgraph.items()):
             log.debug('depgraph item: %r %r', k, v)
             if k in pylib:
                 continue
-            vals = {vk: vv for vk, vv in v.items() if vk not in pylib}
+            vals = {vk: vv for vk, vv in list(v.items()) if vk not in pylib}
             mf_depgraph[k] = vals
 
         # mf_modules = {k: os.path.abspath(v.__file__)

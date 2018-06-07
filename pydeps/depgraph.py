@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from collections import defaultdict
 import fnmatch
-from itertools import izip_longest
+try:
+    from itertools import zip_longest
+except ImportError:
+    from itertools import izip_longest as zip_longest
 import json
 import os
 import pprint
@@ -40,7 +43,7 @@ class Source(object):
         if name == "__main__" and path:
             self.name = path.replace('\\', '/').replace('/', '.')
             if self.args.get('verbose', 0) >= 2:  # pragma: nocover
-                print "changing __main__ =>", self.name
+                print("changing __main__ =>", self.name)
         else:
             self.name = name
 
@@ -48,7 +51,7 @@ class Source(object):
         self.path = path             # needed here..?
         self.imports = set(imports)  # modules we import
         self.imported_by = set()     # modules that import us
-        self.bacon = sys.maxint      # bacon distance
+        self.bacon = sys.maxsize      # bacon distance
         self.excluded = exclude
 
     @property
@@ -194,7 +197,7 @@ class DepGraph(object):
         #     return 1
 
         res = 1
-        for ap, bp, n in zip(a.path_parts, b.path_parts, range(4)):
+        for ap, bp, n in zip(a.path_parts, b.path_parts, list(range(4))):
             res += ap == bp
             if n >= 3:
                 break
@@ -212,7 +215,7 @@ class DepGraph(object):
         #     return 1
 
         res = 4
-        for an, bn, n in izip_longest(a.name_parts, b.name_parts, range(4)):
+        for an, bn, n in zip_longest(a.name_parts, b.name_parts, list(range(4))):
             res -= an == bn
             if n >= 3:
                 break
@@ -237,21 +240,21 @@ class DepGraph(object):
         self.sources = {}             # module_name -> Source
         self.skiplist = [re.compile(fnmatch.translate(arg)) for arg in args['exclude']]
         # print "SKPLIST:", self.skiplist[0].pattern
-        depgraf = {name: imports for (name, imports) in depgraf.items() if not name.endswith('.py')}
+        depgraf = {name: imports for (name, imports) in list(depgraf.items()) if not name.endswith('.py')} # FIXME: we already checking the suffix in the following for loop
 
-        for name, imports in depgraf.items():
+        for name, imports in list(depgraf.items()):
             log.debug("depgraph name=%r imports=%r", name, imports)
             if name.endswith('.py'):
                 name = name[:-3]
             src = Source(
                 name=name,
                 # kind=imp(types.get(name, 0)),
-                imports=imports.keys(),  # XXX: throwing away .values(), which is abspath!
+                imports=list(imports.keys()),  # XXX: throwing away .values(), which is abspath!
                 args=args,
                 exclude=self._exclude(name),
             )
             self.add_source(src)
-            for iname, path in imports.items():
+            for iname, path in list(imports.items()):
                 if iname.endswith('.py'):
                     iname = iname[:-3]
                 src = Source(
@@ -271,12 +274,12 @@ class DepGraph(object):
             self.find_import_cycles()
         self.calculate_bacon()
         if self.args['show_raw_deps']:
-            print self
+            print(self)
 
         self.exclude_noise()
         self.exclude_bacon(self.args['max_bacon'])
 
-        excluded = [v for v in self.sources.values() if v.excluded]
+        excluded = [v for v in list(self.sources.values()) if v.excluded]
         # print "EXCLUDED:", excluded
         self.skip_count = len(excluded)
         self.verbose(1, "skipping", self.skip_count, "modules")
@@ -291,7 +294,7 @@ class DepGraph(object):
 
     def verbose(self, n, *args):
         if self.args['verbose'] >= n:
-            print ' '.join(str(a) for a in args)
+            print(' '.join(str(a) for a in args))
 
     def add_source(self, src):
         if src.name in self.sources:
@@ -314,11 +317,14 @@ class DepGraph(object):
             for name in src.imports:
                 impmod = self.sources[name]
 
-                if impmod.path and not impmod.path.endswith('__init__.py'):
+                # FIXME: why do we want to exclude **/*/__init__.py? This line
+                # causes `collections` package in py3 to be excluded.
+                # if impmod.path and not impmod.path.endswith('__init__.py'):
+                if not src.name.startswith(impmod.name + "."):
                     yield impmod, src
                 visit(impmod)
 
-        for _src in self.sources.values():
+        for _src in list(self.sources.values()):
             for source in visit(_src):
                 self.verbose(4, "Yielding", source[0], source[1])
                 yield source
@@ -331,7 +337,7 @@ class DepGraph(object):
         def traverse(node, path):
             if node.name in self.cyclenodes:
                 return
-            
+
             if node.name in path:
                 # found cycle
                 cycle = path[path.index(node.name):] + [node.name]
@@ -346,14 +352,14 @@ class DepGraph(object):
 
             for impmod in node.imports:
                 traverse(self.sources[impmod], path + [node.name])
-        
-        for src in self.sources.values():
+
+        for src in list(self.sources.values()):
             traverse(src, [])
 
     def connect_generations(self):
         """Traverse depth-first adding imported_by.
         """
-        for src in self.sources.values():
+        for src in list(self.sources.values()):
             for _child in src.imports:
                 if _child in self.sources:
                     child = self.sources[_child]
@@ -380,7 +386,7 @@ class DepGraph(object):
         #     print k.rjust(25), v
 
     def exclude_noise(self):
-        for src in self.sources.values():
+        for src in list(self.sources.values()):
             if src.excluded:
                 continue
             if src.is_noise():
@@ -392,7 +398,7 @@ class DepGraph(object):
     def exclude_bacon(self, limit):
         """Exclude models that are more than `limit` hops away from __main__.
         """
-        for src in self.sources.values():
+        for src in list(self.sources.values()):
             if src.bacon > limit:
                 src.excluded = True
                 # print "Excluding bacon:", src.name
@@ -403,7 +409,7 @@ class DepGraph(object):
         """
         # import yaml
         # print yaml.dump({k:v.__json__() for k,v in self.sources.items()}, default_flow_style=False)
-        sources = self.sources.values()
+        sources = list(self.sources.values())
         for src in sources:
             if src.excluded:
                 del self.sources[src.name]

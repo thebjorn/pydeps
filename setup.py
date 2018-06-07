@@ -4,6 +4,7 @@
 """pydeps - Python module dependency visualization
 """
 # pragma: nocover
+import io
 import setuptools
 from distutils.core import setup
 from setuptools.command.test import test as TestCommand
@@ -29,16 +30,16 @@ class PyTest(TestCommand):
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
 
-    
+
 setup(
     name='pydeps',
     version=version,
     packages=['pydeps'],
     install_requires=[
-        'enum34',
+        'enum34; python_version < "3.4"',
         'stdlib_list',
     ],
-    long_description=open('README.rst').read(),
+    long_description=io.open('README.rst', encoding='utf8').read(),
     entry_points={
         'console_scripts': [
             'pydeps = pydeps.pydeps:pydeps',

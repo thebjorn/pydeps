@@ -19,25 +19,25 @@ class FilemakerBase(object):  # pragma: nocover
     def goto_root(self, dirname):
         """override
         """
-        print "pushd", dirname
+        print("pushd", dirname)
 
     def makedir(self, dirname, content):
         """override, but call self.make_list(content)
         """
-        print "mkdir " + dirname
-        print "pushd " + dirname
+        print("mkdir " + dirname)
+        print("pushd " + dirname)
         self.make_list(content)
-        print "popd"
+        print("popd")
 
     def make_file(self, filename, content):
         """override
         """
-        print "create file: %s %r" % (filename, content)
+        print("create file: %s %r" % (filename, content))
 
     def make_empty_file(self, fname):
         """override
         """
-        print "touch", fname
+        print("touch", fname)
 
     def _make_empty_file(self, fname):
         if fname != 'empty':
@@ -49,14 +49,14 @@ class FilemakerBase(object):  # pragma: nocover
 
     def _makefiles(self, f):
         if isinstance(f, dict):
-            for k, v in f.items():
+            for k, v in list(f.items()):
                 if isinstance(v, list):
                     self.makedir(dirname=k, content=v)
-                elif isinstance(v, basestring):
+                elif isinstance(v, str):
                     self.make_file(filename=k, content=v)
                 else:  # pragma: nocover
                     raise ValueError("Unexpected:", k, v)
-        elif isinstance(f, basestring):
+        elif isinstance(f, str):
             self._make_empty_file(f)
         elif isinstance(f, list):
             self.make_list(f)
@@ -90,7 +90,7 @@ def create_files(filedef, cleanup=True):
     try:
         Filemaker(tmpdir, fdef)
         if not cleanup:
-            print "TMPDIR =", tmpdir
+            print("TMPDIR =", tmpdir)
         yield tmpdir
     finally:
         os.chdir(cwd)

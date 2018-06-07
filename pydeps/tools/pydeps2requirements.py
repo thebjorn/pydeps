@@ -37,7 +37,7 @@ def pydeps2reqs(deps):
     """Convert a deps instance into requirements.
     """
     reqs = defaultdict(set)
-    for k, v in deps.items():
+    for k, v in list(deps.items()):
         # not a built-in
         p = v['path']
         if p and not p.startswith(sys.real_prefix):
@@ -63,7 +63,7 @@ def main():
         data = json.load(open(fname, 'rb'))
     else:
         data = json.loads(sys.stdin.read())
-    print pydeps2reqs(data)
+    print(pydeps2reqs(data))
 
 
 if __name__ == "__main__":
