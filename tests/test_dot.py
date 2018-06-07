@@ -4,7 +4,7 @@ from pydeps.dot import dot, cmd2args
 def test_svg(tmpdir):
     tmpdir.chdir()
     ab = tmpdir.join('ab.svg')
-    dot("""
+    dot(u"""
     digraph G {
         a -> b
     }
@@ -36,7 +36,7 @@ def test_boolopt(tmpdir):
 
 
 def test_obj(tmpdir):
-    GRAPH = """
+    GRAPH = u"""
     digraph G {
         a -> b
     }
@@ -49,7 +49,7 @@ def test_obj(tmpdir):
     else:
         class MyClass(object):
             def __unicode__(self):
-                return unicode(GRAPH)
+                return GRAPH
 
     tmpdir.chdir()
     ab = tmpdir.join('ab.svg')
