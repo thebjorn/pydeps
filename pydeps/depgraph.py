@@ -324,7 +324,8 @@ class DepGraph(object):
                     yield impmod, src
                 visit(impmod)
 
-        for _src in list(self.sources.values()):
+        # for _src in list(self.sources.values()):
+        for _src in self.sources.values():
             for source in visit(_src):
                 self.verbose(4, "Yielding", source[0], source[1])
                 yield source
@@ -359,7 +360,8 @@ class DepGraph(object):
     def connect_generations(self):
         """Traverse depth-first adding imported_by.
         """
-        for src in list(self.sources.values()):
+        # for src in list(self.sources.values()):
+        for src in self.sources.values():
             for _child in src.imports:
                 if _child in self.sources:
                     child = self.sources[_child]

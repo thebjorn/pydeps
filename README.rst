@@ -20,7 +20,9 @@ pydeps
    :alt: Code Health
 
 Python module dependency visualization. This package installs the ``pydeps``
-command, and normal usage will be to use it from the command line. 
+command, and normal usage will be to use it from the command line.
+
+New in version 1.5.0: Python 3 support (thanks to @eight04 for the PR)
 
 New in version 1.3.4: ``--externals`` will now include modules that haven't been installed (what ``modulefinder`` calls ``badmodules``).
 

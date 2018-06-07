@@ -31,7 +31,7 @@ class ColorSpace(object):
             parts = node.name.split('.')
             self.add_to_tree(parts, self.nodes)
         self.basecolors = distinct_hues(len(self.nodes))
-        self.colors = dict(list(zip(list(self.nodes.keys()), self.basecolors)))
+        self.colors = dict(zip(self.nodes.keys(), self.basecolors))
 
     def add_to_tree(self, parts, tree):
         if not parts:
@@ -61,11 +61,10 @@ class ColorSpace(object):
         return pprint.pformat(self.colors)
 
 
-def rgb2eightbit(xxx_todo_changeme):
+def rgb2eightbit(rgb):
     """Convert floats in [0..1] to integers in [0..256)
     """
-    (r, g, b) = xxx_todo_changeme
-    return tuple(int(x * 256) for x in [r, g, b])
+    return tuple(int(x * 256) for x in rgb)
 
 
 def name2rgb(hue):
@@ -87,12 +86,12 @@ def brightnessdiff(a, b):
     return abs(brightness(*a) - brightness(*b))
 
 
-def colordiff(xxx_todo_changeme1, xxx_todo_changeme2):
+def colordiff(rgb1, rgb2):
     """From w3c (greater than 500 is good).
        (range [0..765])
     """
-    (r, g, b) = xxx_todo_changeme1
-    (r2, g2, b2) = xxx_todo_changeme2
+    (r, g, b) = rgb1
+    (r2, g2, b2) = rgb2
     return (
         max(r, r2) - min(r, r2) +
         max(g, g2) - min(g, g2) +
@@ -112,8 +111,7 @@ def foreground(background, *options):
     return diffs[0][1]
 
 
-def rgb2css(xxx_todo_changeme3):
+def rgb2css(rgb):
     """Convert rgb to hex.
     """
-    (r, g, b) = xxx_todo_changeme3
-    return '#%02x%02x%02x' % (r, g, b)
+    return '#%02x%02x%02x' % rgb

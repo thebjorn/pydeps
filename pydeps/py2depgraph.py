@@ -305,7 +305,7 @@ def py2dep(pattern, **kw):
         for k, vdict in list(mf.badmodules.items()):
             if k not in mf._depgraph:
                 mf._depgraph[k] = {}
-            for v in list(vdict.keys()):
+            for v in vdict:
                 if v not in mf._depgraph['__main__']:
                     mf._depgraph['__main__'][v] = None
                 if v in mf._depgraph:
