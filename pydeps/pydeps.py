@@ -3,7 +3,10 @@
 """
 from __future__ import print_function
 
-import configparser
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
 import argparse
 import json
 import os
