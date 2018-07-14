@@ -77,7 +77,7 @@ command is on your path).
 
 This is the result of running ``pydeps`` on itself (``pydeps pydeps``):
 
-.. image:: https://dl.dropboxusercontent.com/u/94882440/pydeps.svg
+.. image:: https://github.com/thebjorn/pydeps/blob/master/docs/_static/pydeps.svg
 
 ``pydeps`` also contains an Erdős-like scoring function (a.k.a. Bacon
 number, from Six degrees of Kevin Bacon
@@ -94,14 +94,14 @@ modules).
 
     pydeps pydeps --show --max-bacon 2 --pylib -x os re types _* enum
 
-.. image:: https://dl.dropboxusercontent.com/u/94882440/pydeps-pylib.svg
+.. image:: https://github.com/thebjorn/pydeps/blob/master/docs/_static/pydeps-pylib.svg
 
 ``--max-bacon 2`` (the default) gives the modules that are at most 2
 hops away, and modules that belong together have similar colors.
 Compare that to the output with the ``--max-bacon=0`` (infinite)
 filter:
 
-.. image:: https://dl.dropboxusercontent.com/u/94882440/pydeps-pylib-all.svg
+.. image:: https://github.com/thebjorn/pydeps/blob/master/docs/_static/pydeps-pylib-all.svg
    :width: 40%
 
 All options can also be set in a ``.pydeps`` file using ``.ini`` file
@@ -126,7 +126,7 @@ like in the tests)::
 
 ``pydeps relimp --show-cycles`` displays:
 
-.. image:: https://dl.dropboxusercontent.com/u/94882440/pydeps-cycle.svg
+.. image:: https://github.com/thebjorn/pydeps/blob/master/docs/_static/pydeps-cycle.svg
 
 An attempt has been made to keep the intermediate formats readable,
 eg. the output from ``pydeps --show-deps ..`` looks like this::
