@@ -46,6 +46,7 @@ setup(
         ]
     },
     url='https://github.com/thebjorn/pydeps',
+    cmdclass={'test': PyTest},
     license='BSD',
     author='bjorn',
     author_email='bp@datakortet.no',
