@@ -65,13 +65,15 @@ docs/_build/
 *.py#
 
 # pydeps build files.
-pydeps.svg
+./pydeps.svg
 README.html
 *.rst#
-pydeps-pylib-all.svg
-pydeps-pylib.svg
+./pydeps-pylib-all.svg
+./pydeps-pylib.svg
 .pydeps~
 .lintscore6
 *.json
 source.jdb
 .idea/deployment.xml
+docs/.md5
+pydeps.svg
