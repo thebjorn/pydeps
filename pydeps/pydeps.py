@@ -70,7 +70,7 @@ def _pydeps(**kw):
             verbose("Writing output to:", output)
             fp.write(svg)
 
-        if kw.get('show') or kw.get('show_cycles'):
+        if (kw.get('show') or kw.get('show_cycles')) and not kw.get('noshow'):
             if kw['display'] is None:
                 verbose("Displaying:", output)
                 if sys.platform == 'win32':
