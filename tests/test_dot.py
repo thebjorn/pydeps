@@ -35,7 +35,7 @@ def test_boolopt(tmpdir):
     assert ab.exists()
 
 
-def test_obj(tmpdir):
+def test_obj(tmpdir):  # pragma: nocover
     GRAPH = u"""
     digraph G {
         a -> b

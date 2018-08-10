@@ -289,22 +289,43 @@ class ModuleFinder:
         return m
 
     def load_module(self, fqname, fp, pathname, file_info):
+        # fqname = dotted module name we're loading
         suffix, mode, kind = file_info
-        self.msgin(2, "load_module", fqname, fp and "fp", pathname)
+        kstr = {
+            imp.PKG_DIRECTORY: 'PKG_DIRECTORY',
+            imp.PY_SOURCE: 'PY_SOURCE',
+            imp.PY_COMPILED: 'PY_COMPILED',
+        }.get(kind, 'unknown-kind')
+        self.msgin(2, "load_module(%s) fqname=%s, fp=%s, pathname=%s" % (kstr, fqname, fp and "fp", pathname))
+
         if kind == imp.PKG_DIRECTORY:
             module = self.load_package(fqname, pathname)
             self.msgout(2, "load_module ->", module)
             return module
+
         if kind == imp.PY_SOURCE:
-            co = compile(fp.read() + '\n', pathname, 'exec', dont_inherit=True)
+            co = compile(
+                fp.read() + '\n',
+                pathname,
+                'exec',            # compile code block
+                dont_inherit=True  # don't inherit future statements from current environment
+            )
+
         elif kind == imp.PY_COMPILED:
+            # a .pyc file is a binary file containing only thee things:
+            #  1. a four-byte magic number
+            #  2. a four byte modification timestamp, and
+            #  3. a Marshalled code object
+            # from: https://nedbatchelder.com/blog/200804/the_structure_of_pyc_files.html
             if fp.read(4) != imp.get_magic():
                 self.msgout(2, "raise ImportError: Bad magic number", pathname)
                 raise ImportError("Bad magic number in %s" % pathname)
-            fp.read(4)
-            co = marshal.load(fp)
+            fp.read(4)   # skip modification timestamp
+            co = marshal.load(fp)  # load marshalled code object.
+
         else:
             co = None
+
         module = self.add_module(fqname)
         module.__file__ = pathname
         if co:

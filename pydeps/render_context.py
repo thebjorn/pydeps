@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
-
-
 from io import StringIO
 from contextlib import contextmanager
 import textwrap
+
 
 def to_unicode(s):
     try:
         return unicode(s)
     except NameError:
         return s
+
 
 class RenderContext(object):
     def __init__(self, out=None):

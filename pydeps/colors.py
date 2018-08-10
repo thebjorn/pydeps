@@ -56,7 +56,7 @@ class ColorSpace(object):
         fg = foreground(bg, black, white)
         return bg, fg
 
-    def __str__(self):
+    def __str__(self):  # pragma: nocover
         import pprint
         return pprint.pformat(self.colors)
 

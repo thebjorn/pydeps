@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 from collections import defaultdict
 import fnmatch
-try:
-    from itertools import zip_longest
-except ImportError:
-    from itertools import izip_longest as zip_longest
+from .pycompat import zip_longest
 import json
 import os
 import pprint
 import re
 import enum
 
-from . import colors
+from . import colors, cli
 import sys
 import logging
 log = logging.getLogger(__name__)
@@ -47,7 +45,7 @@ class Source(object):
         else:
             self.name = name
 
-        self.kind = kind
+        # self.kind = kind
         self.path = path             # needed here..?
         self.imports = set(imports)  # modules we import
         self.imported_by = set()     # modules that import us
@@ -92,7 +90,7 @@ class Source(object):
         res = dict(
             name=self.name,
             path=self.path,
-            kind=str(self.kind),
+            # kind=str(self.kind),
             bacon=self.bacon,
         )
         if self.excluded:
@@ -104,7 +102,7 @@ class Source(object):
         return res
 
     def __str__(self):
-        return "%s (%s, %s)" % (self.name, self.path, self.kind)
+        return "%s (%s)" % (self.name, self.path)
 
     def __hash__(self):
         return hash(self.name)
@@ -122,7 +120,6 @@ class Source(object):
         log.debug("iadd rhs: %r", other)
         assert self.name == other.name
         self.path = self.path or other.path
-        self.kind = self.kind or other.kind
         self.imports |= other.imports
         self.imported_by |= other.imported_by
         self.bacon = min(self.bacon, other.bacon)
@@ -130,29 +127,14 @@ class Source(object):
         log.debug("iadd result: %r", self)
         return self
 
-    # def imported_modules(self, depgraph):
-    #     for name in self.imports:
-    #         yield depgraph[name]
-
     @property
     def label(self):
         """Convert a module name to a formatted node label. This is a default
            policy - please override.
         """
         if len(self.name) > 14 and '.' in self.name:
-            return '\\.\\n'.join(self.name.split('.'))
+            return '\\.\\n'.join(self.name.split('.'))  # pragma: nocover
         return self.name
-
-    @property
-    def basename(self):
-        if self.kind == imp.PKG_DIRECTORY or self.path.endswith('__init__.py'):
-            return self.name
-        else:
-            i = self.name.rfind('.')
-            if i < 0:
-                return ''
-            else:
-                return self.name[:i]
 
 
 class DepGraph(object):
@@ -239,8 +221,8 @@ class DepGraph(object):
 
         self.sources = {}             # module_name -> Source
         self.skiplist = [re.compile(fnmatch.translate(arg)) for arg in args['exclude']]
-        # print "SKPLIST:", self.skiplist[0].pattern
-        depgraf = {name: imports for (name, imports) in list(depgraf.items()) if not name.endswith('.py')} # FIXME: we already checking the suffix in the following for loop
+        # FIXME: we already checking the suffix in the following for loop
+        depgraf = {name: imports for (name, imports) in list(depgraf.items()) if not name.endswith('.py')}
 
         for name, imports in list(depgraf.items()):
             log.debug("depgraph name=%r imports=%r", name, imports)
@@ -267,7 +249,7 @@ class DepGraph(object):
                 self.add_source(src)
 
         self.module_count = len(self.sources)
-        self.verbose(1, "there are", self.module_count, "total modules")
+        cli.verbose(1, "there are", self.module_count, "total modules")
 
         self.connect_generations()
         if self.args['show_cycles']:
@@ -282,19 +264,19 @@ class DepGraph(object):
         excluded = [v for v in list(self.sources.values()) if v.excluded]
         # print "EXCLUDED:", excluded
         self.skip_count = len(excluded)
-        self.verbose(1, "skipping", self.skip_count, "modules")
+        cli.verbose(1, "skipping", self.skip_count, "modules")
         for module in excluded:
             # print 'exclude:', module.name
-            self.verbose(2, "  ", module.name)
+            cli.verbose(2, "  ", module.name)
 
         self.remove_excluded()
 
         if not self.args['show_deps']:
-            self.verbose(3, self)
+            cli.verbose(3, self)
 
-    def verbose(self, n, *args):
-        if self.args['verbose'] >= n:
-            print(' '.join(str(a) for a in args))
+    # def verbose(self, n, *args):
+    #     if self.args['verbose'] >= n:
+    #         print(*args)
 
     def add_source(self, src):
         if src.name in self.sources:
@@ -327,7 +309,7 @@ class DepGraph(object):
         # for _src in list(self.sources.values()):
         for _src in self.sources.values():
             for source in visit(_src):
-                self.verbose(4, "Yielding", source[0], source[1])
+                cli.verbose(4, "Yielding", source[0], source[1])
                 yield source
 
     def __repr__(self):
@@ -381,24 +363,25 @@ class DepGraph(object):
             for imp in src.imports:
                 bacon(self.sources[imp], n + 1)
 
-        # print "SOURCES:", self.sources
-        bacon(self.sources['__main__'], 0)
-        # ritems = [(v, k) for k, v in count.items()]
-        # for i, (v, k) in enumerate(sorted(ritems, reverse=True)):
-        #     print k.rjust(25), v
+        if '__main__' in self.sources:
+            # print("FOUND MAIN", self.sources['__main__'])
+            bacon(self.sources['__main__'], 0)
+        elif self.args['dummyname'] in self.sources:
+            # print('\n'*10, "USING DUMMY", repr(self.sources))
+            bacon(self.sources[self.args['dummyname']], 0)
 
     def exclude_noise(self):
         for src in list(self.sources.values()):
             if src.excluded:
                 continue
             if src.is_noise():
-                self.verbose(2, "excluding", src, "because it is noisy:", src.degree)
+                cli.verbose(2, "excluding", src, "because it is noisy:", src.degree)
                 src.excluded = True
                 # print "Exluding noise:", src.name
                 self._add_skip(src.name)
 
     def exclude_bacon(self, limit):
-        """Exclude models that are more than `limit` hops away from __main__.
+        """Exclude modules that are more than `limit` hops away from __main__.
         """
         for src in list(self.sources.values()):
             if src.bacon > limit:

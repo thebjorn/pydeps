@@ -157,42 +157,48 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
 
 Usage::
 
-     usage: pydeps-script.py [-h] [--config FILE] [--no-config] [-v] [-o file]
-                             [-T FORMAT] [--display PROGRAM] [--noshow]
-                             [--show-deps] [--show-raw-deps] [--show-dot]
-                             [--show-cycles] [--debug] [--noise-level INT]
-                             [--max-bacon INT] [--pylib] [--pylib-all]
-                             [-x FNAME [FNAME ...]]
-                             fname
-     
-     positional arguments:
-       fname                 filename
-     
-     optional arguments:
-       -h, --help            show this help message and exit
-       --config FILE         specify config file
-       --no-config           disable processing of config files
-       -v, --verbose         be more verbose (-vv, -vvv for more verbosity)
-       -o file               write output to 'file'
-       -T FORMAT             output format (svg|png)
-       --display PROGRAM     program used to display the graph (png or svg file
-                             depending on the T parameter)
-       --noshow              don't call external program to display graph
-       --show-deps           show output of dependency analysis
-       --show-raw-deps       show output of dependency analysis before removing
-                             skips
-       --show-dot            show output of dot conversion
-       --show-cycles         show only import cycles
-       --debug               turn on all the show and verbose options
-       --noise-level INT     exclude sources or sinks with degree greater than
-                             noise-level
-       --max-bacon INT       exclude nodes that are more than n hops away
-                             (default=2, 0 -> infinite)
-       --pylib               include python std lib modules
-       --pylib-all           include all std lib modules (incl. C modules)
-       -x FNAME [FNAME ...], --exclude FNAME [FNAME ...]
-                             input files to skip
-     
+    usage: pydeps [-h] [--config FILE] [--no-config] [--version] [-L LOG] [-v]
+                  [-o file] [-T FORMAT] [--display PROGRAM] [--noshow]
+                  [--show-deps] [--show-raw-deps] [--show-dot] [--nodot]
+                  [--show-cycles] [--debug] [--noise-level INT] [--max-bacon INT]
+                  [--pylib] [--pylib-all] [--include-missing]
+                  [-x FNAME [FNAME ...]] [--externals]
+                  fname
+
+positional arguments:
+  fname                 filename
+
+optional arguments:
+  -h, --help                             show this help message and exit
+  --config FILE                          specify config file
+  --no-config                            disable processing of config files
+  --version                              print pydeps version
+  -L LOG, --log LOG                      set log-level to one of CRITICAL, ERROR, WARNING,
+                                         INFO, DEBUG, NOTSET.
+  -v, --verbose                          be more verbose (-vv, -vvv for more verbosity)
+  -o file                                write output to 'file'
+  -T FORMAT                              output format (svg|png)
+  --display PROGRAM                      program to use to display the graph (png or svg file
+                                         depending on the T parameter)
+  --noshow                               don't call external program to display graph
+  --show-deps                            show output of dependency analysis
+  --show-raw-deps                        show output of dependency analysis before removing
+                                         skips
+  --show-dot                             show output of dot conversion
+  --nodot                                skip dot conversion
+  --show-cycles                          show only import cycles
+  --debug                                turn on all the show and verbose options
+  --noise-level INT                      exclude sources or sinks with degree greater than
+                                         noise-level
+  --max-bacon INT                        exclude nodes that are more than n hops away
+                                         (default=2, 0 -> infinite)
+  --pylib                                include python std lib modules
+  --pylib-all                            include python all std lib modules (incl. C modules)
+  --x FNAME, --exclude FNAME             input files to skip (multiple file names can be provided)
+  --externals                            create list of direct external dependencies
+
+
+
      
 You can of course import ``pydeps`` from Python (look in the
 ``tests/test_relative_imports.py`` file for examples.

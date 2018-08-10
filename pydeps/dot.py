@@ -2,24 +2,29 @@
 """
 Graphviz interface.
 """
-
+import os
 import sys
 from subprocess import Popen
 import subprocess
 import shlex
 
+from . import cli
 
 win32 = sys.platform == 'win32'
 
+
 def is_unicode(s):
-    """Test unicode with py3 support."""
+    """Test unicode with py3 support.
+    """
     try:
         return isinstance(s, unicode)
     except NameError:
         return False
 
+
 def to_bytes(s):
-    """Convert an item into bytes."""
+    """Convert an item into bytes.
+    """
     if isinstance(s, bytes):
         return s
     if isinstance(s, str) or is_unicode(s):
@@ -28,6 +33,7 @@ def to_bytes(s):
         return unicode(s).encode("utf-8")
     except NameError:
         return str(s).encode("utf-8")
+
 
 def cmd2args(cmd):
     """Prepare a command line for execution by Popen.
@@ -61,32 +67,35 @@ def dot(src, **kw):
     return pipe(cmd, to_bytes(src))
 
 
-# class Digraph(list):
-#     def __init__(self, content=None, name='G'):
-#         self.name = name
-#         if content is not None:
-#             if isinstance(content, list):
-#                 self.extend(content)
-#             elif isinstance(content, basestring):
-#                 self.append(content)
-#
-#     @property
-#     def content(self):
-#         return ';\n    '.join(self)
-#
-#     def __eq__(self, other):
-#         aval = re.sub(r'\s+', ' ', unicode(self)).strip()
-#         bval = re.sub(r'\s+', ' ', unicode(other)).strip()
-#         return aval == bval
-#
-#     def __unicode__(self):
-#         return textwrap.dedent(u"""
-#            digraph {self.name} {{
-#                {self.content}
-#            }}
-#         """.format(self=self))
-#
-#     def __str__(self):
-#         return unicode(self).encode('utf-8')
-#
-#     __repr__ = __str__
+def call_graphviz_dot(src, fmt):
+    """Call dot command, and provide helpful error message if we
+       cannot find it.
+    """
+    try:
+        svg = dot(src, T=fmt)
+    except OSError as e:
+        if e.errno == 2:
+            cli.error("""
+               cannot find 'dot'
+
+               pydeps calls dot (from graphviz) to create svg diagrams,
+               please make sure that the dot executable is available
+               on your path.
+            """)
+        raise
+    return svg
+
+
+def display_svg(kw, fname):
+    """Try to display the svg file on this platform.
+    """
+    if kw['display'] is None:
+        cli.verbose("Displaying:", fname)
+        if sys.platform == 'win32':
+            os.startfile(fname)
+        else:
+            opener = "open" if sys.platform == "darwin" else "xdg-open"
+            subprocess.call([opener, fname])
+    else:
+        cli.verbose(kw['display'] + " " + fname)
+        os.system(kw['display'] + " " + fname)

@@ -27,8 +27,9 @@ import sys
 from collections import defaultdict
 
 import enum
-from .pystdlib import pystdlib
 
+from .dummymodule import DummyModule
+from .pystdlib import pystdlib
 from . import depgraph
 from . import mf27
 import logging
@@ -78,7 +79,7 @@ class Module(object):
 
 
 class MyModuleFinder(mf27.ModuleFinder):
-    def __init__(self, fname, *args, **kwargs):
+    def __init__(self, syspath, *args, **kwargs):
         self.args = kwargs
         self.verbose = kwargs.get('verbose', 0)
 
@@ -96,7 +97,7 @@ class MyModuleFinder(mf27.ModuleFinder):
 
         debug = 5 if self.verbose >= 4 else 0
         mf27.ModuleFinder.__init__(self,
-                                   path=fname,
+                                   path=syspath,
                                    debug=debug,
                                    # debug=3,
                                    excludes=kwargs.get('excludes', []))
@@ -185,119 +186,33 @@ class RawDependencies(object):
         self.types = mf._types
 
 
-def pysource(fname):
-    return not fname.startswith('.') and fname.endswith('.py')
-
-
-def fname2modname(fname, package, prefix=""):
-    pkg_dir, pkg_name = os.path.split(package)
-    if fname.endswith('__init__.py'):
-        return pkg_name
-
-    if fname.startswith(package):
-        fname = fname[len(pkg_dir) + 1: -3]
-    return prefix + fname.replace('\\', '.').replace('/', '.')
-
-
-def _pyfiles(directory, package=True, **args):
-    for root, dirs, files in os.walk(directory):
-        if package and '__init__.py' not in files:
-            continue
-        dotdirs = [d for d in dirs if d.startswith('.')]
-        for d in dotdirs:
-            dirs.remove(d)
-        for fname in files:
-            if pysource(fname):  # and fname not in args['exclude']:
-                yield os.path.abspath(os.path.join(root, fname))
-
-
-def is_module(directory):
-    return os.path.isdir(directory) and '__init__.py' in os.listdir(directory)
-
-
-def _create_dummy_module(package_name, **args):
-    """Create a module that imports all files inside the package
+def py2dep(target, **kw):
+    """"Calculate dependencies for ``pattern`` and return a DepGraph.
     """
-    dummy = '_dummy_%s.py' % package_name
-    package = os.path.abspath(package_name)
+    log.info("py2dep(%r)", target)
+    dummy = DummyModule(target, **kw)
 
-    prefix = []
-    base, mod = os.path.split(package)
-    while 1:
-        if not is_module(base):
-            break
-        base, mod = os.path.split(base)
-        prefix.insert(0, mod)
-    prefix = '.'.join(prefix)
-    if prefix:
-        prefix += '.'
-
-    def legal_module_name(name):
-        for part in name.split('.'):
-            try:
-                exec("%s = 42" % part, {}, {})
-            except:
-                return False
-        return True
-
-    def print_import(fp, module):
-        if 'migrations' in module:
-            return
-        if not legal_module_name(module):
-            return
-        print("try:", file=fp)
-        print("    import", module, file=fp)
-        print("except:", file=fp)
-        print("    pass", file=fp)
-
-    if is_module(package):
-        if args['verbose']: print("found package")
-        with open(dummy, 'w') as fp:
-            for fname in _pyfiles(package, **args):
-                modname = fname2modname(fname, package, prefix)
-                print_import(fp, modname)
-
-    elif os.path.isdir(package):
-        if args['verbose']: print("found directory")
-        dummy = os.path.join(package, dummy)
-        with open(dummy, 'w') as fp:
-            for fname in os.listdir(package):
-                if pysource(fname):
-                    print_import(fp, fname2modname(fname, package))
-
-    else:
-        if args['verbose']: print("found file")
-        with open(dummy, 'w') as fp:
-            print_import(fp, os.path.splitext(package_name)[0])
-
-    return dummy
-
-
-def _find_files(start, **args):
-    if os.path.isdir(start):
-        filenames = os.listdir(start)
-        if '__init__.py' in filenames:
-            if args['verbose'] >= 1: print('found package:', start)
-            yield _create_dummy_module(start)
-        else:
-            for fname in filenames:
-                yield fname
-    else:
-        yield start
-
-
-def py2dep(pattern, **kw):
-    fname = _create_dummy_module(pattern, **kw)
-    path = sys.path[:]
-    path.insert(0, os.path.dirname(fname))
+    kw['dummyname'] = dummy.fname
+    syspath = sys.path[:]
+    syspath.insert(0, target.syspath_dir)
 
     # remove exclude so we don't pass it twice to modulefinder
     exclude = ['migrations'] + kw.pop('exclude', [])
     log.debug("Exclude: %r", exclude)
     log.debug("KW: %r", kw)
+    if 'fname' in kw:
+        del kw['fname']
 
-    mf = MyModuleFinder(path, exclude, **kw)
-    mf.run_script(fname)
+    mf = MyModuleFinder(
+        syspath,                # module search path for this module finder
+        excludes=exclude,       # folders to exclude
+        **kw
+    )
+    mf.debug = max(mf.debug, kw['debug_mf'])
+    log.debug("CURDIR: %s", os.getcwd())
+    log.debug("FNAME: %r, CONTENT:\n%s\n", dummy.fname, dummy.text())
+    mf.run_script(dummy.fname)
+
     log.info("mf._depgraph:\n%s", json.dumps(dict(mf._depgraph), indent=4))
     log.info("mf.badmodules:\n%s", json.dumps(mf.badmodules, indent=4))
 
@@ -315,15 +230,13 @@ def py2dep(pattern, **kw):
 
     log.info("mf._depgraph:\n%s", json.dumps(dict(mf._depgraph), indent=4))
 
-    # remove dummy file and restore exclude argument
-    os.unlink(fname)
     kw['exclude'] = exclude
 
     if kw.get('pylib'):
         mf_depgraph = mf._depgraph
         for k, v in list(mf._depgraph.items()):
             log.debug('depgraph item: %r %r', k, v)
-        # mf_modules = {k: os.path.abspath(v.__file__)
+        # mf_modules = {k: os.syspath.abspath(v.__file__)
         #               for k, v in mf.modules.items()}
     else:
         pylib = pystdlib()
@@ -335,7 +248,7 @@ def py2dep(pattern, **kw):
             vals = {vk: vv for vk, vv in list(v.items()) if vk not in pylib}
             mf_depgraph[k] = vals
 
-        # mf_modules = {k: os.path.abspath(v.__file__)
+        # mf_modules = {k: os.syspath.abspath(v.__file__)
         #               for k, v in mf.modules.items()
         #               if k not in pylib}
 

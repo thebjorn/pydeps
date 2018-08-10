@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 
 from tests.filemaker import create_files
 from tests.simpledeps import simpledeps
@@ -10,7 +11,7 @@ def test_file():
             import collections
     """
     with create_files(files) as workdir:
-        assert simpledeps('a') == []
+        assert simpledeps('a.py') == []
 
 
 def test_file_pylib():
@@ -19,7 +20,7 @@ def test_file_pylib():
             import collections
     """
     with create_files(files) as workdir:
-        assert 'collections -> a' in simpledeps('a', '--pylib')
+        assert 'collections -> a' in simpledeps('a.py', '--pylib')
 
 
 def test_file_pyliball():
@@ -28,4 +29,4 @@ def test_file_pyliball():
             import collections
     """
     with create_files(files) as workdir:
-        assert 'collections -> a' in simpledeps('a', '--pylib --pylib-all')
+        assert 'collections -> a' in simpledeps('a.py', '--pylib --pylib-all')
