@@ -36,7 +36,7 @@ class imp(enum.Enum):
 
 
 class Source(object):
-    def __init__(self, name, kind=imp.UNKNOWN, path=None, imports=(), exclude=False, args=None):
+    def __init__(self, name, path=None, imports=(), exclude=False, args=None):
         self.args = args or {}
         if name == "__main__" and path:
             self.name = path.replace('\\', '/').replace('/', '.')
@@ -230,7 +230,6 @@ class DepGraph(object):
                 name = name[:-3]
             src = Source(
                 name=name,
-                # kind=imp(types.get(name, 0)),
                 imports=list(imports.keys()),  # XXX: throwing away .values(), which is abspath!
                 args=args,
                 exclude=self._exclude(name),
@@ -241,7 +240,6 @@ class DepGraph(object):
                     iname = iname[:-3]
                 src = Source(
                     name=iname,
-                    # kind=imp(types.get(name, 0)),
                     path=path,
                     args=args,
                     exclude=self._exclude(iname)

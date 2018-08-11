@@ -650,10 +650,10 @@ class ModuleFinder:
 
         if self.debug and original_filename not in self.processed_paths:
             if new_filename != original_filename:
-                self.msgout(2, "co_filename %r changed to %r" \
+                self.msgout(2, "co_filename %r changed to %r"
                             % (original_filename, new_filename,))
             else:
-                self.msgout(2, "co_filename %r remains unchanged" \
+                self.msgout(2, "co_filename %r remains unchanged"
                             % (original_filename,))
             self.processed_paths.append(original_filename)
 

@@ -66,8 +66,10 @@ class Target(object):
         for d in self.get_parents():
             if '__init__.py' not in os.listdir(d):
                 return d
-        # pragma: nocover
-        raise Exception("do you have an __init__.py file at the root of the drive..?")
+
+        raise Exception(
+            "do you have an __init__.py file at the "
+            "root of the drive..?")  # pragma: nocover
 
     def get_parents(self):
         def _parent_iter():

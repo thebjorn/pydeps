@@ -69,9 +69,7 @@ class RenderContext(object):
         """
         if attrs:
             self.write(
-                ' ['
-                + ','.join('%s="%s"' % kv for kv in list(attrs.items()))
-                + ']'
+                ' [' + ','.join('%s="%s"' % kv for kv in attrs.items()) + ']'
             )
         else:  # pragma: nocover
             pass

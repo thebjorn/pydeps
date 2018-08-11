@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""
+command line interface (cli) code.
+"""
+# pylint: disable=line-too-long
 from __future__ import print_function
 import argparse
 from .pycompat import configparser
@@ -9,7 +13,7 @@ import textwrap
 from . import __version__
 
 
-def error(*args, **kwargs):
+def error(*args, **kwargs):  # pragma: nocover
     """Print an error message and exit.
     """
     kwargs['file'] = sys.stderr
@@ -21,7 +25,7 @@ def error(*args, **kwargs):
 verbose = None
 
 
-def _not_verbose(*args, **kwargs):
+def _not_verbose(*args, **kwargs):  # pragma: nocover
     pass
 
 
@@ -32,7 +36,6 @@ def _mkverbose(level):
             args = (n,) + args
             n = 1
         if 0 < level <= n:
-            # print("VERBOSE:", level, n, *args, **kwargs)
             print(*args, **kwargs)
     return _verbose
 

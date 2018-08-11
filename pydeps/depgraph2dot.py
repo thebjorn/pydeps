@@ -44,7 +44,7 @@ class PyDepGraphDot(object):
                     aname, bname,
                     weight=depgraph.proximity_metric(a, b),
                     minlen=depgraph.dissimilarity_metric(a, b),
-                    #style='dotted',
+                    # style='dotted',
                 )
 
             for a, b in depgraph:
