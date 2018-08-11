@@ -44,7 +44,7 @@ def test_relative_imports3():
     with create_files(files) as workdir:
         assert simpledeps('relimp') == ['relimp.b -> relimp.a']
 
-@pytest.mark.skipif(sys.version_info < (3,), reason="implicit relative import is valid in py2")
+
 def test_relative_imports_same_name_with_std():
     files = """
         relimp:
@@ -53,7 +53,27 @@ def test_relative_imports_same_name_with_std():
                 import io
     """
     with create_files(files) as workdir:
-        assert simpledeps('relimp', '--pylib') == ['io -> relimp.io']
+        if sys.version_info < (3,):                # pragma: nocover
+            deps = ['relimp.io -> relimp.io']
+        else:                                      # pragma: nocover
+            deps = ['io -> relimp.io']
+        assert simpledeps('relimp', '--pylib') == deps
+
+
+def test_relative_imports_same_name_with_std_future():
+    files = """
+        relimp:
+            - __init__.py
+            - io.py: |
+                from __future__ import absolute_import
+                import io
+    """
+    with create_files(files) as workdir:
+        deps = [
+            '__future__ -> relimp.io',
+            'io -> relimp.io'
+        ]
+        assert simpledeps('relimp', '--pylib') == deps
 
 
 def test_pydeps_colors():
