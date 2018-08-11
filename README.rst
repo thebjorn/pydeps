@@ -79,6 +79,9 @@ This is the result of running ``pydeps`` on itself (``pydeps pydeps``):
 
 .. image:: https://github.com/thebjorn/pydeps/blob/master/docs/_static/pydeps.svg
 
+.. image:: https://raw.githubusercontent.com/thebjorn/pydeps/blob/master/docs/_static/pydeps.svg
+
+
 ``pydeps`` also contains an Erdős-like scoring function (a.k.a. Bacon
 number, from Six degrees of Kevin Bacon
 (http://en.wikipedia.org/wiki/Six_Degrees_of_Kevin_Bacon) that lets
