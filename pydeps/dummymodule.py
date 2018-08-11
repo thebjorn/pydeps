@@ -23,7 +23,8 @@ def is_pysource(fname):
 
 
 def fname2modname(fname, package_root):
-    modname = os.path.splitext(fname)[0][len(package_root):].lstrip('\\').replace(os.path.sep, '.')
+    subpath = os.path.splitext(fname)[0][len(package_root):]
+    modname = subpath.lstrip(os.path.sep).replace(os.path.sep, '.')
     return modname
 
 

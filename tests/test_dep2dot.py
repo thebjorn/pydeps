@@ -18,7 +18,7 @@ def test_dep2dot():
             - b.py
     """
     with create_files(files) as workdir:
-        assert simpledeps('foo') == [
+        assert simpledeps('foo', '-LDEBUG -vv') == [
             'foo.b -> foo.a'
         ]
 

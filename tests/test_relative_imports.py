@@ -5,6 +5,7 @@ from tests.filemaker import create_files
 from tests.simpledeps import simpledeps
 import pytest
 
+
 def test_relative_imports():
     files = """
         relimp:
