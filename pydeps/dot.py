@@ -13,7 +13,7 @@ from . import cli
 win32 = sys.platform == 'win32'
 
 
-def is_unicode(s):
+def is_unicode(s):  # pragma: nocover
     """Test unicode with py3 support.
     """
     try:
@@ -22,7 +22,7 @@ def is_unicode(s):
         return False
 
 
-def to_bytes(s):
+def to_bytes(s):  # pragma: nocover
     """Convert an item into bytes.
     """
     if isinstance(s, bytes):
@@ -73,7 +73,7 @@ def call_graphviz_dot(src, fmt):
     """
     try:
         svg = dot(src, T=fmt)
-    except OSError as e:
+    except OSError as e:  # pragma: nocover
         if e.errno == 2:
             cli.error("""
                cannot find 'dot'
@@ -86,7 +86,7 @@ def call_graphviz_dot(src, fmt):
     return svg
 
 
-def display_svg(kw, fname):
+def display_svg(kw, fname):  # pragma: nocover
     """Try to display the svg file on this platform.
     """
     if kw['display'] is None:
