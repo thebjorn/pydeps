@@ -221,13 +221,12 @@ class DepGraph(object):
 
         self.sources = {}             # module_name -> Source
         self.skiplist = [re.compile(fnmatch.translate(arg)) for arg in args['exclude']]
-        # FIXME: we already checking the suffix in the following for loop
-        depgraf = {name: imports for (name, imports) in list(depgraf.items()) if not name.endswith('.py')}
+        # depgraf = {name: imports for (name, imports) in depgraf.items()}
 
         for name, imports in list(depgraf.items()):
             log.debug("depgraph name=%r imports=%r", name, imports)
-            if name.endswith('.py'):
-                name = name[:-3]
+            # if name.endswith('.py'):
+            #     name = name[:-3]
             src = Source(
                 name=name,
                 imports=list(imports.keys()),  # XXX: throwing away .values(), which is abspath!
@@ -236,8 +235,8 @@ class DepGraph(object):
             )
             self.add_source(src)
             for iname, path in list(imports.items()):
-                if iname.endswith('.py'):
-                    iname = iname[:-3]
+                # if iname.endswith('.py'):
+                #     iname = iname[:-3]
                 src = Source(
                     name=iname,
                     path=path,
@@ -361,6 +360,7 @@ class DepGraph(object):
             for imp in src.imports:
                 bacon(self.sources[imp], n + 1)
 
+        # print("SOURCES:", self.sources)
         if '__main__' in self.sources:
             # print("FOUND MAIN", self.sources['__main__'])
             bacon(self.sources['__main__'], 0)
