@@ -11,7 +11,7 @@ def test_file():
             import collections
     """
     with create_files(files) as workdir:
-        assert simpledeps('a.py') == []
+        assert simpledeps('a.py') == set()
 
 
 def test_file_pylib():

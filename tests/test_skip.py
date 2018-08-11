@@ -15,9 +15,9 @@ def test_skip_modules():
             - c.py
     """
     with create_files(files) as workdir:
-        assert simpledeps('relimp', '-x relimp.c') == [
+        assert simpledeps('relimp', '-x relimp.c') == {
             'relimp.b -> relimp.a'
-        ]
+        }
         # g = depgrf('relimp', '-x relimp.c relimp.b')
         # print g
         # print simpledeps('relimp', '-x relimp.c relimp.b')
@@ -36,6 +36,6 @@ def test_rawdeps():
             - c.py
     """
     with create_files(files) as workdir:
-        assert simpledeps('relimp', '--show-raw-deps -x relimp.c') == [
+        assert simpledeps('relimp', '--show-raw-deps -x relimp.c') == {
             'relimp.b -> relimp.a'
-        ]
+        }

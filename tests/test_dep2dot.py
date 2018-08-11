@@ -18,9 +18,9 @@ def test_dep2dot():
             - b.py
     """
     with create_files(files) as workdir:
-        assert simpledeps('foo', '-LDEBUG -vv') == [
+        assert simpledeps('foo', '-LDEBUG -vv') == {
             'foo.b -> foo.a'
-        ]
+        }
 
         args = pydeps.cli.parse_args(["foo", "--noshow"])
         pydeps.pydeps(**args)

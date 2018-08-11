@@ -16,4 +16,4 @@ def depgrf(item, args=""):
 
 
 def simpledeps(item, args=""):
-    return ["%s -> %s" % (a.name, b.name) for a, b in depgrf(item, args)]
+    return {"%s -> %s" % (a.name, b.name) for a, b in depgrf(item, args)}

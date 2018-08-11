@@ -15,9 +15,9 @@ def test_relative_imports():
             - b.py
     """
     with create_files(files) as workdir:
-        assert simpledeps('foo') == [
+        assert simpledeps('foo') == {
             'bar -> foo.a',
             'bar.b -> foo.a'
-        ]
+        }
 
         assert pydeps(fname='foo', externals=True) == ['bar']
