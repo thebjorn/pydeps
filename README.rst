@@ -12,8 +12,8 @@ pydeps
    :target: https://travis-ci.org/thebjorn/pydeps
 
 
-.. image:: https://coveralls.io/repos/thebjorn/pydeps/badge.png
-   :target: https://coveralls.io/r/thebjorn/pydeps
+.. image:: https://coveralls.io/repos/github/thebjorn/pydeps/badge.svg?branch=master
+   :target: https://coveralls.io/github/thebjorn/pydeps?branch=master
 
 .. image:: https://landscape.io/github/thebjorn/pydeps/master/landscape.svg?style=flat
    :target: https://landscape.io/github/thebjorn/pydeps/master
