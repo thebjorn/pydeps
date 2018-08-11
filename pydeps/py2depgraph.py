@@ -208,7 +208,7 @@ def py2dep(target, **kw):
         excludes=exclude,       # folders to exclude
         **kw
     )
-    mf.debug = max(mf.debug, kw['debug_mf'])
+    mf.debug = max(mf.debug, kw.get('debug_mf', 0))
     log.debug("CURDIR: %s", os.getcwd())
     log.debug("FNAME: %r, CONTENT:\n%s\n", dummy.fname, dummy.text())
     mf.run_script(dummy.fname)

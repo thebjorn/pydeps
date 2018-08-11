@@ -60,7 +60,7 @@ def depgraph_to_dotsrc(dep_graph, show_cycles, nodot):
     return dotsrc
 
 
-def externals(pkgname, **kwargs):
+def externals(trgt, **kwargs):
     """Return a list of direct external dependencies of ``pkgname``.
        Called for the ``pydeps --externals`` command.
     """
@@ -72,7 +72,8 @@ def externals(pkgname, **kwargs):
         show_raw_deps=False, verbose=0, include_missing=True,
     )
     kw.update(kwargs)
-    depgraph = py2depgraph.py2dep(pkgname, **kw)
+    depgraph = py2depgraph.py2dep(trgt, **kw)
+    pkgname = trgt.fname
     log.info("DEPGRAPH: %s", depgraph)
     pkgname = os.path.splitext(pkgname)[0]
 
@@ -108,19 +109,23 @@ def pydeps(**args):
     if _args.get('output'):
         _args['output'] = os.path.abspath(_args['output'])
     else:
-        _args['output'] = os.path.join(inp.calling_dir,
-                                       inp.modpath.replace('.', '_') + '.' + _args['format'])
+        _args['output'] = os.path.join(
+            inp.calling_dir,
+            inp.modpath.replace('.', '_') + '.' + _args.get('format', 'svg')
+        )
 
     with inp.chdir_work():
         _args['fname'] = inp.fname
         _args['isdir'] = inp.is_dir
 
-        if _args['externals']:
+        if _args.get('externals'):
             del _args['fname']
-            exts = externals(inp.fname, **_args)
+            exts = externals(inp, **_args)
             print(json.dumps(exts, indent=4))
+            return exts  # so the tests can assert
         else:
-            _pydeps(inp, **_args)        # <=== this is the call you're looking for :-)
+            # this is the call you're looking for :-)
+            return _pydeps(inp, **_args)
 
 
 if __name__ == '__main__':  # pragma: nocover
