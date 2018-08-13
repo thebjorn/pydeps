@@ -5,11 +5,13 @@
 """
 # pragma: nocover
 import io
+import sys
+
 import setuptools
 from distutils.core import setup
 from setuptools.command.test import test as TestCommand
 
-version='1.5.1'
+version='1.6.1'
 
 
 class PyTest(TestCommand):

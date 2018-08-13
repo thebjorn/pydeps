@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
+import sys
+
+import pydeps.cli
 from pydeps import pydeps
+from pydeps.target import Target
 from tests.filemaker import create_files
 from tests.simpledeps import simpledeps
 
@@ -14,8 +18,10 @@ def test_dep2dot():
             - b.py
     """
     with create_files(files) as workdir:
-        assert simpledeps('foo') == [
+        assert simpledeps('foo', '-LDEBUG -vv') == {
             'foo.b -> foo.a'
-        ]
-        pydeps._pydeps(**pydeps.parse_args(["foo", "--noshow"]))
+        }
+
+        args = pydeps.cli.parse_args(["foo", "--noshow"])
+        pydeps.pydeps(**args)
         assert os.path.exists(os.path.join(workdir, 'foo.svg'))

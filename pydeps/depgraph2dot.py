@@ -44,7 +44,7 @@ class PyDepGraphDot(object):
                     aname, bname,
                     weight=depgraph.proximity_metric(a, b),
                     minlen=depgraph.dissimilarity_metric(a, b),
-                    #style='dotted',
+                    # style='dotted',
                 )
 
             for a, b in depgraph:
@@ -132,27 +132,3 @@ def cycles2dot(depgraph):
     dotter = CycleGraphDot()
     ctx = RenderContext()
     return dotter.render(depgraph, ctx)
-
-
-# def depgraph2dot():  # pragma: nocover
-#     opts, _args = getopt.getopt(sys.argv[1:], '-f:', ['mono', 'file='])
-
-#     _colored = True
-#     _output = sys.stdout
-#     for _opt, _val in opts:
-#         if _opt == '--mono':
-#             _colored = False
-#         if _opt in ('-f', '--file'):
-#             _output = open(_val, 'w')
-
-#     dotter = PyDepGraphDot(colored=_colored)
-#     ctx = RenderContext(_output)
-#     dotter.render(
-#         data=json.loads(sys.stdin.read()),
-#         ctx=ctx
-#     )
-#     _output.close()
-
-
-# if __name__ == '__main__':  # pragma: nocover
-#     depgraph2dot()

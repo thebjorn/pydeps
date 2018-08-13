@@ -15,7 +15,7 @@ install:
   - pip install coveralls
 
 script:
-  py.test --cov=pydeps
+  py.test -vv --cov=pydeps .
 
 after_success:
   coveralls
