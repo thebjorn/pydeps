@@ -44,7 +44,7 @@ def _pydeps(trgt, **kw):
             cli.verbose("Writing output to:", output)
             fp.write(svg)
 
-        if show_svg or show_cycles:
+        if show_svg:
             dot.display_svg(kw, output)
 
 
