@@ -54,11 +54,7 @@ coverage.xml
 docs/_build/
 
 # PyCharm files with paths
-.idea/workspace.xml
-.idea/pydeps.iml
-.idea/misc.xml
-.idea/codeStyles/
-.idea/dbnavigator.xml
+.idea/
 
 # emacs temp files
 *.py~
@@ -74,6 +70,5 @@ README.html
 .lintscore6
 *.json
 source.jdb
-.idea/deployment.xml
 docs/.md5
 pydeps.svg
