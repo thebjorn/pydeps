@@ -35,6 +35,8 @@ def python_sources_below(directory, package=True):
         dotdirs = [d for d in dirs if d.startswith('.')]
         for d in dotdirs:
             dirs.remove(d)
+        if 'migrations' in dirs:
+            dirs.remove('migrations')
         for fname in files:
             if is_pysource(fname):  # and fname not in args['exclude']:
                 if fname == '__init__.py':
