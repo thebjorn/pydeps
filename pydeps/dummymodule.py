@@ -110,7 +110,8 @@ class DummyModule(object):
 
     def print_import(self, fp, module):
         if not self.legal_module_name(module):
-            log.error("NOT LEGAL MODULE_NAME: %s", module)
+            log.warning("SKIPPING ILLEGAL MODULE_NAME: %s", module)
+            return
 
         mparts = module.rsplit('.', 1)
         # we're not executing the file in fp, so really not necessary to
@@ -123,3 +124,11 @@ class DummyModule(object):
             print(textwrap.dedent("""\
                 from {prefix} import {mname}
             """).format(prefix=mparts[0], mname=mparts[1]), file=fp)
+        # if len(mparts) == 1:
+        #     print(textwrap.dedent("""\
+        #         import {module}
+        #     """).format(module=module))
+        # else:
+        #     print(textwrap.dedent("""\
+        #         from {prefix} import {mname}
+        #     """).format(prefix=mparts[0], mname=mparts[1]))
