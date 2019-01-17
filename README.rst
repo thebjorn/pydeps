@@ -18,6 +18,10 @@ pydeps
 .. image:: https://landscape.io/github/thebjorn/pydeps/master/landscape.svg?style=flat
    :target: https://landscape.io/github/thebjorn/pydeps/master
    :alt: Code Health
+   
+.. image:: https://pepy.tech/badge/pydeps
+   :target: https://pepy.tech/project/pydeps
+   :alt: Downloads
 
 Python module dependency visualization. This package installs the ``pydeps``
 command, and normal usage will be to use it from the command line.
