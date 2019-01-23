@@ -12,13 +12,15 @@ def to_unicode(s):
 
 
 class RenderContext(object):
-    def __init__(self, out=None):
+    def __init__(self, out=None, reverse=False):
         self.out = out
         self.fp = StringIO()
         self.fillcolor = '#ffffff'
         self.fontcolor = '#000000'
         self.name = None
         self.concentrate = None
+        self.rankdir = None
+        self.reverse = reverse
 
     @contextmanager
     def graph(self, **kw):
@@ -27,6 +29,7 @@ class RenderContext(object):
         self.name = kw.get('name', 'G')
         self.fillcolor = kw.get('fillcolor', '#ffffff')
         self.fontcolor = kw.get('fontcolor', '#000000')
+        self.rankdir = kw.get('rankdir', 'TB' if not self.reverse else 'BT')
         if kw.get('concentrate', True):
             self.concentrate = 'concentrate = true;'
         else:
@@ -34,6 +37,7 @@ class RenderContext(object):
         self.dedent("""
             digraph {self.name} {{
                 {self.concentrate}
+                rankdir={self.rankdir}
                 node [style=filled,fillcolor="{self.fillcolor}",fontcolor="{self.fontcolor}",fontname=Helvetica,fontsize=10];
 
         """.format(self=self))
@@ -83,6 +87,8 @@ class RenderContext(object):
             del attr[key]
 
     def write_rule(self, a, b, **attrs):
+        if self.reverse:
+            a, b = b, a
         "a -> b [a1=x,a2=y];"
         with self.rule():
             self.write('%s -> %s' % (self._nodename(a), self._nodename(b)))

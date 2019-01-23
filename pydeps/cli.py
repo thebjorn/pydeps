@@ -116,6 +116,7 @@ def parse_args(argv=()):
     p.add_argument('--show-deps', action='store_true', help="show output of dependency analysis")
     p.add_argument('--show-raw-deps', action='store_true', help="show output of dependency analysis before removing skips")
     p.add_argument('--show-dot', action='store_true', help="show output of dot conversion")
+    p.add_argument('--reverse', action='store_true', help="point arrows in direction of included module")
     p.add_argument('--nodot', action='store_true', help="skip dot conversion")
     p.add_argument('--show-cycles', action='store_true', help="show only import cycles")
     p.add_argument('--debug', action='store_true', help="turn on all the show and verbose options")
@@ -136,7 +137,7 @@ def parse_args(argv=()):
             fname=_args.fname, format='svg', max_bacon=10, no_config=False, nodot=False,
             noise_level=200, noshow=True, output=None, pylib=False, pylib_all=False,
             show=False, show_cycles=False, show_deps=False, show_dot=False,
-            show_raw_deps=False, verbose=0, include_missing=True,
+            show_raw_deps=False, verbose=0, include_missing=True, reverse=False,
         )
 
     _args.show = True
