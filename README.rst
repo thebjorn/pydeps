@@ -26,7 +26,7 @@ pydeps
 Python module dependency visualization. This package installs the ``pydeps``
 command, and normal usage will be to use it from the command line.
 
-New in version 1.7.0: The new ``--reverse`` flag reverses the direction of the arrows in the dependency graph, so they point _to_ the imported module instead of _from_ the imported module (thanks to @tobiasmaier for the bugreport and PR!).
+New in version 1.7.0: The new ``--reverse`` flag reverses the direction of the arrows in the dependency graph, so they point _to_ the imported module instead of _from_ the imported module (thanks to @goetzk for the bugreport and @tobiasmaier for the PR!).
 
 New in version 1.5.0: Python 3 support (thanks to @eight04 for the PR)
 
