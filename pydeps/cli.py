@@ -116,7 +116,7 @@ def parse_args(argv=()):
     p.add_argument('--show-deps', action='store_true', help="show output of dependency analysis")
     p.add_argument('--show-raw-deps', action='store_true', help="show output of dependency analysis before removing skips")
     p.add_argument('--show-dot', action='store_true', help="show output of dot conversion")
-    p.add_argument('--reverse', action='store_true', help="point arrows in direction of included module")
+    p.add_argument('--reverse', action='store_true', help="draw arrows in direction of dependency")
     p.add_argument('--nodot', action='store_true', help="skip dot conversion")
     p.add_argument('--show-cycles', action='store_true', help="show only import cycles")
     p.add_argument('--debug', action='store_true', help="turn on all the show and verbose options")
