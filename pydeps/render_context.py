@@ -29,7 +29,7 @@ class RenderContext(object):
         self.name = kw.get('name', 'G')
         self.fillcolor = kw.get('fillcolor', '#ffffff')
         self.fontcolor = kw.get('fontcolor', '#000000')
-        self.rankdir = kw.get('rankdir', 'TB' if not self.reverse else 'BT')
+        self.rankdir = kw.get('rankdir', 'BT' if self.reverse else 'TB')
         if kw.get('concentrate', True):
             self.concentrate = 'concentrate = true;'
         else:
