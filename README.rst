@@ -167,7 +167,7 @@ Usage::
                   [--show-deps] [--show-raw-deps] [--show-dot] [--nodot]
                   [--show-cycles] [--debug] [--noise-level INT] [--max-bacon INT]
                   [--pylib] [--pylib-all] [--include-missing]
-                  [-x FNAME [FNAME ...]] [--externals]
+                  [-x FNAME [FNAME ...]] [--externals] [--reverse]
                   fname
 
 positional arguments:
@@ -201,6 +201,7 @@ optional arguments:
   --pylib-all                            include python all std lib modules (incl. C modules)
   --x FNAME, --exclude FNAME             input files to skip (multiple file names can be provided)
   --externals                            create list of direct external dependencies
+  --reverse                              draw arrows to (instead of from) imported modules
 
 
 

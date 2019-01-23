@@ -116,7 +116,6 @@ def parse_args(argv=()):
     p.add_argument('--show-deps', action='store_true', help="show output of dependency analysis")
     p.add_argument('--show-raw-deps', action='store_true', help="show output of dependency analysis before removing skips")
     p.add_argument('--show-dot', action='store_true', help="show output of dot conversion")
-    p.add_argument('--reverse', action='store_true', help="draw arrows to (instead of from) imported modules")
     p.add_argument('--nodot', action='store_true', help="skip dot conversion")
     p.add_argument('--show-cycles', action='store_true', help="show only import cycles")
     p.add_argument('--debug', action='store_true', help="turn on all the show and verbose options")
@@ -128,6 +127,7 @@ def parse_args(argv=()):
     p.add_argument('--include-missing', action='store_true', help="include modules that are not installed (or can't be found on sys.path)")
     p.add_argument('-x', '--exclude', nargs="+", default=[], metavar="FNAME", help="input files to skip")
     p.add_argument('--externals', action='store_true', help='create list of direct external dependencies')
+    p.add_argument('--reverse', action='store_true', help="draw arrows to (instead of from) imported modules")
 
     _args = p.parse_args(argv)
 
