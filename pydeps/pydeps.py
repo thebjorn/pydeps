@@ -21,6 +21,7 @@ def _pydeps(trgt, **kw):
     output = kw.get('output')
     fmt = kw['format']
     show_svg = kw.get('show')
+    reverse = kw.get('reverse')
     if os.getcwd() != trgt.workdir:
         # the tests are calling _pydeps directoy
         os.chdir(trgt.workdir)
@@ -31,7 +32,7 @@ def _pydeps(trgt, **kw):
         cli.verbose("DEPS:")
         pprint.pprint(dep_graph)
 
-    dotsrc = depgraph_to_dotsrc(dep_graph, show_cycles, nodot)
+    dotsrc = depgraph_to_dotsrc(dep_graph, show_cycles, nodot, reverse)
 
     if not nodot:
         if kw.get('show_dot'):
@@ -48,13 +49,13 @@ def _pydeps(trgt, **kw):
             dot.display_svg(kw, output)
 
 
-def depgraph_to_dotsrc(dep_graph, show_cycles, nodot):
+def depgraph_to_dotsrc(dep_graph, show_cycles, nodot, reverse):
     """Convert the dependency graph (DepGraph class) to dot source code.
     """
     if show_cycles:
-        dotsrc = cycles2dot(dep_graph)
+        dotsrc = cycles2dot(dep_graph, reverse=reverse)
     elif not nodot:
-        dotsrc = dep2dot(dep_graph)
+        dotsrc = dep2dot(dep_graph, reverse=reverse)
     else:
         dotsrc = None
     return dotsrc

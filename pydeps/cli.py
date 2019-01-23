@@ -127,6 +127,7 @@ def parse_args(argv=()):
     p.add_argument('--include-missing', action='store_true', help="include modules that are not installed (or can't be found on sys.path)")
     p.add_argument('-x', '--exclude', nargs="+", default=[], metavar="FNAME", help="input files to skip")
     p.add_argument('--externals', action='store_true', help='create list of direct external dependencies')
+    p.add_argument('--reverse', action='store_true', help="draw arrows to (instead of from) imported modules")
 
     _args = p.parse_args(argv)
 
@@ -136,7 +137,7 @@ def parse_args(argv=()):
             fname=_args.fname, format='svg', max_bacon=10, no_config=False, nodot=False,
             noise_level=200, noshow=True, output=None, pylib=False, pylib_all=False,
             show=False, show_cycles=False, show_deps=False, show_dot=False,
-            show_raw_deps=False, verbose=0, include_missing=True,
+            show_raw_deps=False, verbose=0, include_missing=True, reverse=False,
         )
 
     _args.show = True
