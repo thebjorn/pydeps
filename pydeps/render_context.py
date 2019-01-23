@@ -37,7 +37,7 @@ class RenderContext(object):
         self.dedent("""
             digraph {self.name} {{
                 {self.concentrate}
-                rankdir={self.rankdir}
+                rankdir = {self.rankdir};
                 node [style=filled,fillcolor="{self.fillcolor}",fontcolor="{self.fontcolor}",fontname=Helvetica,fontsize=10];
 
         """.format(self=self))
