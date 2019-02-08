@@ -129,6 +129,7 @@ class Arguments(object):
         self.defaults = {}
 
     def parse_args(self, argv):
+        config = []
         if self.config_files:
             conf = configparser.SafeConfigParser()
             conf.read(self.config_files)
