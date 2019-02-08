@@ -1,10 +1,12 @@
 [pydeps]
 max_bacon = 2
-pylib = 1
-# exclude =
-#     os
-#     re
-#     types
-#     _*
-#     enum
+verbose = 0
+pylib = False
+foo = bar
+exclude =
+    os
+    re
+    sys
+    collections
+    __future__
 
