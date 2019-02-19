@@ -24,7 +24,10 @@ def boolval(v):
         return bool(v)
     if is_string(v):
         v = v.lower()
-        return v in {'j', 'y', 'ja', 'yes', '1', 'true'}
+        if v in {'j', 'y', 'ja', 'yes', '1', 'true'}:
+            return True
+        if v in {'n', 'nei', 'no', '0', 'false'}:
+            return False
     raise ValueError("Don't know how to convert %r to bool" % v)
 
 
