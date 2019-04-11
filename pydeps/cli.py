@@ -5,6 +5,8 @@ command line interface (cli) code.
 # pylint: disable=line-too-long
 from __future__ import print_function
 import argparse
+from .arguments import Arguments
+import json
 from .pycompat import configparser
 import logging
 import os
@@ -40,13 +42,14 @@ def _mkverbose(level):
     return _verbose
 
 
-def parse_args(argv=()):
-    """Parse command line arguments, and return a dict.
+def base_argparser(argv=()):
+    """Initial parser that can set values for the rest of the parsing process.
     """
     global verbose
     verbose = _not_verbose
 
     _p = argparse.ArgumentParser(add_help=False)
+    _p.add_argument('--debug', action='store_true', help="turn on all the show and verbose options (mainly for debugging pydeps itself)")
     _p.add_argument('--config', help="specify config file", metavar="FILE")
     _p.add_argument('--no-config', help="disable processing of config files", action='store_true')
     _p.add_argument('--version', action='store_true', help='print pydeps version')
@@ -72,63 +75,55 @@ def parse_args(argv=()):
         print("pydeps v" + __version__)
         sys.exit(0)
 
-    defaults = dict(
-        T='svg',
-        noise_level=200,
-        max_bacon=200,
-        exclude=[],
-        display=None,
-    )
+    return _p, _args, argv  # return parsed and remaining args
 
-    if not _args.no_config:
-        home = os.environ['USERPROFILE' if sys.platform == 'win32' else 'HOME']
-        config_files = [os.path.join(os.getcwd(), '.pydeps'),
-                        os.path.join(home, '.pydeps')]
+
+def parse_args(argv=()):
+    """Parse command line arguments, and return a dict.
+    """
+    _p, _args, argv = base_argparser(argv)
+
+    config_files = []
+
+    if not _args.no_config:  # process config files
+        # extra config file specified with --config <fname> has highest precedence
         if _args.config:
-            config_files.insert(0, _args.config)
-        conf = configparser.SafeConfigParser()
+            config_files.append(_args.config)
 
-        conf.read(config_files)
-        try:
-            defaults.update(dict(conf.items("pydeps")))
-            defaults['exclude'] = [x for x in conf.get('pydeps', 'exclude').split()
-                                   if x]
-        except (configparser.NoOptionError, configparser.NoSectionError):
-            pass
+        # .pydeps file specified in current directory is next
+        local_pydeps = os.path.join(os.getcwd(), '.pydeps')
+        if os.path.exists(local_pydeps):
+            config_files.append(local_pydeps)
 
-        if not defaults['exclude']:
-            defaults['exclude'] = []
+        # finally the .pydeps file in the the user's homedir
+        home = os.environ['USERPROFILE' if sys.platform == 'win32' else 'HOME']
+        home_pydeps = os.path.join(home, '.pydeps')
+        if os.path.exists(home_pydeps):
+            config_files.append(home_pydeps)
+        
+    args = Arguments(config_files, debug=True, parents=[_p])
+    args.add('fname', kind="FNAME:input", help='filename')
+    args.add('-v', '--verbose', default=0, action='count', help="be more verbose (-vv, -vvv for more verbosity)")
+    args.add('-o', default=None, kind="FNAME:output", dest='output', metavar="file", help="write output to 'file'")
+    args.add('-T', default='svg', dest='format', help="output format (svg|png)")
+    args.add('--display', kind="FNAME:exe", default=None, help="program to use to display the graph (png or svg file depending on the T parameter)", metavar="PROGRAM")
+    args.add('--noshow', action='store_true', help="don't call external program to display graph")
+    args.add('--show-deps', action='store_true', help="show output of dependency analysis")
+    args.add('--show-raw-deps', action='store_true', help="show output of dependency analysis before removing skips")
+    args.add('--show-dot', action='store_true', help="show output of dot conversion")
+    args.add('--nodot', action='store_true', help="skip dot conversion")
+    args.add('--show-cycles', action='store_true', help="show only import cycles")
+    args.add('--debug-mf', default=0, type=int, metavar="INT", help="set the ModuleFinder.debug flag to this value")
+    args.add('--noise-level', default=200, type=int, metavar="INT", help="exclude sources or sinks with degree greater than noise-level")
+    args.add('--max-bacon', default=2, type=int, metavar="INT", help="exclude nodes that are more than n hops away (default=2, 0 -> infinite)")
+    args.add('--pylib', action='store_true', help="include python std lib modules")
+    args.add('--pylib-all', action='store_true', help="include python all std lib modules (incl. C modules)")
+    args.add('--include-missing', action='store_true', help="include modules that are not installed (or can't be found on sys.path)")
+    args.add('-x', '--exclude', default=[], nargs="+", metavar="FNAME", help="input files to skip")
+    args.add('--externals', action='store_true', help='create list of direct external dependencies')
+    args.add('--reverse', action='store_true', help="draw arrows to (instead of from) imported modules")
 
-    p = argparse.ArgumentParser(parents=[_p])
-
-    p.set_defaults(**defaults)
-    p.add_argument('fname', help='filename')
-    # -v    informative (steps, input/output, statistics)
-    # -vv   decision data (computed/converted/replaced values)
-    # -vvv  status data (program state at fixed intervals, ie. not in loops)
-    # -vvvv execution trace
-    p.add_argument('-v', '--verbose', action='count', help="be more verbose (-vv, -vvv for more verbosity)", default=0)
-    p.add_argument('-o', dest='output', metavar="file", help="write output to 'file'")
-    p.add_argument('-T', dest='format', help="output format (svg|png)")
-    p.add_argument('--display', help="program to use to display the graph (png or svg file depending on the T parameter)", metavar="PROGRAM")
-    # p.add_argument('--show', action='store_true', help="call external program to display graph")
-    p.add_argument('--noshow', action='store_true', help="don't call external program to display graph")
-    p.add_argument('--show-deps', action='store_true', help="show output of dependency analysis")
-    p.add_argument('--show-raw-deps', action='store_true', help="show output of dependency analysis before removing skips")
-    p.add_argument('--show-dot', action='store_true', help="show output of dot conversion")
-    p.add_argument('--nodot', action='store_true', help="skip dot conversion")
-    p.add_argument('--show-cycles', action='store_true', help="show only import cycles")
-    p.add_argument('--debug', action='store_true', help="turn on all the show and verbose options")
-    p.add_argument('--debug-mf', default=0, type=int, metavar="INT", help="set the ModuleFinder.debug flag to this value")
-    p.add_argument('--noise-level', type=int, metavar="INT", help="exclude sources or sinks with degree greater than noise-level")
-    p.add_argument('--max-bacon', type=int, default=2, metavar="INT", help="exclude nodes that are more than n hops away (default=2, 0 -> infinite)")
-    p.add_argument('--pylib', action='store_true', help="include python std lib modules")
-    p.add_argument('--pylib-all', action='store_true', help="include python all std lib modules (incl. C modules)")
-    p.add_argument('--include-missing', action='store_true', help="include modules that are not installed (or can't be found on sys.path)")
-    p.add_argument('-x', '--exclude', nargs="+", default=[], metavar="FNAME", help="input files to skip")
-    p.add_argument('--externals', action='store_true', help='create list of direct external dependencies')
-
-    _args = p.parse_args(argv)
+    _args = args.parse_args(argv)
 
     if _args.externals:
         return dict(
@@ -136,7 +131,7 @@ def parse_args(argv=()):
             fname=_args.fname, format='svg', max_bacon=10, no_config=False, nodot=False,
             noise_level=200, noshow=True, output=None, pylib=False, pylib_all=False,
             show=False, show_cycles=False, show_deps=False, show_dot=False,
-            show_raw_deps=False, verbose=0, include_missing=True,
+            show_raw_deps=False, verbose=0, include_missing=True, reverse=False,
         )
 
     _args.show = True
@@ -149,8 +144,8 @@ def parse_args(argv=()):
         _args.show_dot = False
     if _args.max_bacon == 0:
         _args.max_bacon = sys.maxsize
-    if _args.T and not _args.format:
-        _args.format = _args.T
+
+    _args.format = getattr(_args, 'T', getattr(_args, 'format', None))
 
     verbose = _mkverbose(max(_args.verbose, int(_args.debug)))
     verbose(2, _args, '\n')

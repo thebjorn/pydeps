@@ -122,13 +122,13 @@ class CycleGraphDot(object):
         return ctx.text()
 
 
-def dep2dot(depgraph, color=True):
+def dep2dot(depgraph, color=True, reverse=False):
     dotter = PyDepGraphDot(colored=color)
-    ctx = RenderContext()
+    ctx = RenderContext(reverse=reverse)
     return dotter.render(depgraph, ctx)
 
 
-def cycles2dot(depgraph):
+def cycles2dot(depgraph, reverse=False):
     dotter = CycleGraphDot()
-    ctx = RenderContext()
+    ctx = RenderContext(reverse=reverse)
     return dotter.render(depgraph, ctx)
