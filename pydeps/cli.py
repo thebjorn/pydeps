@@ -112,6 +112,7 @@ def parse_args(argv=()):
     args.add('--show-raw-deps', action='store_true', help="show output of dependency analysis before removing skips")
     args.add('--show-dot', action='store_true', help="show output of dot conversion")
     args.add('--nodot', action='store_true', help="skip dot conversion")
+    args.add('--no-output', action='store_true', help="don't create .svg/.png file, implies --no-show (-t/-o will be ignored)")
     args.add('--show-cycles', action='store_true', help="show only import cycles")
     args.add('--debug-mf', default=0, type=int, metavar="INT", help="set the ModuleFinder.debug flag to this value")
     args.add('--noise-level', default=200, type=int, metavar="INT", help="exclude sources or sinks with degree greater than noise-level")
@@ -136,6 +137,8 @@ def parse_args(argv=()):
 
     _args.show = True
 
+    if _args.no_output:
+        _args.noshow = True
     if _args.noshow:
         _args.show = False
     if _args.nodot and _args.show_cycles:

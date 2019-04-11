@@ -18,6 +18,7 @@ def _pydeps(trgt, **kw):
     # code prettier (and more fault tolerant).
     show_cycles = kw.get('show_cycles')
     nodot = kw.get('nodot')
+    no_output = kw.get('no_output')
     output = kw.get('output')
     fmt = kw['format']
     show_svg = kw.get('show')
@@ -39,14 +40,15 @@ def _pydeps(trgt, **kw):
             cli.verbose("DOTSRC:")
             print(dotsrc)
 
-        svg = dot.call_graphviz_dot(dotsrc, fmt)
+        if not no_output:
+            svg = dot.call_graphviz_dot(dotsrc, fmt)
 
-        with open(output, 'wb') as fp:
-            cli.verbose("Writing output to:", output)
-            fp.write(svg)
+            with open(output, 'wb') as fp:
+                cli.verbose("Writing output to:", output)
+                fp.write(svg)
 
-        if show_svg:
-            dot.display_svg(kw, output)
+            if show_svg:
+                dot.display_svg(kw, output)
 
 
 def depgraph_to_dotsrc(dep_graph, show_cycles, nodot, reverse):
