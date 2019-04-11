@@ -13,10 +13,6 @@ pydeps
 .. image:: https://coveralls.io/repos/github/thebjorn/pydeps/badge.svg?branch=master
    :target: https://coveralls.io/github/thebjorn/pydeps?branch=master
 
-.. image:: https://landscape.io/github/thebjorn/pydeps/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/thebjorn/pydeps/master
-   :alt: Code Health
-   
 .. image:: https://pepy.tech/badge/pydeps
    :target: https://pepy.tech/project/pydeps
    :alt: Downloads
