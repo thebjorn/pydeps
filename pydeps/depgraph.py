@@ -221,6 +221,7 @@ class DepGraph(object):
 
         self.sources = {}             # module_name -> Source
         self.skiplist = [re.compile(fnmatch.translate(arg)) for arg in args['exclude']]
+        self.skiplist += [re.compile('^%s$' % fnmatch.translate(arg)) for arg in args['exclude_exact']]
         # depgraf = {name: imports for (name, imports) in depgraf.items()}
 
         for name, imports in list(depgraf.items()):
