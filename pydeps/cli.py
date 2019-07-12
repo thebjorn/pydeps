@@ -121,6 +121,7 @@ def parse_args(argv=()):
     args.add('--pylib-all', action='store_true', help="include python all std lib modules (incl. C modules)")
     args.add('--include-missing', action='store_true', help="include modules that are not installed (or can't be found on sys.path)")
     args.add('-x', '--exclude', default=[], nargs="+", metavar="FNAME", help="input files to skip")
+    args.add('-xx', '--exclude-exact', default=[], nargs="+", metavar="FNAME_EXACT", help="input files to skip (exact match)")
     args.add('--externals', action='store_true', help='create list of direct external dependencies')
     args.add('--reverse', action='store_true', help="draw arrows to (instead of from) imported modules")
 
