@@ -162,12 +162,13 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
 
 Usage::
 
-    usage: pydeps [-h] [--config FILE] [--no-config] [--version] [-L LOG] [-v]
-                  [-o file] [-T FORMAT] [--display PROGRAM] [--noshow]
-                  [--show-deps] [--show-raw-deps] [--show-dot] [--nodot]
-                  [--show-cycles] [--debug] [--noise-level INT] [--max-bacon INT]
-                  [--pylib] [--pylib-all] [--include-missing]
-                  [-x FNAME [FNAME ...]] [--externals] [--reverse]
+    usage: pydeps [-h] [--debug] [--config FILE] [--no-config] [--version]
+                  [-L LOG] [-v] [-o file] [-T FORMAT] [--display PROGRAM]
+                  [--noshow] [--show-deps] [--show-raw-deps] [--show-dot]
+                  [--nodot] [--no-output] [--show-cycles] [--debug-mf INT]
+                  [--noise-level INT] [--max-bacon INT] [--pylib] [--pylib-all]
+                  [--include-missing] [-x PATTERN [PATTERN ...]]
+                  [-xx MODULE [MODULE ...]] [--externals] [--reverse]
                   fname
 
 positional arguments:
@@ -201,8 +202,8 @@ optional arguments:
                                          (default=2, 0 -> infinite)
   --pylib                                include python std lib modules
   --pylib-all                            include python all std lib modules (incl. C modules)
-  --x FNAME, --exclude FNAME             input files to skip (multiple file names can be provided)
-  --xx FNAME, --exclude-exact FNAME      same as --exclude, except requires the full match. `-xx foo.bar` will exclude foo.bar, but not foo.bar.blob
+  --x PATTERN, --exclude PATTERN         input files to skip (e.g. `foo.*`), multiple patterns can be provided
+  --xx MODULE, --exclude-exact MODULE    same as --exclude, except requires the full match. `-xx foo.bar` will exclude foo.bar, but not foo.bar.blob
   --externals                            create list of direct external dependencies
   --reverse                              draw arrows to (instead of from) imported modules
 
