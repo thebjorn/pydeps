@@ -202,6 +202,7 @@ optional arguments:
   --pylib                                include python std lib modules
   --pylib-all                            include python all std lib modules (incl. C modules)
   --x FNAME, --exclude FNAME             input files to skip (multiple file names can be provided)
+  --xx FNAME, --exclude-exact FNAME      same as --exclude, except requires the full match. `-xx foo.bar` will exclude foo.bar, but not foo.bar.blob
   --externals                            create list of direct external dependencies
   --reverse                              draw arrows to (instead of from) imported modules
 
