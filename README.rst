@@ -20,6 +20,10 @@ pydeps
 Python module dependency visualization. This package installs the ``pydeps``
 command, and normal usage will be to use it from the command line.
 
+Version 1.7.3 includes a new flag ``-xx`` or ``--exclude-exact`` which matches the functionality of the ``--exclude`` flag,
+except it requires an exact match, i.e. ``-xx foo.bar`` will exclude foo.bar, but not ``foo.bar.blob`` (thanks to
+@AvenzaOleg for the PR)
+
 Version 1.7.2 includes a new flag, ``--no-output``, which prevents creation of the .svg/.png file.
 
 Version 1.7.1 fixes excludes in .pydeps files (thanks to @eqvis for the bugreport).
