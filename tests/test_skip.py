@@ -37,19 +37,35 @@ def test_skip_module_pattern():
         assert simpledeps('relimp', '-x relimp.*') == set()
 
 
-# def test_skip_exact_pattern():
-#     files = """
-#         relimp:
-#             - __init__.py
-#             - a.py: |
-#                 from . import b
-#             - b.py: |
-#                 from . import c
-#             - c.py
-#     """
-#     with create_files(files) as workdir:
-#         print('-xx', simpledeps('relimp', '-xx relimp.*'))
-#         assert simpledeps('relimp', '-xx relimp.*') != set()
+def test_skip_exact_pattern():
+    files = """
+        relimp:
+            - __init__.py
+            - a.py: |
+                from . import b
+                from . import c
+            - b.py: |
+                from .c import d
+            - c:
+                - __init__.py           
+                - d.py
+    """
+    with create_files(files) as workdir:
+        print('plain', simpledeps('relimp'))
+        assert simpledeps('relimp') == {
+            'relimp.b -> relimp.a',
+            'relimp.c.d -> relimp.b',
+            'relimp.c -> relimp.b',
+            'relimp.c -> relimp.a',
+        }
+
+        print('plain', simpledeps('relimp', '-xx relimp.c'))
+        assert simpledeps('relimp', '-xx relimp.c') == {
+            'relimp.b -> relimp.a',
+            'relimp.c.d -> relimp.b',  # this should remain
+            # 'relimp.c -> relimp.b',  # these should be filtered away..
+            # 'relimp.c -> relimp.a',
+        }
 
 
 def test_skip_exact():
