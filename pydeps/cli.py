@@ -100,7 +100,7 @@ def parse_args(argv=()):
         home_pydeps = os.path.join(home, '.pydeps')
         if os.path.exists(home_pydeps):
             config_files.append(home_pydeps)
-        
+
     args = Arguments(config_files, debug=True, parents=[_p])
     args.add('fname', kind="FNAME:input", help='filename')
     args.add('-v', '--verbose', default=0, action='count', help="be more verbose (-vv, -vvv for more verbosity)")

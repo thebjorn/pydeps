@@ -125,7 +125,8 @@ def pydeps(**args):
             del _args['fname']
             exts = externals(inp, **_args)
             print(json.dumps(exts, indent=4))
-            return exts  # so the tests can assert
+            # return exts  # so the tests can assert
+
         else:
             # this is the call you're looking for :-)
             return _pydeps(inp, **_args)
