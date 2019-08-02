@@ -226,6 +226,6 @@ Contributing
 #. Create new Pull Request
 
 
-.. _Graphviz: http://www.graphviz.org/Download.php
+.. _Graphviz: http://www.graphviz.org/download/
 
 
