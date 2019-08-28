@@ -20,24 +20,23 @@ pydeps
 Python module dependency visualization. This package installs the ``pydeps``
 command, and normal usage will be to use it from the command line.
 
-Version 1.7.3 includes a new flag ``-xx`` or ``--exclude-exact`` which matches the functionality of the ``--exclude`` flag,
+**Version 1.7.3** includes a new flag ``-xx`` or ``--exclude-exact`` which matches the functionality of the ``--exclude`` flag,
 except it requires an exact match, i.e. ``-xx foo.bar`` will exclude foo.bar, but not ``foo.bar.blob`` (thanks to
-@AvenzaOleg for the PR)
+AvenzaOleg_ for the PR)
 
-Version 1.7.2 includes a new flag, ``--no-output``, which prevents creation of the .svg/.png file.
+**Version 1.7.2** includes a new flag, ``--no-output``, which prevents creation of the .svg/.png file.
 
-Version 1.7.1 fixes excludes in .pydeps files (thanks to @eqvis for the bugreport).
+**Version 1.7.1** fixes excludes in .pydeps files (thanks to eqvis_ for the bug report).
 
-New in version 1.7.0: The new ``--reverse`` flag reverses the direction of the arrows in the dependency graph, so they point _to_ the imported module instead of _from_ the imported module (thanks to @goetzk for the bugreport and @tobiasmaier for the PR!).
+**Version 1.7.0** The new ``--reverse`` flag reverses the direction of the arrows in the dependency graph, so they point _to_ the imported module instead of _from_ the imported module (thanks to goetzk_ for the bug report and tobiasmaier_ for the PR!).
 
-New in version 1.5.0: Python 3 support (thanks to @eight04 for the PR)
+**Version 1.5.0** Python 3 support (thanks to eight04_ for the PR)
 
-New in version 1.3.4: ``--externals`` will now include modules that haven't been installed (what ``modulefinder`` calls ``badmodules``).
+**Version 1.3.4** ``--externals`` will now include modules that haven't been installed (what ``modulefinder`` calls ``badmodules``).
 
-New in version 1.2.8: A shortcut for finding the direct external dependencies of
-a package was added::
+**Version 1.2.8** A shortcut for finding the direct external dependencies of a package was added::
 
-    pydeps --externals mypackage
+    $ pydeps --externals mypackage
 
 which will print a json formatted list of module names to the screen, e.g.::
 
@@ -46,10 +45,10 @@ which will print a json formatted list of module names to the screen, e.g.::
         "dkfileutils"
     ]
 
-which meaans that the ``dktasklib`` package only depends on the ``dkfileutils``
+which means that the ``dktasklib`` package only depends on the ``dkfileutils``
 package.
 
-This functionality is also available programatically::
+This functionality is also available programmatically::
 
     import os
     from pydeps.pydeps import externals
@@ -59,7 +58,7 @@ This functionality is also available programatically::
 
 New in version 1.2.5: The defaults are now sensible, such that::
 
-    pydeps mypackage
+    $ pydeps mypackage
 
 will likely do what you want. It is the same as
 ``pydeps --show --max-bacon=2 mypackage`` which means display the
@@ -68,12 +67,14 @@ includes only the modules that your module imports -- not continuing
 down the import chain).  The old default behavior is available with
 ``pydeps --noshow --max-bacon=0 mypackage``.
 
-To install::
+How to install
+--------------
 
-    pip install pydeps
+To create graphs you need to install Graphviz_ (make sure the ``dot`` command is on your path). ::
 
-To create graphs you need to install Graphviz_ (make sure the ``dot``
-command is on your path).
+    $ pip install pydeps
+    $ sudo apt-get install graphviz
+
 
 .. Note:: to display the resulting `.svg` files, ``pydeps`` by default
           calls ``firefox foo.svg``.  This is can be overridden with
@@ -101,7 +102,7 @@ modules).
 
 ::
 
-    pydeps pydeps --show --max-bacon 2 --pylib -x os re types _* enum
+    $ pydeps pydeps --show --max-bacon 2 --pylib -x os re types _* enum
 
 .. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pydeps-pylib.svg?sanitize=true
 
@@ -164,7 +165,9 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
         "path": "pydeps\\py2depgraph.py"
     }, ...
 
-Usage::
+Usage
+-----
+::
 
     usage: pydeps [-h] [--debug] [--config FILE] [--no-config] [--version]
                   [-L LOG] [-v] [-o file] [-T FORMAT] [--display PROGRAM]
@@ -220,12 +223,15 @@ You can of course import ``pydeps`` from Python (look in the
 Contributing
 ------------
 #. Fork it
-#. Create your feature branch (git checkout -b my-new-feature)
-#. Commit your changes (git commit -am 'Add some feature')
-#. Push to the branch (git push origin my-new-feature)
+#. Create your feature branch (`git checkout -b my-new-feature`)
+#. Commit your changes (`git commit -am 'Add some feature'`)
+#. Push to the branch (`git push origin my-new-feature`)
 #. Create new Pull Request
 
 
 .. _Graphviz: http://www.graphviz.org/download/
-
-
+.. _AvenzaOleg: https://github.com/avenzaoleg
+.. _eqvis: https://github.com/eqvis
+.. _goetzk: https://github.com/goetzk
+.. _tobiasmaier: https://github.com/tobiasmaier
+.. _eight04: https://github.com/eight04
