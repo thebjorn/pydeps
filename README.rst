@@ -77,6 +77,7 @@ down the import chain).  The old default behavior is available with
 
 How to install
 --------------
+::
 
     pip install pydeps
 
