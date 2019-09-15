@@ -20,23 +20,31 @@ pydeps
 Python module dependency visualization. This package installs the ``pydeps``
 command, and normal usage will be to use it from the command line.
 
-**Version 1.7.3** includes a new flag ``-xx`` or ``--exclude-exact`` which matches the functionality of the ``--exclude`` flag,
-except it requires an exact match, i.e. ``-xx foo.bar`` will exclude foo.bar, but not ``foo.bar.blob`` (thanks to
-AvenzaOleg_ for the PR)
+**Version 1.7.3** includes a new flag ``-xx`` or ``--exclude-exact`` which
+matches the functionality of the ``--exclude`` flag, except it requires an
+exact match, i.e. ``-xx foo.bar`` will exclude foo.bar, but not
+``foo.bar.blob`` (thanks to AvenzaOleg_ for the PR)
 
-**Version 1.7.2** includes a new flag, ``--no-output``, which prevents creation of the .svg/.png file.
+**Version 1.7.2** includes a new flag, ``--no-output``, which prevents
+creation of the .svg/.png file.
 
-**Version 1.7.1** fixes excludes in .pydeps files (thanks to eqvis_ for the bug report).
+**Version 1.7.1** fixes excludes in .pydeps files (thanks to eqvis_
+for the bug report).
 
-**Version 1.7.0** The new ``--reverse`` flag reverses the direction of the arrows in the dependency graph, so they point _to_ the imported module instead of _from_ the imported module (thanks to goetzk_ for the bug report and tobiasmaier_ for the PR!).
+**Version 1.7.0** The new ``--reverse`` flag reverses the direction
+of the arrows in the dependency graph, so they point _to_ the imported
+module instead of _from_ the imported module (thanks to goetzk_ for
+the bug report and tobiasmaier_ for the PR!).
 
 **Version 1.5.0** Python 3 support (thanks to eight04_ for the PR)
 
-**Version 1.3.4** ``--externals`` will now include modules that haven't been installed (what ``modulefinder`` calls ``badmodules``).
+**Version 1.3.4** ``--externals`` will now include modules that 
+haven't been installed (what ``modulefinder`` calls ``badmodules``).
 
-**Version 1.2.8** A shortcut for finding the direct external dependencies of a package was added::
+**Version 1.2.8** A shortcut for finding the direct external dependencies
+of a package was added::
 
-    $ pydeps --externals mypackage
+    pydeps --externals mypackage
 
 which will print a json formatted list of module names to the screen, e.g.::
 
@@ -53,12 +61,12 @@ This functionality is also available programmatically::
     import os
     from pydeps.pydeps import externals
     # the directory that contains setup.py (one level up from actual package):
-    os.chdir('package-directory')  
+    os.chdir('package-directory')
     print externals('mypackage')
 
 New in version 1.2.5: The defaults are now sensible, such that::
 
-    $ pydeps mypackage
+    shell> pydeps mypackage
 
 will likely do what you want. It is the same as
 ``pydeps --show --max-bacon=2 mypackage`` which means display the
@@ -70,11 +78,11 @@ down the import chain).  The old default behavior is available with
 How to install
 --------------
 
-To create graphs you need to install Graphviz_ (make sure the ``dot`` command is on your path). ::
+    pip install pydeps
 
-    $ pip install pydeps
-    $ sudo apt-get install graphviz
-
+To create graphs you need to install Graphviz_ Please follow the
+installation instructions provided in the Graphviz link (and make
+sure the ``dot`` command is on your path).
 
 .. Note:: to display the resulting `.svg` files, ``pydeps`` by default
           calls ``firefox foo.svg``.  This is can be overridden with
@@ -102,7 +110,7 @@ modules).
 
 ::
 
-    $ pydeps pydeps --show --max-bacon 2 --pylib -x os re types _* enum
+    shell> pydeps pydeps --show --max-bacon 2 --pylib -x os re types _* enum
 
 .. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pydeps-pylib.svg?sanitize=true
 
@@ -200,7 +208,7 @@ optional arguments:
   --show-dot                             show output of dot conversion
   --nodot                                skip dot conversion
   --no-output                            don't create .svg/.png file, implies --no-show (-t/-o
-                                         will be ignored)  
+                                         will be ignored)
   --show-cycles                          show only import cycles
   --debug                                turn on all the show and verbose options
   --noise-level INT                      exclude sources or sinks with degree greater than
@@ -223,6 +231,7 @@ You can of course import ``pydeps`` from Python (look in the
 Contributing
 ------------
 #. Fork it
+#. It is appreciated (but not required) if you raise an issue first: https://github.com/thebjorn/pydeps/issues
 #. Create your feature branch (`git checkout -b my-new-feature`)
 #. Commit your changes (`git commit -am 'Add some feature'`)
 #. Push to the branch (`git push origin my-new-feature`)
