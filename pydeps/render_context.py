@@ -20,6 +20,7 @@ class RenderContext(object):
         self.name = None
         self.concentrate = None
         self.rankdir = None
+        self.width = 0.75
         self.reverse = reverse
 
     @contextmanager
@@ -79,7 +80,8 @@ class RenderContext(object):
             pass
 
     def _nodename(self, x):
-        "Return a valid node name."
+        """Return a valid node name.
+        """
         return x.replace('.', '_')
 
     def _delattr(self, attr, key, value):
@@ -87,23 +89,29 @@ class RenderContext(object):
             del attr[key]
 
     def write_rule(self, a, b, **attrs):
+        """a -> b [a1=x,a2=y];
+        """
         if self.reverse:
             a, b = b, a
-        "a -> b [a1=x,a2=y];"
         with self.rule():
             self.write('%s -> %s' % (self._nodename(a), self._nodename(b)))
+            # remove default values from output
             self._delattr(attrs, 'weight', 1)
             self._delattr(attrs, 'minlen', 1)
+            self._delattr(attrs, 'len', 1)
             self.write_attributes(attrs)
 
     def write_node(self, a, **attrs):
-        "a [a1=x,a2=y];"
+        """a [a1=x,a2=y];
+        """
         with self.rule():
             nodename = self._nodename(a)
             self.write(nodename)
+            # remove default values from output
             self._delattr(attrs, 'label', nodename)
             self._delattr(attrs, 'fillcolor', self.fillcolor)
             self._delattr(attrs, 'fontcolor', self.fontcolor)
+            self._delattr(attrs, 'width', self.width)
             self.write_attributes(attrs)
 
     @contextmanager
