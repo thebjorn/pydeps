@@ -110,6 +110,9 @@ class Source(object):
     def __eq__(self, other):
         return self.name == other.name
 
+    def __lt__(self, other):
+        return self.name < other.name
+
     def __repr__(self):
         return json.dumps(self.__json__(), indent=4)
 

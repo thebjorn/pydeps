@@ -44,10 +44,9 @@ class PyDepGraphDot(object):
                     aname, bname,
                     weight=depgraph.proximity_metric(a, b),
                     minlen=depgraph.dissimilarity_metric(a, b),
-                    # style='dotted',
                 )
 
-            for a, b in depgraph:
+            for a, b in sorted(depgraph):
                 # b imports a
                 aname = a.name
                 bname = b.name
@@ -64,19 +63,19 @@ class PyDepGraphDot(object):
                 visited.add(b)
 
             space = colors.ColorSpace(visited)
-            # print space
-
             for src in visited:
                 bg, fg = depgraph.get_colors(src, space)
+                kwargs = {}
+
                 if src.name in depgraph.cyclenodes:
-                    ctx.write_node(src.name, label=src.label,
-                                   fillcolor=colors.rgb2css(bg),
-                                   fontcolor=colors.rgb2css(fg),
-                                   shape='octagon')
-                else:
-                    ctx.write_node(src.name, label=src.label,
-                                   fillcolor=colors.rgb2css(bg),
-                                   fontcolor=colors.rgb2css(fg))
+                    kwargs['shape'] = 'octacon'
+
+                ctx.write_node(
+                    src.name, label=src.label,
+                    fillcolor=colors.rgb2css(bg),
+                    fontcolor=colors.rgb2css(fg),
+                    **kwargs
+                )
 
         return ctx.text()
 
@@ -101,7 +100,6 @@ class CycleGraphDot(object):
                     bname, aname,
                     weight=depgraph.proximity_metric(a, b),
                     minlen=depgraph.dissimilarity_metric(a, b),
-                    # style='dotted',
                 )
                 visited.add(a)
                 visited.add(b)
@@ -109,15 +107,17 @@ class CycleGraphDot(object):
             space = colors.ColorSpace(visited)
             for src in visited:
                 bg, fg = depgraph.get_colors(src, space)
+                kwargs = {}
+
                 if src.name in depgraph.cyclenodes:
-                    ctx.write_node(src.name, label=src.label,
-                                   fillcolor=colors.rgb2css(bg),
-                                   fontcolor=colors.rgb2css(fg),
-                                   shape='octagon')
-                else:
-                    ctx.write_node(src.name, label=src.label,
-                                   fillcolor=colors.rgb2css(bg),
-                                   fontcolor=colors.rgb2css(fg))
+                    kwargs['shape'] = 'octacon'
+
+                ctx.write_node(
+                    src.name, label=src.label,
+                    fillcolor=colors.rgb2css(bg),
+                    fontcolor=colors.rgb2css(fg),
+                    **kwargs
+                )
 
         return ctx.text()
 

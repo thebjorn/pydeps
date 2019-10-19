@@ -31,7 +31,7 @@ class ColorSpace(object):
             parts = node.name.split('.')
             self.add_to_tree(parts, self.nodes)
         self.basecolors = distinct_hues(len(self.nodes))
-        self.colors = dict(zip(self.nodes.keys(), self.basecolors))
+        self.colors = dict(zip(sorted(self.nodes.keys()), self.basecolors))
 
     def add_to_tree(self, parts, tree):
         if not parts:
