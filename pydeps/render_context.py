@@ -19,6 +19,7 @@ class RenderContext(object):
         self.fontcolor = '#000000'
         self.name = None
         self.concentrate = None
+        self.compound = None
         self.rankdir = None
         self.width = 0.75
         self.reverse = reverse
@@ -35,9 +36,11 @@ class RenderContext(object):
             self.concentrate = 'concentrate = true;'
         else:
             self.concentrate = ''
+        self.compound = 'compound = true;' if kw.get('compound') else ''
         self.dedent("""
             digraph {self.name} {{
                 {self.concentrate}
+                {self.compound}
                 rankdir = {self.rankdir};
                 node [style=filled,fillcolor="{self.fillcolor}",fontcolor="{self.fontcolor}",fontname=Helvetica,fontsize=10];
 
@@ -51,6 +54,34 @@ class RenderContext(object):
         if self.out:
             self.out.close()  # pragma: nocover
         return self.fp.getvalue()
+
+    def write_rule(self, a, b, **attrs):
+        """a -> b [a1=x,a2=y];
+        """
+        if self.reverse:
+            a, b = b, a
+        with self.rule():
+            self.write('%s -> %s' % (self._nodename(a), self._nodename(b)))
+            # remove default values from output
+            self._delattr(attrs, 'weight', 1)
+            self._delattr(attrs, 'minlen', 1)
+            self._delattr(attrs, 'len', 1)
+            self.write_attributes(attrs)
+
+    def write_node(self, a, **attrs):
+        """a [a1=x,a2=y];
+        """
+        with self.rule():
+            nodename = self._nodename(a)
+            self.write(nodename)
+            # remove default values from output
+            self._delattr(attrs, 'label', nodename)
+            self._delattr(attrs, 'fillcolor', self.fillcolor)
+            self._delattr(attrs, 'fontcolor', self.fontcolor)
+            self._delattr(attrs, 'width', self.width)
+            self.write_attributes(attrs)
+
+    # -- end of external/public interface --
 
     def write(self, txt):
         """Write ``txt`` to file and output stream (StringIO).
@@ -87,32 +118,6 @@ class RenderContext(object):
     def _delattr(self, attr, key, value):
         if attr.get(key) == value:
             del attr[key]
-
-    def write_rule(self, a, b, **attrs):
-        """a -> b [a1=x,a2=y];
-        """
-        if self.reverse:
-            a, b = b, a
-        with self.rule():
-            self.write('%s -> %s' % (self._nodename(a), self._nodename(b)))
-            # remove default values from output
-            self._delattr(attrs, 'weight', 1)
-            self._delattr(attrs, 'minlen', 1)
-            self._delattr(attrs, 'len', 1)
-            self.write_attributes(attrs)
-
-    def write_node(self, a, **attrs):
-        """a [a1=x,a2=y];
-        """
-        with self.rule():
-            nodename = self._nodename(a)
-            self.write(nodename)
-            # remove default values from output
-            self._delattr(attrs, 'label', nodename)
-            self._delattr(attrs, 'fillcolor', self.fillcolor)
-            self._delattr(attrs, 'fontcolor', self.fontcolor)
-            self._delattr(attrs, 'width', self.width)
-            self.write_attributes(attrs)
 
     @contextmanager
     def rule(self):
