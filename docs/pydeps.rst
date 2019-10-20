@@ -4,6 +4,22 @@ pydeps package
 Submodules
 ----------
 
+pydeps.arguments module
+-----------------------
+
+.. automodule:: pydeps.arguments
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pydeps.cli module
+-----------------
+
+.. automodule:: pydeps.cli
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pydeps.colors module
 --------------------
 
@@ -36,6 +52,14 @@ pydeps.dot module
     :undoc-members:
     :show-inheritance:
 
+pydeps.dummymodule module
+-------------------------
+
+.. automodule:: pydeps.dummymodule
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pydeps.mf27 module
 ------------------
 
@@ -48,6 +72,14 @@ pydeps.py2depgraph module
 -------------------------
 
 .. automodule:: pydeps.py2depgraph
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pydeps.pycompat module
+----------------------
+
+.. automodule:: pydeps.pycompat
     :members:
     :undoc-members:
     :show-inheritance:
@@ -72,6 +104,14 @@ pydeps.render\_context module
 -----------------------------
 
 .. automodule:: pydeps.render_context
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pydeps.target module
+--------------------
+
+.. automodule:: pydeps.target
     :members:
     :undoc-members:
     :show-inheritance:
