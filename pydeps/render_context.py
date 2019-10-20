@@ -208,10 +208,6 @@ class RenderBuffer(object):
                 self._collapse_cluster(clusterid, nodes)
 
     def text(self):
-        for (a, b), attrs in sorted(self.rules.items()):
-            if a.startswith('dkdj'):
-                print '{} -> {}'.format(a, b)
-
         ctx = RenderContext(reverse=self.reverse)
         if self.cluster:
             self.triage_clusters()
