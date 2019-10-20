@@ -279,7 +279,9 @@ Usage (parameters)
                   [--nodot] [--no-output] [--show-cycles] [--debug-mf INT]
                   [--noise-level INT] [--max-bacon INT] [--pylib] [--pylib-all]
                   [--include-missing] [-x PATTERN [PATTERN ...]]
-                  [-xx MODULE [MODULE ...]] [--externals] [--reverse]
+                  [-xx MODULE [MODULE ...]] [--externals] [--reverse] [--cluster]
+                  [--min-cluster-size INT] [--max-cluster-size INT]
+                  [--keep-target-cluster]
                   fname
 
 positional arguments:
@@ -290,34 +292,31 @@ optional arguments:
   --config FILE                          specify config file
   --no-config                            disable processing of config files
   --version                              print pydeps version
-  -L LOG, --log LOG                      set log-level to one of CRITICAL, ERROR, WARNING,
-                                         INFO, DEBUG, NOTSET.
+  -L LOG, --log LOG                      set log-level to one of CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET.
   -v, --verbose                          be more verbose (-vv, -vvv for more verbosity)
   -o file                                write output to 'file'
   -T FORMAT                              output format (svg|png)
-  --display PROGRAM                      program to use to display the graph (png or svg file
-                                         depending on the T parameter)
+  --display PROGRAM                      program to use to display the graph (png or svg file depending on the T parameter)
   --noshow                               don't call external program to display graph
   --show-deps                            show output of dependency analysis
-  --show-raw-deps                        show output of dependency analysis before removing
-                                         skips
+  --show-raw-deps                        show output of dependency analysis before removing skips
   --show-dot                             show output of dot conversion
   --nodot                                skip dot conversion
-  --no-output                            don't create .svg/.png file, implies --no-show (-t/-o
-                                         will be ignored)
+  --no-output                            don't create .svg/.png file, implies --no-show (-t/-o will be ignored)
   --show-cycles                          show only import cycles
-  --debug                                turn on all the show and verbose options
-  --noise-level INT                      exclude sources or sinks with degree greater than
-                                         noise-level
-  --max-bacon INT                        exclude nodes that are more than n hops away
-                                         (default=2, 0 -> infinite)
+  --debug                                turn on all the show and verbose options (mainly for debugging pydeps itself)
+  --noise-level INT                      exclude sources or sinks with degree greater than noise-level
+  --max-bacon INT                        exclude nodes that are more than n hops away (default=2, 0 -> infinite)
   --pylib                                include python std lib modules
   --pylib-all                            include python all std lib modules (incl. C modules)
   --x PATTERN, --exclude PATTERN         input files to skip (e.g. `foo.*`), multiple patterns can be provided
   --xx MODULE, --exclude-exact MODULE    same as --exclude, except requires the full match. `-xx foo.bar` will exclude foo.bar, but not foo.bar.blob
   --externals                            create list of direct external dependencies
   --reverse                              draw arrows to (instead of from) imported modules
-
+  --cluster                              draw external dependencies as separate clusters
+  --min-cluster-size INT                 the minimum number of nodes a dependency must have before being clustered (default=0)
+  --max-cluster-size INT                 the maximum number of nodes a dependency can have before the cluster is collapsed to a single node (default=0)
+  --keep-target-cluster                  draw target module as a cluster
 
 
      
