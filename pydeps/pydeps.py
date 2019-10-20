@@ -33,7 +33,7 @@ def _pydeps(trgt, **kw):
         cli.verbose("DEPS:")
         pprint.pprint(dep_graph)
 
-    dotsrc = depgraph_to_dotsrc(trgt, dep_graph, show_cycles, nodot, reverse)
+    dotsrc = depgraph_to_dotsrc(trgt, dep_graph, **kw)
 
     if not nodot:
         if kw.get('show_dot'):
@@ -51,13 +51,13 @@ def _pydeps(trgt, **kw):
                 dot.display_svg(kw, output)
 
 
-def depgraph_to_dotsrc(target, dep_graph, show_cycles, nodot, reverse):
+def depgraph_to_dotsrc(target, dep_graph, **kw):
     """Convert the dependency graph (DepGraph class) to dot source code.
     """
-    if show_cycles:
-        dotsrc = cycles2dot(target, dep_graph, reverse=reverse)
-    elif not nodot:
-        dotsrc = dep2dot(target, dep_graph, reverse=reverse)
+    if kw.get('show_cycles'):
+        dotsrc = cycles2dot(target, dep_graph, **kw)
+    elif not kw.get('nodot'):
+        dotsrc = dep2dot(target, dep_graph, **kw)
     else:
         dotsrc = None
     return dotsrc

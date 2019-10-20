@@ -124,6 +124,10 @@ def parse_args(argv=()):
     args.add('-xx', '--exclude-exact', default=[], nargs="+", metavar="MODULE", help="same as --exclude, except requires the full match. `-xx foo.bar` will exclude foo.bar, but not foo.bar.blob")
     args.add('--externals', action='store_true', help='create list of direct external dependencies')
     args.add('--reverse', action='store_true', help="draw arrows to (instead of from) imported modules")
+    args.add('--cluster', action='store_true', help="draw external dependencies as separate clusters")
+    args.add('--min-cluster-size', default=0, type=int, metavar="INT", help="the minimum number of nodes a dependency must have before being clustered (default=0)")
+    args.add('--max-cluster-size', default=0, type=int, metavar="INT", help="the maximum number of nodes a dependency can have before the cluster is collapsed to a single node (default=0)")
+    args.add('--keep-target-cluster', action='store_true', help="draw target module as a cluster")
 
     _args = args.parse_args(argv)
 
@@ -148,6 +152,8 @@ def parse_args(argv=()):
         _args.show_dot = False
     if _args.max_bacon == 0:
         _args.max_bacon = sys.maxsize
+    if _args.keep_target_cluster or _args.min_cluster_size > 0 or _args.max_cluster_size > 0:
+        _args.cluster = True
 
     _args.format = getattr(_args, 'T', getattr(_args, 'format', None))
 
