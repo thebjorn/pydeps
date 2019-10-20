@@ -11,7 +11,7 @@ import setuptools
 from distutils.core import setup
 from setuptools.command.test import test as TestCommand
 
-version='1.8.0'
+version='1.8.1'
 
 
 class PyTest(TestCommand):
