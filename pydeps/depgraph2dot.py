@@ -125,78 +125,95 @@ class CycleGraphDot(object):
 
 
 class RenderBuffer(object):
-    def __init__(self, target, reverse=False, cluster_size=0):
+    def __init__(self, target,
+                 reverse=False,
+                 cluster=False,
+                 min_cluster_size=0,
+                 max_cluster_size=1,
+                 keep_target_cluster=False):
         self.target = target
         self.nodes = []
         self.clusters = defaultdict(list)
-        self.rules = []
+        self.rules = {}
         self.reverse = reverse
-        self.cluster = cluster_size > 0
-        self.min_cluster_size = cluster_size
-        self.max_cluster_size = 5
+        self.cluster = cluster
+        self.min_cluster_size = min_cluster_size
+        self.max_cluster_size = max_cluster_size
         self.graph_attrs = {}
+        self.keep_target_cluster = keep_target_cluster
+
+    def _nodecolor(self, n):
+        for node, attrs in self.nodes:
+            if node == n:
+                return attrs['fillcolor']
+        return '#000000'
 
     def cluster_stats(self):
         maxnodes = max(len(v) for v in self.clusters.values())
         minnodes = min(len(v) for v in self.clusters.values())
         return minnodes, maxnodes
 
-    def format_clusters(self):
-        target_cluster = self._clusterid(self.target.fname)
-
-        clusters = set()
-
+    def _remove_small_clusters(self):
+        # remove clusters that are too small
+        _remove = []
         for clusterid, nodes in sorted(self.clusters.items()):
-            if len(nodes) < self.min_cluster_size or clusterid == target_cluster:
+            if len(nodes) < self.min_cluster_size:
+                print("REMOVING:CLUSTER:", clusterid, nodes)
                 self.nodes += nodes
-                continue
+                _remove.append(clusterid)
+        for _r in _remove:
+            del self.clusters[_r]
 
-            if len(nodes) > self.max_cluster_size:
-                continue
+    def _collapse_cluster(self, clusterid, nodes):
+        """Add a single cluster node (with a label listing contents?)
+           and change all rules to reference this node instead.
+        """
+        first_node, first_attrs = nodes[0]
+        # self.nodes.append((clusterid, first_attrs))
 
-            clusters.add(clusterid)
+        tmp = nodes[:]
+        nodes[:] = [(clusterid, first_attrs)]
+        for node, attrs in tmp:
+            rules = list(self.rules.items())
+            self.rules = {}
+            for (a, b), rule_attrs in rules:
+                orig = (a, b)
+                if a == node:
+                    a = clusterid
+                if b == node:
+                    b = clusterid
+                # if orig != (a, b):
+                #     print("CHANGED[{}|{}]: {} TO {}".format(clusterid, node, orig, (a, b)))
+                self.rules[(a, b)] = rule_attrs
 
-        intercluster = set()
-        for a, b, attrs in self.rules:
-            cida = self._clusterid(a)
-            cidb = self._clusterid(b)
-            if cida == cidb:
-                ctx.write_rule(a, b, **attrs)
-            elif cida in clusters and cidb in clusters:
-                if (cida, cidb) not in intercluster:
-                    intercluster.add((cida, cidb))
-                    attrs['ltail'] = 'cluster_' + cida
-                    attrs['lhead'] = 'cluster_' + cidb
-                    ctx.write_rule(a, b, **attrs)
-            else:
-                if cida in clusters:
-                    attrs['ltail'] = 'cluster_' + cida
-                if cidb in clusters:
-                    attrs['lhead'] = 'cluster_' + cidb
-                ctx.write_rule(a, b, **attrs)
+    def triage_clusters(self):
+        target_cluster = self._clusterid(self.target.fname)
+        if not self.keep_target_cluster:
+            # don't put nodes from the target into a cluster
+            self.nodes += self.clusters[target_cluster]
+            del self.clusters[target_cluster]
+
+        self._remove_small_clusters()
+
+        # collapse clusters that are too big
+        for clusterid, nodes in sorted(self.clusters.items()):
+            if len(nodes) > self.max_cluster_size and clusterid != target_cluster:
+                self._collapse_cluster(clusterid, nodes)
 
     def text(self):
+        for (a, b), attrs in sorted(self.rules.items()):
+            if a.startswith('dkdj'):
+                print '{} -> {}'.format(a, b)
+
         ctx = RenderContext(reverse=self.reverse)
         if self.cluster:
             self.graph_attrs['compound'] = True
             self.graph_attrs['concentrate'] = False
-
-            target_cluster = self._clusterid(self.target.fname)
-            self.nodes += self.clusters[target_cluster]
-            del self.clusters[target_cluster]
-
-            # self.format_clusters()
+            self.triage_clusters()
 
         with ctx.graph(**self.graph_attrs):
             clusters = set()
             for clusterid, nodes in sorted(self.clusters.items()):
-                if len(nodes) < self.min_cluster_size:
-                    self.nodes += nodes
-                    continue
-
-                # if len(nodes) > self.max_cluster_size:
-                #     continue
-
                 clusters.add(clusterid)
                 ctx.writeln('subgraph cluster_%s {' % clusterid)
                 ctx.writeln('    label = %s;' % clusterid)
@@ -209,22 +226,44 @@ class RenderBuffer(object):
                 ctx.write_node(n, **attrs)
 
             intercluster = set()
-            for a, b, attrs in self.rules:
+            for (a, b), attrs in sorted(self.rules.items()):
+                if a == b:
+                    continue
                 cida = self._clusterid(a)
                 cidb = self._clusterid(b)
                 if cida == cidb:
+                    if self.reverse:
+                        attrs['fillcolor'] = self._nodecolor(b)
+                    else:
+                        attrs['fillcolor'] = self._nodecolor(a)
                     ctx.write_rule(a, b, **attrs)
                 elif cida in clusters and cidb in clusters:
                     if (cida, cidb) not in intercluster:
                         intercluster.add((cida, cidb))
-                        attrs['ltail'] = 'cluster_' + cida
-                        attrs['lhead'] = 'cluster_' + cidb
+                        if self.reverse:
+                            attrs['lhead'] = 'cluster_' + cida
+                            attrs['ltail'] = 'cluster_' + cidb
+                            attrs['fillcolor'] = self._nodecolor(b)
+                        else:
+                            attrs['ltail'] = 'cluster_' + cida
+                            attrs['lhead'] = 'cluster_' + cidb
+                            attrs['fillcolor'] = self._nodecolor(a)
                         ctx.write_rule(a, b, **attrs)
                 else:
                     if cida in clusters:
-                        attrs['ltail'] = 'cluster_' + cida
+                        if self.reverse:
+                            attrs['lhead'] = 'cluster_' + cida
+                        else:
+                            attrs['ltail'] = 'cluster_' + cida
                     if cidb in clusters:
-                        attrs['lhead'] = 'cluster_' + cidb
+                        if self.reverse:
+                            attrs['ltail'] = 'cluster_' + cidb
+                        else:
+                            attrs['lhead'] = 'cluster_' + cidb
+                    if self.reverse:
+                        attrs['fillcolor'] = self._nodecolor(b)
+                    else:
+                        attrs['fillcolor'] = self._nodecolor(a)
                     ctx.write_rule(a, b, **attrs)
         return ctx.text()
 
@@ -244,12 +283,18 @@ class RenderBuffer(object):
             self.nodes.append((n, attrs))
 
     def write_rule(self, a, b, **attrs):
-        self.rules.append((a, b, attrs))
+        self.rules[(a, b)] = attrs
 
 
 def dep2dot(target, depgraph, color=True, reverse=False):
     dotter = PyDepGraphDot(colored=color)
-    ctx = RenderBuffer(target, reverse=reverse, cluster_size=1)
+    ctx = RenderBuffer(
+        target, reverse=reverse,
+        cluster=True,
+        min_cluster_size=0,
+        max_cluster_size=1,
+        keep_target_cluster=True
+    )
     return dotter.render(depgraph, ctx)
 
 
