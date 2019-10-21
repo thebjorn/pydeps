@@ -1,5 +1,15 @@
-[*.py]
+root = true
+
+[*]
+end_of_line = lf
+
+[*.{js,py,html,json,yml,rst,md}]
+end_of_line = lf
 indent_size = 4
 indent_style = space
 trim_trailing_whitespace = true
-end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+
+[Makefile]
+indent_style = tab
