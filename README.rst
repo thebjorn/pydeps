@@ -56,7 +56,7 @@ https://github.com/thebjorn/pydeps/issues
 Version history
 ---------------
 
-**Version 1.8.1** incldes a new flag ``--only`` that causes pydeps to 
+**Version 1.8.2** incldes a new flag ``--only`` that causes pydeps to 
 only report on the paths specified::
 
     shell> pydeps mypackage --only mypackage.a mypackage.b
