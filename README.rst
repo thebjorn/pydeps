@@ -56,6 +56,11 @@ https://github.com/thebjorn/pydeps/issues
 Version history
 ---------------
 
+**Version 1.8.1** incldes a new flag ``--only`` that causes pydeps to 
+only report on the paths specified::
+
+    shell> pydeps mypackage --only mypackage.a mypackage.b
+
 **Version 1.8.0** includes 4 new flags for drawing external dependencies as
 clusters. See below for examples.
 Additionally, the arrowheads now have the color of the source node.

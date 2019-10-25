@@ -261,6 +261,7 @@ class DepGraph(object):
 
         self.exclude_noise()
         self.exclude_bacon(self.args['max_bacon'])
+        self.only_filter(self.args['only'])
 
         excluded = [v for v in list(self.sources.values()) if v.excluded]
         # print "EXCLUDED:", excluded
@@ -387,6 +388,21 @@ class DepGraph(object):
         """
         for src in list(self.sources.values()):
             if src.bacon > limit:
+                src.excluded = True
+                # print "Excluding bacon:", src.name
+                self._add_skip(src.name)
+
+    def only_filter(self, paths):
+        paths = set(paths)
+
+        def should_include(node):
+            for p in paths:
+                if node.name.startswith(p):
+                    return True
+            return False
+
+        for src in list(self.sources.values()):
+            if not should_include(src):
                 src.excluded = True
                 # print "Excluding bacon:", src.name
                 self._add_skip(src.name)
