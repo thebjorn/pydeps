@@ -387,6 +387,7 @@ class DepGraph(object):
         """Exclude modules that are more than `limit` hops away from __main__.
         """
         for src in list(self.sources.values()):
+            # print("SRC:BACON:", src.bacon, "LIMIT:", limit)
             if src.bacon > limit:
                 src.excluded = True
                 # print "Excluding bacon:", src.name

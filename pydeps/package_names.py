@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
+"""
+Find package names from site-packages.
+"""
 from __future__ import print_function
 import os
 from distutils import sysconfig
 
 
 def find_package_names():
+    """Returns a dict from module name to package name.
+    """
     site_packages = sysconfig.get_python_lib()
     # initialize with well-known packages that don't seem to have a top_level.txt
     res = {
