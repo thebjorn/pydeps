@@ -37,7 +37,7 @@ class Target(object):
             self.dirname = os.path.dirname(self.path)
             self.modname = os.path.splitext(self.fname)[0]
 
-        self.workdir = tempfile.mkdtemp()
+        self.workdir = os.path.realpath(tempfile.mkdtemp())
         self.syspath_dir = self.get_package_root()
         # split path such that syspath_dir + relpath == path
         self.relpath = self.path[len(self.syspath_dir):].lstrip(os.path.sep)

@@ -86,7 +86,7 @@ class Filemaker(FilemakerBase):
 def create_files(filedef, cleanup=True):
     fdef = yaml.load(filedef)
     cwd = os.getcwd()
-    tmpdir = tempfile.mkdtemp()
+    tmpdir = os.path.realpath(tempfile.mkdtemp())
     try:
         Filemaker(tmpdir, fdef)
         if not cleanup:
