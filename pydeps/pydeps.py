@@ -42,6 +42,8 @@ def _pydeps(trgt, **kw):
 
         if not no_output:
             svg = dot.call_graphviz_dot(dotsrc, fmt)
+            if fmt == 'svg':
+                svg = svg.replace('</title>', '</title><style>.edge>path:hover{stroke-width:8}</style>')
 
             with open(output, 'wb') as fp:
                 cli.verbose("Writing output to:", output)
