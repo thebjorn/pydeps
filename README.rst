@@ -56,6 +56,10 @@ https://github.com/thebjorn/pydeps/issues
 Version history
 ---------------
 
+**Version 1.8.5** With svg as the output format (which is the default),
+paths are now hilighted on mouse hover (thanks to tomasito665_ for the
+enhancement request).
+
 **Version 1.8.2** incldes a new flag ``--only`` that causes pydeps to 
 only report on the paths specified::
 
@@ -345,3 +349,4 @@ Contributing
 .. _goetzk: https://github.com/goetzk
 .. _tobiasmaier: https://github.com/tobiasmaier
 .. _eight04: https://github.com/eight04
+.. _tomasito665: https://github.com/Tomasito665
