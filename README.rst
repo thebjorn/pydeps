@@ -56,6 +56,12 @@ https://github.com/thebjorn/pydeps/issues
 Version history
 ---------------
 
+**Version 1.8.7** includes a new flag ``--rmprefix`` which lets you remove
+prefixes from the node-labels in the graph. The _name_ of the nodes are not effected
+so this does not cause merging of nodes, nor does it change coloring - but it
+can lead to multiple nodes with the same label (hovering over the node will
+give the full name). Thanks to  aroberge_ for the enhancement request.
+
 **Version 1.8.5** With svg as the output format (which is the default),
 paths are now hilighted on mouse hover (thanks to tomasito665_ for the
 enhancement request).
@@ -247,6 +253,12 @@ In some situations it can be useful to draw the target module as a cluster::
 
 .. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pydeps-18-bacon4-cluster-max3-min2-keep-target.svg?sanitize=true
 
+..and since the cluster boxes include the module name, we can remove those prefixes::
+
+    shell> pydeps pydeps --max-bacon=4 --cluster --max-cluster-size=3 --min-cluster-size=2 --keep-target-cluster --rmprefix pydeps. stdlib_list.
+
+.. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pydeps-rmprefix.svg?sanitize=true
+
 
 Intermediate format
 -------------------
@@ -288,9 +300,10 @@ Usage (parameters)
                   [--nodot] [--no-output] [--show-cycles] [--debug-mf INT]
                   [--noise-level INT] [--max-bacon INT] [--pylib] [--pylib-all]
                   [--include-missing] [-x PATTERN [PATTERN ...]]
-                  [-xx MODULE [MODULE ...]] [--externals] [--reverse] [--cluster]
-                  [--min-cluster-size INT] [--max-cluster-size INT]
-                  [--keep-target-cluster]
+                  [-xx MODULE [MODULE ...]] [--only MODULE_PATH [MODULE_PATH ...]]
+                  [--externals] [--reverse] [--cluster] [--min-cluster-size INT]
+                  [--max-cluster-size INT] [--keep-target-cluster]
+                  [--rmprefix PREFIX [PREFIX ...]]
                   fname
 
 positional arguments:
@@ -327,6 +340,7 @@ optional arguments:
   --min-cluster-size INT                 the minimum number of nodes a dependency must have before being clustered (default=0)
   --max-cluster-size INT                 the maximum number of nodes a dependency can have before the cluster is collapsed to a single node (default=0)
   --keep-target-cluster                  draw target module as a cluster
+  --rmprefix PREFIX                      remove PREFIX from the displayed name of the nodes (multiple prefixes can be provided)
 
 
      
@@ -350,3 +364,4 @@ Contributing
 .. _tobiasmaier: https://github.com/tobiasmaier
 .. _eight04: https://github.com/eight04
 .. _tomasito665: https://github.com/Tomasito665
+.. _aroberge: https://github.com/aroberge
