@@ -130,14 +130,23 @@ class Source(object):
         log.debug("iadd result: %r", self)
         return self
 
+    def get_label(self, splitlength=0, rmprefix=None):
+        name = self.name
+        if rmprefix:
+            for prefix in rmprefix:
+                if self.name.startswith(prefix):
+                    name = self.name[len(prefix):]
+                    break
+        if splitlength and len(name) > splitlength and '.' in name:
+            return '\\.\\n'.join(name.split('.'))  # pragma: nocover
+        return name
+
     @property
     def label(self):
         """Convert a module name to a formatted node label. This is a default
            policy - please override.
         """
-        if len(self.name) > 14 and '.' in self.name:
-            return '\\.\\n'.join(self.name.split('.'))  # pragma: nocover
-        return self.name
+        return self.get_label(splitlength=14)
 
 
 class DepGraph(object):

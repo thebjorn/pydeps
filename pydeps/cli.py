@@ -129,6 +129,7 @@ def parse_args(argv=()):
     args.add('--min-cluster-size', default=0, type=int, metavar="INT", help="the minimum number of nodes a dependency must have before being clustered (default=0)")
     args.add('--max-cluster-size', default=0, type=int, metavar="INT", help="the maximum number of nodes a dependency can have before the cluster is collapsed to a single node (default=0)")
     args.add('--keep-target-cluster', action='store_true', help="draw target module as a cluster")
+    args.add('--rmprefix', default=[], nargs="+", metavar="PREFIX", help="remove PREFIX from the displayed name of the nodes")
 
     _args = args.parse_args(argv)
 

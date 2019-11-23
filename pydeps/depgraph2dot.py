@@ -70,7 +70,9 @@ class PyDepGraphDot(object):
                     kwargs['shape'] = 'octacon'
 
                 ctx.write_node(
-                    src.name, label=src.label,
+                    src.name,
+                    label=src.get_label(splitlength=14,
+                                        rmprefix=self.kw.get('rmprefix')),
                     fillcolor=colors.rgb2css(bg),
                     fontcolor=colors.rgb2css(fg),
                     **kwargs
