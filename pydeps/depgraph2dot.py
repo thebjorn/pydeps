@@ -67,7 +67,7 @@ class PyDepGraphDot(object):
                 kwargs = {}
 
                 if src.name in depgraph.cyclenodes:
-                    kwargs['shape'] = 'octacon'
+                    kwargs['shape'] = 'octagon'
 
                 ctx.write_node(
                     src.name,
@@ -111,7 +111,7 @@ class CycleGraphDot(object):
                 kwargs = {}
 
                 if src.name in depgraph.cyclenodes:
-                    kwargs['shape'] = 'octacon'
+                    kwargs['shape'] = 'octagon'
 
                 ctx.write_node(
                     src.name, label=src.label,
