@@ -84,7 +84,7 @@ class Filemaker(FilemakerBase):
 
 @contextmanager
 def create_files(filedef, cleanup=True):
-    fdef = yaml.load(filedef)
+    fdef = yaml.safe_load(filedef)
     cwd = os.getcwd()
     tmpdir = os.path.realpath(tempfile.mkdtemp())
     try:
