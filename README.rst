@@ -56,6 +56,8 @@ https://github.com/thebjorn/pydeps/issues
 Version history
 ---------------
 
+**Version 1.9.0** supports Python 3.8.
+
 **Version 1.8.7** includes a new flag ``--rmprefix`` which lets you remove
 prefixes from the node-labels in the graph. The _name_ of the nodes are not effected
 so this does not cause merging of nodes, nor does it change coloring - but it
