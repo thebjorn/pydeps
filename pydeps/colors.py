@@ -54,11 +54,47 @@ class ColorSpace(object):
         black = (0, 0, 0)
         white = (255, 255, 255)
         fg = foreground(bg, black, white)
+        # fg = text_color(*bg)
         return bg, fg
 
     def __str__(self):  # pragma: nocover
         import pprint
         return pprint.pformat(self.colors)
+
+
+# def linear_rgb_value(csrgb):
+#     # ref.: https://www.w3.org/TR/WCAG20-TECHS/G17.html#G17-tests
+#     if csrgb > 0.03928:
+#         return ((csrgb + 0.055) / 1.055) ** 2.4
+#     else:
+#         return csrgb / 12.92
+#
+#
+# def relative_luminance(r, g, b):
+#     # ref.: https://www.w3.org/TR/WCAG20-TECHS/G17.html#G17-tests
+#     return (
+#         0.2126 * linear_rgb_value(r / 255)
+#         + 0.7152 * linear_rgb_value(g / 255)
+#         + 0.0722 * linear_rgb_value(b / 255)
+#     )
+#
+#
+# def contrast_ratio(a, b):
+#     # ref.: https://www.w3.org/TR/WCAG20-TECHS/G17.html#G17-tests
+#     rla = relative_luminance(*a)
+#     rlb = relative_luminance(*b)
+#     L1 = max(rla, rlb)
+#     L2 = min(rla, rlb)
+#     return (L1 + 0.05) / (L2 + 0.05)
+#
+#
+# def text_color(r, g, b):
+#     """Return black (0,0,0) or white (255, 255, 255) depending on which of
+#        them has highest contrast ratio with the color (r, b, b).
+#     """
+#     cr_white = contrast_ratio((r, g, b), (255, 255, 255))
+#     cr_black = contrast_ratio((r, b, b), (0, 0, 0))
+#     return (0, 0, 0) if cr_black > cr_white else (255, 255, 255)
 
 
 def rgb2eightbit(rgb):
