@@ -2,8 +2,7 @@ PyYAML>=3.12
 cov-core==1.15.0
 coverage==4.5.1
 enum34==1.0.4;		python_version < "3.4"
-stdlib-list>0.5.0;	python_version >= "3.8"
-stdlib-list>=0.3.3<=0.5.0; python_version < "3.8"
+stdlib-list>=0.6.0
 
 pytest==3.7.1
 pytest-cov==2.5.1
