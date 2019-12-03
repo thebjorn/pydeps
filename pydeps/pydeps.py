@@ -9,6 +9,7 @@ import sys
 from . import py2depgraph, cli, dot, target
 from .depgraph2dot import dep2dot, cycles2dot
 import logging
+from . import colors
 log = logging.getLogger(__name__)
 
 
@@ -16,6 +17,7 @@ def _pydeps(trgt, **kw):
     # Pass args as a **kw dict since we need to pass it down to functions
     # called, but extract locally relevant parameters first to make the
     # code prettier (and more fault tolerant).
+    colors.START_COLOR = kw.get('start_color')
     show_cycles = kw.get('show_cycles')
     nodot = kw.get('nodot')
     no_output = kw.get('no_output')
@@ -74,7 +76,7 @@ def externals(trgt, **kwargs):
         externals=True, format='svg', max_bacon=2**65, no_config=True, nodot=False,
         noise_level=2**65, noshow=True, output=None, pylib=True, pylib_all=True,
         show=False, show_cycles=False, show_deps=False, show_dot=False,
-        show_raw_deps=False, verbose=0, include_missing=True,
+        show_raw_deps=False, verbose=0, include_missing=True, start_color=0
     )
     kw.update(kwargs)
     depgraph = py2depgraph.py2dep(trgt, **kw)

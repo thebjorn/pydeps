@@ -130,6 +130,7 @@ def parse_args(argv=()):
     args.add('--max-cluster-size', default=0, type=int, metavar="INT", help="the maximum number of nodes a dependency can have before the cluster is collapsed to a single node (default=0)")
     args.add('--keep-target-cluster', action='store_true', help="draw target module as a cluster")
     args.add('--rmprefix', default=[], nargs="+", metavar="PREFIX", help="remove PREFIX from the displayed name of the nodes")
+    args.add('--start-color', default=0, type=int, metavar="INT", help="starting value for hue from 0 (red/default) to 360.")
 
     _args = args.parse_args(argv)
 
@@ -140,6 +141,7 @@ def parse_args(argv=()):
             noise_level=200, noshow=True, output=None, pylib=False, pylib_all=False,
             show=False, show_cycles=False, show_deps=False, show_dot=False,
             show_raw_deps=False, verbose=0, include_missing=True, reverse=False,
+            start_color=0
         )
 
     _args.show = True
