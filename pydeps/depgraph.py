@@ -190,12 +190,12 @@ class DepGraph(object):
         # if self._is_pylib(a) and self._is_pylib(b):
         #     return 1
 
-        res = 1
-        for ap, bp, n in zip(a.path_parts, b.path_parts, list(range(4))):
-            # print("res:", res, "ap:", ap, "bp:", bp, "n:", n, 'equal:', ap==bp, file=sys.stderr)
+        res = 0
+        for ap, bp, n in zip(a.name_parts, b.name_parts, list(range(4))):
             res += ap == bp
             if n >= 3:
                 break
+        if res == 0: res = 1
         return 4 if res > 4 else res
 
     def dissimilarity_metric(self, a, b):
