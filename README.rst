@@ -56,6 +56,10 @@ https://github.com/thebjorn/pydeps/issues
 Version history
 ---------------
 
+**Version 1.9.1** graphs are now stable on Python 3.x as well - 
+this was already the case for Py2.7 (thanks to pawamoy_ for reporting
+and testing the issue and to kinow_ for helping with testing).
+
 **Version 1.9.0** supports Python 3.8.
 
 **Version 1.8.7** includes a new flag ``--rmprefix`` which lets you remove
@@ -367,3 +371,5 @@ Contributing
 .. _eight04: https://github.com/eight04
 .. _tomasito665: https://github.com/Tomasito665
 .. _aroberge: https://github.com/aroberge
+.. _pawamoy: https://github.com/pawamoy
+.. _kinow: https://github.com/kinow
