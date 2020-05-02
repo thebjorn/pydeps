@@ -192,10 +192,11 @@ class DepGraph(object):
 
         res = 1
         for ap, bp, n in zip(a.path_parts, b.path_parts, list(range(4))):
+            # print("res:", res, "ap:", ap, "bp:", bp, "n:", n, 'equal:', ap==bp, file=sys.stderr)
             res += ap == bp
             if n >= 3:
                 break
-        return res
+        return 4 if res > 4 else res
 
     def dissimilarity_metric(self, a, b):
         """Return non-zero if references to this module are strange, and
@@ -213,7 +214,7 @@ class DepGraph(object):
             res -= an == bn
             if n >= 3:
                 break
-        return res
+        return 4 if res > 4 else res
 
     def _exclude(self, name):
         # excl = any(skip.match(name) for skip in self.skiplist)

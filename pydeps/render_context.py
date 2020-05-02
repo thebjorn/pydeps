@@ -106,7 +106,7 @@ class RenderContext(object):
         """
         if attrs:
             self.write(
-                ' [' + ','.join('%s="%s"' % kv for kv in attrs.items()) + ']'
+                ' [' + ','.join('%s="%s"' % kv for kv in sorted(attrs.items())) + ']'
             )
         else:  # pragma: nocover
             pass

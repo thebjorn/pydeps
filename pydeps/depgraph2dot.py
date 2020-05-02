@@ -62,7 +62,7 @@ class PyDepGraphDot(object):
                 visited.add(b)
 
             space = colors.ColorSpace(visited)
-            for src in visited:
+            for src in sorted(visited):
                 bg, fg = depgraph.get_colors(src, space)
                 kwargs = {}
 

@@ -57,7 +57,7 @@ def pipe(cmd, txt):
 def dot(src, **kw):
     """Execute the dot command to create an svg output.
     """
-    cmd = "dot -T%s" % kw.pop('T', 'svg')
+    cmd = "dot -Gstart=1 -T%s" % kw.pop('T', 'svg')
     for k, v in list(kw.items()):
         if v is True:
             cmd += " -%s" % k
