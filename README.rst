@@ -40,7 +40,7 @@ will be found (ie. pydeps will not look at files in your directory that
 are not imported). Additionally, only files that can be found using
 the Python import machinery will be considered (ie. if a module is
 missing or not installed, it will not be included regardless if it is
-being imported). This can be modified by using the ``--inlcude-missing``
+being imported). This can be modified by using the ``--include-missing``
 flag described below.
 
 **Creating the graph:**
