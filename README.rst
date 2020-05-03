@@ -34,6 +34,15 @@ From the shell::
 
 Detailed usage examples can be found below the version history.
 
+**Note:** pydeps finds imports by looking for import-opcodes in
+python bytecodes (think `.pyc` files). Therefore, only imported files
+will be found (ie. pydeps will not look at files in your directory that
+are not imported). Additionally, only files that can be found using
+the Python import machinery will be considered (ie. if a module is
+missing or not installed, it will not be included regardless if it is
+being imported). This can be modified by using the ``--inlcude-missing``
+flag described below.
+
 **Creating the graph:**
 
 To create graphs you need to install Graphviz_ Please follow the
@@ -337,6 +346,7 @@ optional arguments:
   --max-bacon INT                        exclude nodes that are more than n hops away (default=2, 0 -> infinite)
   --pylib                                include python std lib modules
   --pylib-all                            include python all std lib modules (incl. C modules)
+  --include-missing                      include modules that are not installed (or can't be found on sys.path)
   --x PATTERN, --exclude PATTERN         input files to skip (e.g. `foo.*`), multiple patterns can be provided
   --xx MODULE, --exclude-exact MODULE    same as --exclude, except requires the full match. `-xx foo.bar` will exclude foo.bar, but not foo.bar.blob
   --only MODULE_PATH                     only include modules that start with MODULE_PATH, multiple paths can be provided
