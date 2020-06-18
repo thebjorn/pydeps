@@ -38,7 +38,6 @@ setup(
     version=version,
     packages=['pydeps'],
     install_requires=[
-        'enum34; python_version < "3.4"',
         'stdlib_list',
     ],
     long_description=io.open('README.rst', encoding='utf8').read(),
@@ -47,6 +46,7 @@ setup(
             'pydeps = pydeps.pydeps:pydeps',
         ]
     },
+    python_requires='>=3.5'
     url='https://github.com/thebjorn/pydeps',
     cmdclass={'test': PyTest},
     license='BSD',
@@ -59,8 +59,6 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ]
