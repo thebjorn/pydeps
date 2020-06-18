@@ -4,7 +4,7 @@ import os
 import textwrap
 import logging
 
-from . import cli
+from . import clilog
 
 log = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ class DummyModule(object):
         log.debug("dummy-filename: %r (%s)", self.fname, self.absname)
 
         if target.is_module:
-            cli.verbose(1, "target is a PACKAGE")
+            clilog.verbose(1, "target is a PACKAGE")
             with open(self.fname, 'w') as fp:
                 for fname in python_sources_below(target.package_root):
                     modname = fname2modname(fname, target.syspath_dir)
@@ -65,7 +65,7 @@ class DummyModule(object):
         elif target.is_dir:
             # FIXME?: not sure what the intended semantics was here, as it is
             #         this will almost certainly not do the right thing...
-            cli.verbose(1, "target is a DIRECTORY")
+            clilog.verbose(1, "target is a DIRECTORY")
             with open(self.fname, 'w') as fp:
                 for fname in os.listdir(target.dirname):
                     if is_pysource(fname):
@@ -73,7 +73,7 @@ class DummyModule(object):
 
         else:
             assert target.is_pysource
-            cli.verbose(1, "target is a FILE")
+            clilog.verbose(1, "target is a FILE")
             with open(self.fname, 'w') as fp:
                 self.print_import(fp, target.modpath)
 

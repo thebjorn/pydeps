@@ -6,9 +6,6 @@ import colorsys
 # noinspection PyAugmentAssignment
 # import hashlib
 
-START_COLOR = 0  # Value can be changed from command-line argument
-
-
 def frange(start, end, step):
     """Like range(), but with floats.
     """
@@ -18,22 +15,22 @@ def frange(start, end, step):
         val += step
 
 
-def distinct_hues(count):
+def distinct_hues(count, start_color=0):
     """Return ``count`` hues, equidistantly spaced.
     """
     for i in frange(0., 360., 360. / count):
-        hue = ((i + START_COLOR) % 360) / 360.
+        hue = ((i + start_color) % 360) / 360.
         yield hue
 
 
 class ColorSpace(object):
-    def __init__(self, nodes):
+    def __init__(self, nodes, start_color=0):
         self.nodes = {}
         for node in nodes:
             # print 'xx', node.name, node.bacon
             parts = node.name.split('.')
             self.add_to_tree(parts, self.nodes)
-        self.basecolors = distinct_hues(len(self.nodes))
+        self.basecolors = distinct_hues(len(self.nodes), start_color)
         self.colors = dict(zip(sorted(self.nodes.keys()), self.basecolors))
 
     def add_to_tree(self, parts, tree):

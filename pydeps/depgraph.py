@@ -9,7 +9,7 @@ import pprint
 import re
 import enum
 
-from . import colors, cli
+from . import colors, clilog
 import sys
 import logging
 log = logging.getLogger(__name__)
@@ -260,7 +260,7 @@ class DepGraph(object):
                 self.add_source(src)
 
         self.module_count = len(self.sources)
-        cli.verbose(1, "there are", self.module_count, "total modules")
+        clilog.verbose(1, "there are", self.module_count, "total modules")
 
         self.connect_generations()
         if self.args['show_cycles']:
@@ -276,15 +276,15 @@ class DepGraph(object):
         excluded = [v for v in list(self.sources.values()) if v.excluded]
         # print "EXCLUDED:", excluded
         self.skip_count = len(excluded)
-        cli.verbose(1, "skipping", self.skip_count, "modules")
+        clilog.verbose(1, "skipping", self.skip_count, "modules")
         for module in excluded:
             # print 'exclude:', module.name
-            cli.verbose(2, "  ", module.name)
+            clilog.verbose(2, "  ", module.name)
 
         self.remove_excluded()
 
         if not self.args['show_deps']:
-            cli.verbose(3, self)
+            clilog.verbose(3, self)
 
     # def verbose(self, n, *args):
     #     if self.args['verbose'] >= n:
@@ -321,7 +321,7 @@ class DepGraph(object):
         # for _src in list(self.sources.values()):
         for _src in self.sources.values():
             for source in visit(_src):
-                cli.verbose(4, "Yielding", source[0], source[1])
+                clilog.verbose(4, "Yielding", source[0], source[1])
                 yield source
 
     def __repr__(self):
@@ -388,7 +388,7 @@ class DepGraph(object):
             if src.excluded:
                 continue
             if src.is_noise():
-                cli.verbose(2, "excluding", src, "because it is noisy:", src.degree)
+                clilog.verbose(2, "excluding", src, "because it is noisy:", src.degree)
                 src.excluded = True
                 # print "Exluding noise:", src.name
                 self._add_skip(src.name)

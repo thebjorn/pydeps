@@ -61,7 +61,7 @@ class PyDepGraphDot(object):
                 visited.add(a)
                 visited.add(b)
 
-            space = colors.ColorSpace(visited)
+            space = colors.ColorSpace(visited, start_color=self.kw.get('start_color'))
             for src in sorted(visited):
                 bg, fg = depgraph.get_colors(src, space)
                 kwargs = {}
@@ -105,7 +105,7 @@ class CycleGraphDot(object):
                 visited.add(a)
                 visited.add(b)
 
-            space = colors.ColorSpace(visited)
+            space = colors.ColorSpace(visited, start_color=self.kw.get('start_color'))
             for src in visited:
                 bg, fg = depgraph.get_colors(src, space)
                 kwargs = {}
