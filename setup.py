@@ -40,6 +40,7 @@ setup(
     install_requires=[
         'enum34; python_version < "3.4"',
         'stdlib_list',
+        'future >= 0.18.2',
     ],
     long_description=io.open('README.rst', encoding='utf8').read(),
     entry_points={
