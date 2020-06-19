@@ -1,3 +1,9 @@
 build:
   environment:
     python: 2.7.7
+  nodes:
+    my-tests:
+      dependencies:
+        before:
+          - pip install 'setuptools==44.0.0'
+          - pip install -e '.[dev]'
