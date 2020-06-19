@@ -1,3 +1,4 @@
+import pytest
 from pydeps import clilog
 
 
@@ -16,6 +17,12 @@ def test_verbose_output(capsys):
     captured = capsys.readouterr()
     assert captured.out == "cow\n"
 
+def test_verbose_output_implicit_level(capsys):
+    clilog.reset_levels()
+    clilog.set_level("verbose", 1)
+    clilog.verbose("cow")
+    captured = capsys.readouterr()
+    assert captured.out == "cow\n"
 
 def test_debug_output(capsys):
     clilog.reset_levels()
@@ -55,3 +62,5 @@ def test_set_level():
     assert clilog.levels == {"verbose": 3, "debug": 0}
     clilog.set_level("debug", 4)
     assert clilog.levels == {"verbose": 3, "debug": 4}
+    with pytest.raises(KeyError):
+        clilog.set_level("milk", 1)
