@@ -6,7 +6,7 @@ import json
 import os
 import pprint
 import sys
-from . import py2depgraph, cli, dot, target
+from . import py2depgraph, cli, dot, target, clilog
 from .depgraph2dot import dep2dot, cycles2dot
 import logging
 from . import colors
@@ -32,14 +32,14 @@ def _pydeps(trgt, **kw):
     dep_graph = py2depgraph.py2dep(trgt, **kw)
 
     if kw.get('show_deps'):
-        cli.verbose("DEPS:")
+        clilog.verbose("DEPS:")
         pprint.pprint(dep_graph)
 
     dotsrc = depgraph_to_dotsrc(trgt, dep_graph, **kw)
 
     if not nodot:
         if kw.get('show_dot'):
-            cli.verbose("DOTSRC:")
+            clilog.verbose("DOTSRC:")
             print(dotsrc)
 
         if not no_output:
@@ -48,7 +48,7 @@ def _pydeps(trgt, **kw):
                 svg = svg.replace(b'</title>', b'</title><style>.edge>path:hover{stroke-width:8}</style>')
 
             with open(output, 'wb') as fp:
-                cli.verbose("Writing output to:", output)
+                clilog.verbose("Writing output to:", output)
                 fp.write(svg)
 
             if show_svg:

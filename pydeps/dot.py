@@ -8,7 +8,7 @@ from subprocess import Popen
 import subprocess
 import shlex
 
-from . import cli
+from . import clilog
 
 win32 = sys.platform == 'win32'
 
@@ -75,7 +75,7 @@ def call_graphviz_dot(src, fmt):
         svg = dot(src, T=fmt)
     except OSError as e:  # pragma: nocover
         if e.errno == 2:
-            cli.error("""
+            clilog.error("""
                cannot find 'dot'
 
                pydeps calls dot (from graphviz) to create svg diagrams,
@@ -90,12 +90,12 @@ def display_svg(kw, fname):  # pragma: nocover
     """Try to display the svg file on this platform.
     """
     if kw['display'] is None:
-        cli.verbose("Displaying:", fname)
+        clilog.verbose("Displaying:", fname)
         if sys.platform == 'win32':
             os.startfile(fname)
         else:
             opener = "open" if sys.platform == "darwin" else "xdg-open"
             subprocess.call([opener, fname])
     else:
-        cli.verbose(kw['display'] + " " + fname)
+        clilog.verbose(kw['display'] + " " + fname)
         os.system(kw['display'] + " " + fname)

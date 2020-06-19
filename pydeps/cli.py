@@ -13,41 +13,12 @@ import os
 import sys
 import textwrap
 from . import __version__
-
-
-def error(*args, **kwargs):  # pragma: nocover
-    """Print an error message and exit.
-    """
-    kwargs['file'] = sys.stderr
-    print("\n\tERROR:", *args, **kwargs)
-    sys.exit(1)
-
-
-#: the (will become) verbose function
-verbose = None
-
-
-def _not_verbose(*args, **kwargs):  # pragma: nocover
-    pass
-
-
-def _mkverbose(level):
-    def _verbose(n, *args, **kwargs):
-        if not isinstance(n, int):  # we're only interested in small integers
-            # this allows the simpler usage cli.verbose(msg)
-            args = (n,) + args
-            n = 1
-        if 0 < level <= n:
-            print(*args, **kwargs)
-    return _verbose
+from . import clilog
 
 
 def base_argparser(argv=()):
     """Initial parser that can set values for the rest of the parsing process.
     """
-    global verbose
-    verbose = _not_verbose
-
     _p = argparse.ArgumentParser(add_help=False)
     _p.add_argument('--debug', action='store_true', help="turn on all the show and verbose options (mainly for debugging pydeps itself)")
     _p.add_argument('--config', help="specify config file", metavar="FILE")
@@ -61,7 +32,8 @@ def base_argparser(argv=()):
     if _args.log:
         loglevels = "CRITICAL DEBUG ERROR FATAL INFO WARN"
         if _args.log not in loglevels:  # pragma: nocover
-            error('legal values for the -L parameter are:', loglevels)
+            clilog.error('legal values for the -L parameter are:', loglevels)
+            sys.exit(1)
         loglevel = getattr(logging, _args.log)
     else:
         loglevel = None
@@ -134,6 +106,9 @@ def parse_args(argv=()):
 
     _args = args.parse_args(argv)
 
+    clilog.set_level("verbose", _args.verbose)
+    clilog.set_level("debug", _args.debug)
+
     if _args.externals:
         return dict(
             T='svg', config=None, debug=False, display=None, exclude=[], externals=True,
@@ -151,7 +126,8 @@ def parse_args(argv=()):
     if _args.noshow:
         _args.show = False
     if _args.nodot and _args.show_cycles:
-        error("Can't use --nodot and --show-cycles together")  # pragma: nocover
+        clilog.error("Can't use --nodot and --show-cycles together")  # pragma: nocover
+        sys.exit(1)
     if _args.nodot:
         _args.show_dot = False
     if _args.max_bacon == 0:
@@ -161,8 +137,7 @@ def parse_args(argv=()):
 
     _args.format = getattr(_args, 'T', getattr(_args, 'format', None))
 
-    verbose = _mkverbose(max(_args.verbose, int(_args.debug)))
-    verbose(2, _args, '\n')
+    clilog.verbose(2, _args, '\n')
     if _args.debug:  # pragma: nocover
         _args.verbose = 1
         _args.show = True
