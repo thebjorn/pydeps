@@ -11,6 +11,7 @@ from .pycompat import configparser
 import logging
 import os
 import sys
+import subprocess
 import textwrap
 from . import __version__
 
@@ -42,6 +43,17 @@ def _mkverbose(level):
     return _verbose
 
 
+def _find_current_package():
+    startdir = cwd = os.getcwd()
+    while 'setup.py' not in os.listdir(cwd) and cwd != os.path.dirname(cwd):
+        cwd = os.path.dirname(cwd)
+    if 'setup.py' not in os.listdir(cwd):
+        raise Exception("--find-package didn't find setup.py in current, or any parent, directory")
+    os.chdir(cwd)
+    package_name = subprocess.check_output("python setup.py --name", shell=True).decode('u8').strip()
+    return package_name
+
+
 def base_argparser(argv=()):
     """Initial parser that can set values for the rest of the parsing process.
     """
@@ -56,6 +68,7 @@ def base_argparser(argv=()):
     _p.add_argument('-L', '--log', help=textwrap.dedent('''
         set log-level to one of CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET.
     '''))
+    _p.add_argument('--find-package', action='store_true', help="tries to automatically find the name of the current package.")
     _args, argv = _p.parse_known_args(argv)
 
     if _args.log:
@@ -82,7 +95,7 @@ def parse_args(argv=()):
     """Parse command line arguments, and return a dict.
     """
     _p, _args, argv = base_argparser(argv)
-
+    find_package = _args.find_package
     config_files = []
 
     if not _args.no_config:  # process config files
@@ -102,7 +115,12 @@ def parse_args(argv=()):
             config_files.append(home_pydeps)
 
     args = Arguments(config_files, debug=True, parents=[_p])
-    args.add('fname', kind="FNAME:input", help='filename')
+
+    if not find_package:
+        args.add('fname', kind="FNAME:input", help='filename')
+    else:
+        args.add('--fname', kind="FNAME:input", help='filename')
+    
     args.add('-v', '--verbose', default=0, action='count', help="be more verbose (-vv, -vvv for more verbosity)")
     args.add('-o', default=None, kind="FNAME:output", dest='output', metavar="file", help="write output to 'file'")
     args.add('-T', default='svg', dest='format', help="output format (svg|png)")
@@ -141,7 +159,7 @@ def parse_args(argv=()):
             noise_level=200, noshow=True, output=None, pylib=False, pylib_all=False,
             show=False, show_cycles=False, show_deps=False, show_dot=False,
             show_raw_deps=False, verbose=0, include_missing=True, reverse=False,
-            start_color=0
+            start_color=0, find_package=False,
         )
 
     _args.show = True
@@ -158,6 +176,8 @@ def parse_args(argv=()):
         _args.max_bacon = sys.maxsize
     if _args.keep_target_cluster or _args.min_cluster_size > 0 or _args.max_cluster_size > 0:
         _args.cluster = True
+    if find_package:
+        _args.fname = _find_current_package()
 
     _args.format = getattr(_args, 'T', getattr(_args, 'format', None))
 
