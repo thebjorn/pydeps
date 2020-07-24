@@ -1,0 +1,4 @@
+id: pydeps
+name: Generate a graph of dependencies
+entry: pydeps
+language: python
