@@ -65,8 +65,12 @@ https://github.com/thebjorn/pydeps/issues
 Version history
 ---------------
 
-**Version 1.9.4** pydeps is now available as a pre-commit.com hook thanks to
-a PR by ewen-lbh_
+**Version 1.9.6** ``--no-show`` and ``--no-dot`` as aliases for ``--noshow``
+and ``--nodot``, PR by jhermann_
+
+.. 
+    **Version 1.9.4** pydeps is now available as a pre-commit.com hook thanks to
+    a PR by ewen-lbh_
 
 **Version 1.9.1** graphs are now stable on Python 3.x as well - 
 this was already the case for Py2.7 (thanks to pawamoy_ for reporting
@@ -387,3 +391,4 @@ Contributing
 .. _pawamoy: https://github.com/pawamoy
 .. _kinow: https://github.com/kinow
 .. _ewen-lbh: https://github.com/ewen-lbh
+.. _jhermann: https://github.com/jhermann
