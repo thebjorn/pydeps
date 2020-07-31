@@ -43,16 +43,25 @@ def _pydeps(trgt, **kw):
             print(dotsrc)
 
         if not no_output:
-            svg = dot.call_graphviz_dot(dotsrc, fmt)
+            try:
+                svg = dot.call_graphviz_dot(dotsrc, fmt)
+            except OSError as cause:
+                raise RuntimeError("While rendering {!r}: {}".format(output, cause)) from cause
             if fmt == 'svg':
                 svg = svg.replace(b'</title>', b'</title><style>.edge>path:hover{stroke-width:8}</style>')
 
-            with open(output, 'wb') as fp:
-                cli.verbose("Writing output to:", output)
-                fp.write(svg)
+            try:
+                with open(output, 'wb') as fp:
+                    cli.verbose("Writing output to:", output)
+                    fp.write(svg)
+            except OSError as cause:
+                raise RuntimeError("While writing {!r}: {}".format(output, cause)) from cause
 
             if show_svg:
-                dot.display_svg(kw, output)
+                try:
+                    dot.display_svg(kw, output)
+                except OSError as cause:
+                    raise RuntimeError("While opening {!r}: {}".format(output, cause)) from cause
 
 
 def depgraph_to_dotsrc(target, dep_graph, **kw):
@@ -133,7 +142,10 @@ def pydeps(**args):
 
         else:
             # this is the call you're looking for :-)
-            return _pydeps(inp, **_args)
+            try:
+                return _pydeps(inp, **_args)
+            except (OSError, RuntimeError) as cause:
+                cli.error(str(cause))
 
 
 if __name__ == '__main__':  # pragma: nocover
