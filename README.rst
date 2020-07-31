@@ -58,7 +58,7 @@ This can be overridden with the ``--display PROGRAM`` option, where ``PROGRAM`` 
 executable that can display the image file of the graph.
 
 You can also export the name of such a viewer in either the ``PYDEPS_DISPLAY``
-or ``BROWSER`` environemment variables, which changes the default behaviour
+or ``BROWSER`` environment variable, which changes the default behaviour
 when ``--display`` is not used.
 
 **Feature requests and bug reports:**
