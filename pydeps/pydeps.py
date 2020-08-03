@@ -61,7 +61,10 @@ def _pydeps(trgt, **kw):
                 try:
                     dot.display_svg(kw, output)
                 except OSError as cause:
-                    raise RuntimeError("While opening {!r}: {}".format(output, cause))
+                    helpful = ""
+                    if cause.errno == 2:
+                        helpful = " (can be caused by not finding the program to open this file)"
+                    raise RuntimeError("While opening {!r}: {}{}".format(output, cause, helpful))
 
 
 def depgraph_to_dotsrc(target, dep_graph, **kw):
