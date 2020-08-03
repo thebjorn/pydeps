@@ -51,11 +51,15 @@ sure the ``dot`` command is on your path).
 
 **Displaying the graph:**
 
+To display the resulting ``.svg`` or ``.png`` files, ``pydeps`` by default
+calls an appropriate opener for the platform, like ``xdg-open foo.svg``.
 
-To display the resulting `.svg` files, ``pydeps`` by default
-calls ``firefox foo.svg``.  This is can be overridden with
-the ``--display PROGRAM`` option, where ``PROGRAM`` is an
+This can be overridden with the ``--display PROGRAM`` option, where ``PROGRAM`` is an
 executable that can display the image file of the graph.
+
+You can also export the name of such a viewer in either the ``PYDEPS_DISPLAY``
+or ``BROWSER`` environment variable, which changes the default behaviour
+when ``--display`` is not used.
 
 **Feature requests and bug reports:**
 

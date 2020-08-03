@@ -88,14 +88,20 @@ def call_graphviz_dot(src, fmt):
 
 def display_svg(kw, fname):  # pragma: nocover
     """Try to display the svg file on this platform.
+
+       Note that this is also used to display PNG files, despite the name.
     """
-    if kw['display'] is None:
+    display = kw['display']
+    if not display:
+        display = os.getenv('PYDEPS_DISPLAY', os.getenv('BROWSER', None))
+
+    if not display:
         cli.verbose("Displaying:", fname)
         if sys.platform == 'win32':
             os.startfile(fname)
         else:
-            opener = "open" if sys.platform == "darwin" else "xdg-open"
-            subprocess.call([opener, fname])
+            display = "open" if sys.platform == "darwin" else "xdg-open"
+            subprocess.check_call([display, fname])
     else:
-        cli.verbose(kw['display'] + " " + fname)
-        os.system(kw['display'] + " " + fname)
+        cli.verbose(display + " " + fname)
+        subprocess.check_call([display, fname])
