@@ -46,7 +46,7 @@ def _pydeps(trgt, **kw):
             try:
                 svg = dot.call_graphviz_dot(dotsrc, fmt)
             except OSError as cause:
-                raise RuntimeError("While rendering {!r}: {}".format(output, cause)) from cause
+                raise RuntimeError("While rendering {!r}: {}".format(output, cause))
             if fmt == 'svg':
                 svg = svg.replace(b'</title>', b'</title><style>.edge>path:hover{stroke-width:8}</style>')
 
@@ -55,13 +55,13 @@ def _pydeps(trgt, **kw):
                     cli.verbose("Writing output to:", output)
                     fp.write(svg)
             except OSError as cause:
-                raise RuntimeError("While writing {!r}: {}".format(output, cause)) from cause
+                raise RuntimeError("While writing {!r}: {}".format(output, cause))
 
             if show_svg:
                 try:
                     dot.display_svg(kw, output)
                 except OSError as cause:
-                    raise RuntimeError("While opening {!r}: {}".format(output, cause)) from cause
+                    raise RuntimeError("While opening {!r}: {}".format(output, cause))
 
 
 def depgraph_to_dotsrc(target, dep_graph, **kw):
