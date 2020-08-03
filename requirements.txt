@@ -4,6 +4,8 @@ coverage==4.5.1
 enum34==1.0.4;		python_version < "3.4"
 stdlib-list>=0.6.0
 
+setuptools<=49.2.0;		python_version < "3"
+
 pytest==3.7.1
 pytest-cov==2.5.1
 Sphinx>=1.7.6
