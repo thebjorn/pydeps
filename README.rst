@@ -69,6 +69,9 @@ https://github.com/thebjorn/pydeps/issues
 Version history
 ---------------
 
+**Version 1.9.7** Check ``PYDEPS_DISPLAY`` and ``BROWSER`` for a program to open
+the graph, PR by jhermann_
+
 **Version 1.9.6** ``--no-show`` and ``--no-dot`` as aliases for ``--noshow``
 and ``--nodot``, PR by jhermann_
 
