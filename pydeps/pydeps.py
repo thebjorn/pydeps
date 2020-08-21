@@ -121,6 +121,7 @@ def pydeps(**args):
        munging before calling ``_pydeps`` (so that function has a clean
        execution path).
     """
+    sys.setrecursionlimit(10000)
     _args = args if args else cli.parse_args(sys.argv[1:])
     inp = target.Target(_args['fname'])
     log.debug("Target: %r", inp)
