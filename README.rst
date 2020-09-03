@@ -1,4 +1,3 @@
-
 pydeps
 ======
 
@@ -20,8 +19,11 @@ pydeps
 Python module dependency visualization. This package installs the ``pydeps``
 command, and normal usage will be to use it from the command line.
 
+.. contents::
+   :depth: 2
+
 How to install
-==============
+--------------
 ::
 
     pip install pydeps
@@ -170,8 +172,8 @@ This is the result of running ``pydeps`` on itself (``pydeps pydeps``):
 
 (full disclosure: this is for an early version of pydeps)
 
-Bacon
-~~~~~
+Bacon (Scoring)
+---------------
 
 ``pydeps`` also contains an Erdős-like scoring function (a.k.a. Bacon
 number, from Six degrees of Kevin Bacon
