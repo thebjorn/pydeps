@@ -71,6 +71,10 @@ https://github.com/thebjorn/pydeps/issues
 Version history
 ---------------
 
+**Version 1.9.8** Fix for ``maximum recursion depth exceeded`` when using large
+frameworks (like ``sympy``).  Thanks to tanujkhattar_ for finding the fix and to
+balopat_ for reporting it.
+
 **Version 1.9.7** Check ``PYDEPS_DISPLAY`` and ``BROWSER`` for a program to open
 the graph, PR by jhermann_
 
@@ -401,3 +405,5 @@ Contributing
 .. _kinow: https://github.com/kinow
 .. _ewen-lbh: https://github.com/ewen-lbh
 .. _jhermann: https://github.com/jhermann
+.. _balopat: https://github.com/balopat
+.. _tanujkhattar: https://github.com/tanujkhattar
