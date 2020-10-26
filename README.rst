@@ -71,6 +71,9 @@ https://github.com/thebjorn/pydeps/issues
 Version history
 ---------------
 
+**Version 1.9.10** ``no_show`` is now honored when placed in ``.pydeps`` file.
+Thanks to romain-dartigues_ for the PR.
+
 **Version 1.9.8** Fix for ``maximum recursion depth exceeded`` when using large
 frameworks (like ``sympy``).  Thanks to tanujkhattar_ for finding the fix and to
 balopat_ for reporting it.
@@ -81,11 +84,11 @@ the graph, PR by jhermann_
 **Version 1.9.6** ``--no-show`` and ``--no-dot`` as aliases for ``--noshow``
 and ``--nodot``, PR by jhermann_
 
-.. 
+..
     **Version 1.9.4** pydeps is now available as a pre-commit.com hook thanks to
     a PR by ewen-lbh_
 
-**Version 1.9.1** graphs are now stable on Python 3.x as well - 
+**Version 1.9.1** graphs are now stable on Python 3.x as well -
 this was already the case for Py2.7 (thanks to pawamoy_ for reporting
 and testing the issue and to kinow_ for helping with testing).
 
@@ -101,7 +104,7 @@ give the full name). Thanks to  aroberge_ for the enhancement request.
 paths are now hilighted on mouse hover (thanks to tomasito665_ for the
 enhancement request).
 
-**Version 1.8.2** incldes a new flag ``--only`` that causes pydeps to 
+**Version 1.8.2** incldes a new flag ``--only`` that causes pydeps to
 only report on the paths specified::
 
     shell> pydeps mypackage --only mypackage.a mypackage.b
@@ -128,7 +131,7 @@ the bug report and tobiasmaier_ for the PR!).
 
 **Version 1.5.0** Python 3 support (thanks to eight04_ for the PR).
 
-**Version 1.3.4** ``--externals`` will now include modules that 
+**Version 1.3.4** ``--externals`` will now include modules that
 haven't been installed (what ``modulefinder`` calls ``badmodules``).
 
 **Version 1.2.8** A shortcut for finding the direct external dependencies
@@ -380,7 +383,7 @@ optional arguments:
   --rmprefix PREFIX                      remove PREFIX from the displayed name of the nodes (multiple prefixes can be provided)
 
 
-     
+
 You can of course import ``pydeps`` from Python (look in the
 ``tests/test_relative_imports.py`` file for examples.
 
@@ -408,3 +411,4 @@ Contributing
 .. _jhermann: https://github.com/jhermann
 .. _balopat: https://github.com/balopat
 .. _tanujkhattar: https://github.com/tanujkhattar
+.. _romain-dartigues: https://github.com/romain-dartigues
