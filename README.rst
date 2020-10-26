@@ -218,6 +218,7 @@ An example .pydeps file::
 
     [pydeps]
     max_bacon = 2
+    no_show = True
     verbose = 0
     pylib = False
     exclude =

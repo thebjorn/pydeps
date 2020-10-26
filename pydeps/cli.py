@@ -125,7 +125,7 @@ def parse_args(argv=()):
     args.add('-o', default=None, kind="FNAME:output", dest='output', metavar="file", help="write output to 'file'")
     args.add('-T', default='svg', dest='format', help="output format (svg|png)")
     args.add('--display', kind="FNAME:exe", default=None, help="program to use to display the graph (png or svg file depending on the T parameter)", metavar="PROGRAM")
-    args.add('--noshow', '--no-show', action='store_true', help="don't call external program to display graph")
+    args.add('--noshow', '--no-show', action='store_true', default=False, dest='no_show', help="don't call external program to display graph")
     args.add('--show-deps', action='store_true', help="show output of dependency analysis")
     args.add('--show-raw-deps', action='store_true', help="show output of dependency analysis before removing skips")
     args.add('--show-dot', action='store_true', help="show output of dot conversion")
@@ -156,18 +156,15 @@ def parse_args(argv=()):
         return dict(
             T='svg', config=None, debug=False, display=None, exclude=[], externals=True,
             fname=_args.fname, format='svg', max_bacon=10, no_config=False, nodot=False,
-            noise_level=200, noshow=True, output=None, pylib=False, pylib_all=False,
+            noise_level=200, no_show=True, output=None, pylib=False, pylib_all=False,
             show=False, show_cycles=False, show_deps=False, show_dot=False,
             show_raw_deps=False, verbose=0, include_missing=True, reverse=False,
             start_color=0, find_package=False,
         )
 
-    _args.show = True
-
     if _args.no_output:
-        _args.noshow = True
-    if _args.noshow:
-        _args.show = False
+        _args.no_show = True
+    _args.show = not _args.no_show
     if _args.nodot and _args.show_cycles:
         error("Can't use --nodot and --show-cycles together")  # pragma: nocover
     if _args.nodot:

@@ -86,7 +86,7 @@ def externals(trgt, **kwargs):
     kw = dict(
         T='svg', config=None, debug=False, display=None, exclude=[], exclude_exact=[],
         externals=True, format='svg', max_bacon=2**65, no_config=True, nodot=False,
-        noise_level=2**65, noshow=True, output=None, pylib=True, pylib_all=True,
+        noise_level=2**65, no_show=True, output=None, pylib=True, pylib_all=True,
         show=False, show_cycles=False, show_deps=False, show_dot=False,
         show_raw_deps=False, verbose=0, include_missing=True, start_color=0
     )
