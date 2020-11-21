@@ -382,7 +382,9 @@ optional arguments:
   --keep-target-cluster                  draw target module as a cluster
   --rmprefix PREFIX                      remove PREFIX from the displayed name of the nodes (multiple prefixes can be provided)
 
-
+**Note:** if an option with a variable number of arguments (like ``-x``) is provided
+before ``fname``, separe the arguments from the filename with ``--`` otherwise ``fname``
+will be parsed as an argument of the option. Example: ``$ pydeps -x os sys -- pydeps``.
 
 You can of course import ``pydeps`` from Python (look in the
 ``tests/test_relative_imports.py`` file for examples.
