@@ -81,8 +81,6 @@ optional arguments:
   --pylib                                include python std lib modules
   --pylib-all                            include python all std lib modules (incl. C modules)
   --include-missing                      include modules that are not installed (or can't be found on sys.path)
-  -x PATTERN, --exclude PATTERN          input files to skip (e.g. `foo.*`), multiple patterns can be provided
-  -xx MODULE, --exclude-exact MODULE     same as --exclude, except requires the full match. `-xx foo.bar` will exclude foo.bar, but not foo.bar.blob
   --only MODULE_PATH                     only include modules that start with MODULE_PATH, multiple paths can be provided
   --externals                            create list of direct external dependencies
   --reverse                              draw arrows to (instead of from) imported modules
@@ -91,6 +89,8 @@ optional arguments:
   --max-cluster-size INT                 the maximum number of nodes a dependency can have before the cluster is collapsed to a single node (default=0)
   --keep-target-cluster                  draw target module as a cluster
   --rmprefix PREFIX                      remove PREFIX from the displayed name of the nodes (multiple prefixes can be provided)
+  -x PATTERN, --exclude PATTERN          input files to skip (e.g. `foo.*`), multiple patterns can be provided
+  --exclude-exact MODULE                 (shorthand -xx MODULE) same as --exclude, except requires the full match. `-xx foo.bar` will exclude foo.bar, but not foo.bar.blob
 
 **Note:** if an option with a variable number of arguments (like ``-x``) is provided
 before ``fname``, separe the arguments from the filename with ``--`` otherwise ``fname``
