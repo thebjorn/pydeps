@@ -281,6 +281,8 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
 Version history
 ---------------
 
+**Version 1.9.12** Thanks to glumia_ and SimonBiggs_ for improving the documentation.
+
 **Version 1.9.10** ``no_show`` is now honored when placed in ``.pydeps`` file.
 Thanks to romain-dartigues_ for the PR.
 
@@ -399,3 +401,5 @@ Contributing
 .. _balopat: https://github.com/balopat
 .. _tanujkhattar: https://github.com/tanujkhattar
 .. _romain-dartigues: https://github.com/romain-dartigues
+.. _glumia: https://github.com/glumia
+.. _SimonBiggs: https://github.com/SimonBiggs
