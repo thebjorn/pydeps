@@ -371,8 +371,8 @@ optional arguments:
   --pylib                                include python std lib modules
   --pylib-all                            include python all std lib modules (incl. C modules)
   --include-missing                      include modules that are not installed (or can't be found on sys.path)
-  --x PATTERN, --exclude PATTERN         input files to skip (e.g. `foo.*`), multiple patterns can be provided
-  --xx MODULE, --exclude-exact MODULE    same as --exclude, except requires the full match. `-xx foo.bar` will exclude foo.bar, but not foo.bar.blob
+  -x PATTERN, --exclude PATTERN         input files to skip (e.g. `foo.*`), multiple patterns can be provided
+  -xx MODULE, --exclude-exact MODULE    same as --exclude, except requires the full match. `-xx foo.bar` will exclude foo.bar, but not foo.bar.blob
   --only MODULE_PATH                     only include modules that start with MODULE_PATH, multiple paths can be provided
   --externals                            create list of direct external dependencies
   --reverse                              draw arrows to (instead of from) imported modules
