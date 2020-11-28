@@ -100,7 +100,7 @@ You can of course also import ``pydeps`` from Python and use it as a library, lo
 ``tests/test_relative_imports.py`` for examples.
 
 Example
------
+-------
 
 This is the result of running ``pydeps`` on itself (``pydeps pydeps``):
 
@@ -281,7 +281,7 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
 Version history
 ---------------
 
-**Version 1.9.12** Thanks to glumia_ and SimonBiggs_ for improving the documentation.
+**Version 1.9.13** Thanks to glumia_ and SimonBiggs_ for improving the documentation.
 
 **Version 1.9.10** ``no_show`` is now honored when placed in ``.pydeps`` file.
 Thanks to romain-dartigues_ for the PR.
