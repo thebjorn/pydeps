@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-from unittest.mock import patch, call
 
 from pydeps.cli import error
 from pydeps.pydeps import pydeps
@@ -27,11 +26,14 @@ def test_output(tmpdir):
         pydeps(fname='foo', **empty('--noshow', output=outname))
         assert os.path.exists(outname)
 
-@patch('sys.exit')
-@patch('builtins.print')
-def test_error(mocked_print, mocked_sys_exit):
+def test_error(capsys):
     """Test that error function prints reminder about missing inits on FileNotFoundErrors."""
-    error("[Errno 2] No such file or directory: 'foo'")
-    mocked_print.assert_called_with("\t(Did you forget to include an __init__.py?)")
-    # because error invokes sys.exit(1), have to mock it here, otherwise the test would always fail...
-    mocked_sys_exit.assert_called_with(1)
+    try:
+        error("[Errno 2] No such file or directory: 'foo'")
+    except SystemExit:
+        # because error invokes sys.exit(1), we have to catch it here, otherwise the test would always fail.
+        pass
+    else:  # test should fail if error function doesn't raise
+        assert False
+    captured_stdout = capsys.readouterr().out
+    assert "(Did you forget to include an __init__.py?)" in captured_stdout
