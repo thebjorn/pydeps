@@ -33,3 +33,5 @@ def test_error(mocked_print, mocked_sys_exit):
     """Test that error function prints reminder about missing inits on FileNotFoundErrors."""
     error("[Errno 2] No such file or directory: 'foo'")
     mocked_print.assert_called_with("\t(Did you forget to include an __init__.py?)")
+    # because error invokes sys.exit(1), have to mock it here, otherwise the test would always fail...
+    mocked_sys_exit.assert_called_with(1)
