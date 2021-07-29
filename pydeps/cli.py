@@ -20,7 +20,6 @@ def error(*args, **kwargs):  # pragma: nocover
     """Print an error message and exit.
     """
     kwargs['file'] = sys.stderr
-    print("args:", args)
     print("\n\tERROR:", *args, **kwargs)
     if args and args[0].startswith("[Errno 2] No such file or directory"):
         print("\t(Did you forget to include an __init__.py?)")
