@@ -5,11 +5,11 @@ pydeps
    :target: https://readthedocs.org/projects/pydeps/?badge=latest
    :alt: Documentation Status
 
-.. image:: https://travis-ci.org/thebjorn/pydeps.svg
-   :target: https://travis-ci.org/thebjorn/pydeps
+.. image:: https://github.com/thebjorn/pydeps/actions/workflows/unit-tests.yml/badge.svg
+   :target: https://github.com/thebjorn/pydeps/actions/workflows/unit-tests.yml
 
-.. image:: https://coveralls.io/repos/github/thebjorn/pydeps/badge.svg?branch=master
-   :target: https://coveralls.io/github/thebjorn/pydeps?branch=master
+.. image:: https://codecov.io/gh/thebjorn/pydeps/branch/master/graph/badge.svg?token=VsYwrSFcJa
+   :target: https://codecov.io/gh/thebjorn/pydeps
 
 .. image:: https://pepy.tech/badge/pydeps
    :target: https://pepy.tech/project/pydeps
