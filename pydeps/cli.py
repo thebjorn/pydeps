@@ -21,6 +21,8 @@ def error(*args, **kwargs):  # pragma: nocover
     """
     kwargs['file'] = sys.stderr
     print("\n\tERROR:", *args, **kwargs)
+    if args and args[0].startswith("[Errno 2] No such file or directory"):
+        print("\t(Did you forget to include an __init__.py?)")
     sys.exit(1)
 
 
@@ -120,7 +122,7 @@ def parse_args(argv=()):
         args.add('fname', kind="FNAME:input", help='filename')
     else:
         args.add('--fname', kind="FNAME:input", help='filename')
-    
+
     args.add('-v', '--verbose', default=0, action='count', help="be more verbose (-vv, -vvv for more verbosity)")
     args.add('-o', default=None, kind="FNAME:output", dest='output', metavar="file", help="write output to 'file'")
     args.add('-T', default='svg', dest='format', help="output format (svg|png)")
