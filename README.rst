@@ -281,6 +281,9 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
 Version history
 ---------------
 
+**Version 1.9.14** Thanks to poneill_ for fixing a cryptic error message when
+run in a directory without an ``__init__.py`` file.
+
 **Version 1.9.13** Thanks to glumia_ and SimonBiggs_ for improving the documentation.
 
 **Version 1.9.10** ``no_show`` is now honored when placed in ``.pydeps`` file.
@@ -403,3 +406,4 @@ Contributing
 .. _romain-dartigues: https://github.com/romain-dartigues
 .. _glumia: https://github.com/glumia
 .. _SimonBiggs: https://github.com/SimonBiggs
+.. _poneill: https://github.com/poneill
