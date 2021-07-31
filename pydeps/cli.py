@@ -145,7 +145,7 @@ def parse_args(argv=()):
     args.add('--only', default=[], nargs="+", metavar="MODULE_PATH", help="only include modules that start with MODULE_PATH")
     args.add('--externals', action='store_true', help='create list of direct external dependencies')
     args.add('--reverse', action='store_true', help="draw arrows to (instead of from) imported modules")
-    args.add('--rankdir', default='TB', type=str, choices=['TB', 'BT'], help="set the rank direction for the imported modules ('TB' = top-bottom / top-down (default), 'BT' for bottom-top / bottom-up")
+    args.add('--rankdir', default='TB', type=str, choices=['TB', 'BT'], help="set the rank direction for the imported modules ('TB' = top-bottom / top-down (default), 'BT' for bottom-top / bottom-up)")
     args.add('--cluster', action='store_true', help="draw external dependencies as separate clusters")
     args.add('--min-cluster-size', default=0, type=int, metavar="INT", help="the minimum number of nodes a dependency must have before being clustered (default=0)")
     args.add('--max-cluster-size', default=0, type=int, metavar="INT", help="the maximum number of nodes a dependency can have before the cluster is collapsed to a single node (default=0)")

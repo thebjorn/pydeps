@@ -50,7 +50,7 @@ Usage
                   [--noise-level INT] [--max-bacon INT] [--pylib] [--pylib-all]
                   [--include-missing] [-x PATTERN [PATTERN ...]]
                   [-xx MODULE [MODULE ...]] [--only MODULE_PATH [MODULE_PATH ...]]
-                  [--externals] [--reverse] [--cluster] [--min-cluster-size INT]
+                  [--externals] [--reverse] [--rankdir {TB,BT}] [--cluster] [--min-cluster-size INT]
                   [--max-cluster-size INT] [--keep-target-cluster]
                   [--rmprefix PREFIX [PREFIX ...]]
                   fname
@@ -84,6 +84,7 @@ optional arguments:
   --only MODULE_PATH                     only include modules that start with MODULE_PATH, multiple paths can be provided
   --externals                            create list of direct external dependencies
   --reverse                              draw arrows to (instead of from) imported modules
+  --rankdir {TB,BT}                      set the rank direction for the imported modules ('TB' = top-bottom / top-down (default), 'BT' for bottom-top / bottom-up)
   --cluster                              draw external dependencies as separate clusters
   --min-cluster-size INT                 the minimum number of nodes a dependency must have before being clustered (default=0)
   --max-cluster-size INT                 the maximum number of nodes a dependency can have before the cluster is collapsed to a single node (default=0)
