@@ -147,6 +147,12 @@ jobs:
           name: pytest-log
           path: "Python ${{ matrix.python-version }} - logs/pytest.log"
 
+      - name: Upload coverage to codecov.io
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN}}
+          fail_ci_if_error: false
+
       # Package application
 
       - if: matrix.python-version == '3.9'
