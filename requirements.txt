@@ -1,6 +1,6 @@
 PyYAML>=3.12
 cov-core==1.15.0
-coverage==4.5.1
+coverage==5.5
 enum34==1.0.4;		python_version < "3.4"
 stdlib-list>=0.6.0
 
