@@ -5,10 +5,10 @@ import argparse
 from .pycompat import configparser
 
 try:
-    unicode
+    unicode     # noqa
 
     def is_string(v):
-        return isinstance(v, (str, unicode))
+        return isinstance(v, (str, unicode))    # noqa
 except NameError:
     def is_string(v):
         return isinstance(v, str)
@@ -49,6 +49,7 @@ typefns = {
     'LIST': listval
 }
 
+
 class Argument(object):
     def __init__(self, *flags, **args):
         self._args = args
@@ -81,7 +82,7 @@ class Argument(object):
             return self._args['default']
         if self._args.get('action') == 'store_true':
             return False
-        if self._args.get('action') == 'store_false':            
+        if self._args.get('action') == 'store_false':
             return True
         return '___'
 
@@ -125,7 +126,7 @@ class Arguments(object):
         # print("CONFIG_FILES:", config_files)
 
         self.debug = debug
-        self.arglist = [] 
+        self.arglist = []
         self.args = {}
         self.config_files = config_files
         self.argtypes = {}

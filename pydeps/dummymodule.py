@@ -94,7 +94,7 @@ class DummyModule(object):
         for part in name.split('.'):
             try:
                 exec("%s = 42" % part, {}, {})
-            except:  # pragma: nocover
+            except:  # pragma: nocover  # noqa
                 self._legal_mnames[name] = False
                 return False
         self._legal_mnames[name] = True
@@ -105,7 +105,7 @@ class DummyModule(object):
         # catch import errors
         print(textwrap.dedent("""
             import sys
-            import traceback        
+            import traceback
         """), file=fp)
 
     def print_import(self, fp, module):
