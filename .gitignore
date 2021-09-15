@@ -84,3 +84,6 @@ pydeps.2.svg
 pydeps.3.svg
 pydeps.4.svg
 pydeps1.svg
+
+# devcontainer json file exception
+!devcontainer.json
