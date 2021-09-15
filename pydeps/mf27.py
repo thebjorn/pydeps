@@ -207,7 +207,7 @@ class ModuleFinder:
         m = q
         while tail:
             i = tail.find('.')
-            if i < 0: i = len(tail)
+            if i < 0: i = len(tail)     # noqa
             head, tail = tail[:i], tail[i + 1:]
             mname = "%s.%s" % (m.__name__, head)
             m = self.import_module(head, mname, m)
@@ -282,7 +282,7 @@ class ModuleFinder:
         try:
             m = self.load_module(fqname, fp, pathname, stuff)
         finally:
-            if fp: fp.close()
+            if fp: fp.close()       # noqa
         if parent:
             setattr(parent, partname, m)
         self.msgout(3, "import_module ->", m)
@@ -446,7 +446,7 @@ class ModuleFinder:
             i += 1
 
     def scan_code(self, co, module):
-        code = co.co_code
+        # code = co.co_code
         if sys.version_info >= (3, 4):
             scanner = self.scan_opcodes_34
         elif sys.version_info >= (2, 5):

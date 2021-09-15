@@ -195,7 +195,7 @@ class DepGraph(object):
             res += ap == bp
             if n >= 3:
                 break
-        if res == 0: res = 1
+        if res == 0: res = 1    # noqa
         return 4 if res > 4 else res
 
     def dissimilarity_metric(self, a, b):
