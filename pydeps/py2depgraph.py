@@ -226,7 +226,7 @@ def py2dep(target, **kw):
                 if v in mf._depgraph:
                     mf._depgraph[v][k] = None
                 else:
-                    mf._depgraph[v] = {k:None}
+                    mf._depgraph[v] = {k: None}
 
     log.info("mf._depgraph:\n%s", json.dumps(dict(mf._depgraph), indent=4))
 

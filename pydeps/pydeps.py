@@ -18,13 +18,13 @@ def _pydeps(trgt, **kw):
     # called, but extract locally relevant parameters first to make the
     # code prettier (and more fault tolerant).
     colors.START_COLOR = kw.get('start_color')
-    show_cycles = kw.get('show_cycles')
+    # show_cycles = kw.get('show_cycles')
     nodot = kw.get('nodot')
     no_output = kw.get('no_output')
     output = kw.get('output')
     fmt = kw['format']
     show_svg = kw.get('show')
-    reverse = kw.get('reverse')
+    # reverse = kw.get('reverse')
     if os.getcwd() != trgt.workdir:
         # the tests are calling _pydeps directoy
         os.chdir(trgt.workdir)

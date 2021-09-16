@@ -203,6 +203,9 @@ like in the tests)::
 
 .. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pydeps-cycle.svg?sanitize=true
 
+
+.. _clustering-externals:
+
 Clustering externals
 --------------------
 
@@ -322,7 +325,7 @@ only report on the paths specified::
     shell> pydeps mypackage --only mypackage.a mypackage.b
 
 **Version 1.8.0** includes 4 new flags for drawing external dependencies as
-clusters. See below for examples.
+clusters. See clustering-externals_ for examples.
 Additionally, the arrowheads now have the color of the source node.
 
 **Version 1.7.3** includes a new flag ``-xx`` or ``--exclude-exact`` which
