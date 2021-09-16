@@ -5,7 +5,7 @@ on: [ push, pull_request, workflow_dispatch ]
 jobs:
   ci:
     name: Continuous Integration
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     outputs:
       package_version: ${{ steps.proj_ver_determiner.outputs.package_version }}
       package_version_tag: ${{ steps.proj_ver_determiner.outputs.package_version_tag }}
@@ -30,10 +30,24 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y graphviz
 
-      - name: Install Python tools
+      - name: Install pip for Python ${{ matrix.python-version }}
         run: |
-          python3 -m pip install --upgrade pip
-          pip install flake8 wheel
+          PYTHON_VERSION="${{ matrix.python-version }}"
+
+          if [ $PYTHON_VERSION == '2.7' ]; then
+            curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
+            python2 get-pip.py
+            pip2 --version
+          else
+            sudo apt update
+            sudo apt install -y python3-pip
+            pip3 --version
+          fi
+
+      - if: matrix.python-version == '3.9'
+        name: Install Python tools
+        run: |
+          pip3 install flake8 wheel packaging
 
       # Information setup
 
@@ -79,24 +93,14 @@ jobs:
         run: |
           git fetch --all --tags
 
-          PACKAGE_VERSION=$(cat setup.py \
-            | grep version \
-            | head -1 \
-            | sed "s/[version=\', ]//g")
+          PACKAGE_VERSION=$(python3 setup.py --version)
           PACKAGE_VERSION_TAG=`echo v$PACKAGE_VERSION | sed -e 's/[[:space:]]//'`
           LATEST_GITHUB_TAG=`echo $(git tag | sort --version-sort | tail -n1)`
+          IS_NEW_VERSION=$(python3 -c "import sys, packaging.version as v;p=v.parse;s=sys.argv;a=p(s[1]);b=p(s[2]);print((a>b)-(a<b))" $PACKAGE_VERSION_TAG $LATEST_GITHUB_TAG)
           SHOULD_DEPLOY="false"
 
-          # download semver compare tool
-          curl https://raw.githubusercontent.com/Ariel-Rodriguez/sh-semversion-2/main/semver2.sh -o semver2.sh
-          chmod +x semver2.sh
-
-          if [ -z "$LATEST_GITHUB_TAG" ]; then
+          if [ -z "$LATEST_GITHUB_TAG" ] || [ $IS_NEW_VERSION == 1 ]; then
             SHOULD_DEPLOY="true"
-          else
-            if [ `echo $(./semver2.sh $PACKAGE_VERSION_TAG $LATEST_GITHUB_TAG)` = 1 ]; then
-              SHOULD_DEPLOY="true"
-            fi
           fi
 
           echo "::set-output name=package_version::$(echo $PACKAGE_VERSION)"
@@ -110,13 +114,19 @@ jobs:
         run: |
           mkdir -p "Python ${{ matrix.python-version }} - logs"
 
-      - name: Install requirements
+      - name: Install requirements for Python ${{ matrix.python-version }}
         run: |
           REQS_FILE="requirements.txt"
+          PYTHON_VERSION="${{ matrix.python-version }}"
 
           if [ -f $REQS_FILE ]; then
-            pip install -r $REQS_FILE 2>&1 | tee "Python ${{ matrix.python-version }} - logs/requirements.log"
-            exit ${PIPESTATUS[0]} # without this explicit exit code return, even if the previous command fails, the step won't return error because of 'tee'
+            if [ $PYTHON_VERSION == '2.7' ]; then
+              pip2 install -r $REQS_FILE 2>&1 | tee "Python $PYTHON_VERSION - logs/requirements.log"
+              exit ${PIPESTATUS[0]} # without this explicit exit code return, even if the previous command fails, the step won't return error because of 'tee'
+            else
+              pip3 install -r $REQS_FILE 2>&1 | tee "Python $PYTHON_VERSION - logs/requirements.log"
+              exit ${PIPESTATUS[0]}
+            fi
           fi
 
       - name: Upload requirements log as artifact
@@ -128,15 +138,7 @@ jobs:
       - if: matrix.python-version == '3.9'
         name: Lint with flake8
         run: |
-          flake8 pydeps/** --max-line-length=199 2>&1 | tee "Python ${{ matrix.python-version }} - logs/flake8.log"
-          exit ${PIPESTATUS[0]}
-
-      - if: matrix.python-version == '3.9'
-        name: Upload flake8 log as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: Python ${{ matrix.python-version }} - flake8-log
-          path: "Python ${{ matrix.python-version }} - logs/flake8.log"
+          flake8 pydeps/** --max-line-length=199
 
       - name: Run tests with pytest
         run: |
@@ -173,7 +175,7 @@ jobs:
     if: needs.ci.outputs.should_deploy == 'true'
     name: Continuous Deployment
     needs: ci
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -187,8 +189,9 @@ jobs:
 
       - name: Install deployment tools
         run: |
-          python3 -m pip install --upgrade pip
-          pip install twine
+          sudo apt update
+          sudo apt install -y python3-pip
+          pip3 install twine
 
       # Download CI artifacts
 
