@@ -5,8 +5,8 @@ pydeps
    :target: https://readthedocs.org/projects/pydeps/?badge=latest
    :alt: Documentation Status
 
-.. image:: https://github.com/thebjorn/pydeps/actions/workflows/unit-tests.yml/badge.svg
-   :target: https://github.com/thebjorn/pydeps/actions/workflows/unit-tests.yml
+.. image:: https://github.com/thebjorn/pydeps/actions/workflows/ci-cd.yml/badge.svg
+   :target: https://github.com/thebjorn/pydeps/actions/workflows/ci-cd.yml
 
 .. image:: https://codecov.io/gh/thebjorn/pydeps/branch/master/graph/badge.svg?token=VsYwrSFcJa
    :target: https://codecov.io/gh/thebjorn/pydeps
