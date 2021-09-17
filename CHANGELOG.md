@@ -1,5 +1,10 @@
 # Changelog
 
+
+## v1.9.15
+
+Improved CI CD pipelines.
+
 ## v1.9.14
 
 Fixes a cryptic error message when the directory is missing an `__init__.py` file.
