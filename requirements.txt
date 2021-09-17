@@ -6,6 +6,6 @@ stdlib-list>=0.6.0
 
 setuptools<45;		python_version < "3"
 
-pytest==3.7.1
+pytest==6.2.5
 pytest-cov==2.5.1
 Sphinx>=1.7.6
