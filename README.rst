@@ -5,8 +5,8 @@ pydeps
    :target: https://readthedocs.org/projects/pydeps/?badge=latest
    :alt: Documentation Status
 
-.. image:: https://github.com/thebjorn/pydeps/actions/workflows/unit-tests.yml/badge.svg
-   :target: https://github.com/thebjorn/pydeps/actions/workflows/unit-tests.yml
+.. image:: https://github.com/thebjorn/pydeps/actions/workflows/ci-cd.yml/badge.svg
+   :target: https://github.com/thebjorn/pydeps/actions/workflows/ci-cd.yml
 
 .. image:: https://codecov.io/gh/thebjorn/pydeps/branch/master/graph/badge.svg?token=VsYwrSFcJa
    :target: https://codecov.io/gh/thebjorn/pydeps
@@ -284,6 +284,9 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
 Version history
 ---------------
 
+**Version 1.9.15** Thanks to `Pipeline Foundation`_ for a very much improved CI
+pipeline, and a CD pipeline as well.
+
 **Version 1.9.14** Thanks to poneill_ for fixing a cryptic error message when
 run in a directory without an ``__init__.py`` file.
 
@@ -410,3 +413,4 @@ Contributing
 .. _glumia: https://github.com/glumia
 .. _SimonBiggs: https://github.com/SimonBiggs
 .. _poneill: https://github.com/poneill
+.. _Pipeline Foundation: https://pipeline.foundation

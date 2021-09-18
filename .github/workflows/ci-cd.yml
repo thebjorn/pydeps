@@ -1,0 +1,239 @@
+name: CI/CD Pipeline
+
+on: [ push, pull_request, workflow_dispatch ]
+
+jobs:
+  ci:
+    name: Continuous Integration
+    runs-on: ubuntu-20.04
+    outputs:
+      package_version: ${{ steps.proj_ver_determiner.outputs.package_version }}
+      package_version_tag: ${{ steps.proj_ver_determiner.outputs.package_version_tag }}
+      latest_github_tag: ${{ steps.proj_ver_determiner.outputs.latest_github_tag }}
+      should_deploy: ${{ steps.proj_ver_determiner.outputs.should_deploy }}
+    strategy:
+      matrix:
+        python-version: [ 2.7, 3.6, 3.7, 3.8, 3.9 ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Tooling setup
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install graphviz
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y graphviz
+
+      - name: Install pip for Python ${{ matrix.python-version }}
+        run: |
+          PYTHON_VERSION="${{ matrix.python-version }}"
+
+          if [ $PYTHON_VERSION == '2.7' ]; then
+            curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
+            python2 get-pip.py
+            pip2 --version
+          else
+            sudo apt update
+            sudo apt install -y python3-pip
+            pip3 --version
+          fi
+
+      - if: matrix.python-version == '3.9'
+        name: Install Python tools
+        run: |
+          pip3 install flake8 wheel packaging
+
+      # Information setup
+
+      - if: matrix.python-version == '3.9'
+        name: Pipeline data gatherer
+        id: data_gatherer
+        run: |
+          # Get default branch
+          REPO="${{ github.repository }}"
+          DEFAULT_BRANCH=`(curl -X GET https://api.github.com/repos/$REPO) | jq '.default_branch'`
+
+          echo "::set-output name=default_branch::$(echo $DEFAULT_BRANCH)"
+
+      - if: matrix.python-version == '3.9'
+        name: Pipeline conditionals handler
+        id: conditionals_handler
+        run: |
+          DEFAULT_BRANCH="${{ steps.data_gatherer.outputs.default_branch }}"
+          GITHUB_REF="${{ github.ref }}"
+          CURRENT_BRANCH=`echo $GITHUB_REF | sed -e "s/^refs\/heads\///"`
+          GITHUB_EVENT_NAME="${{ github.event_name }}"
+          IS_DEFAULT_BRANCH='false'
+          IS_PUSH='false'
+          IS_PUSH_TO_DEFAULT_BRANCH='false'
+
+          if [ $CURRENT_BRANCH == $DEFAULT_BRANCH ]; then
+            IS_DEFAULT_BRANCH='true'
+          fi
+          if [ $GITHUB_EVENT_NAME == 'push' ]; then
+            IS_PUSH='true'
+          fi
+          if [ $CURRENT_BRANCH == $DEFAULT_BRANCH ] && [ $GITHUB_EVENT_NAME == 'push' ]; then
+            IS_PUSH_TO_DEFAULT_BRANCH='true'
+          fi
+
+          echo "::set-output name=is_default_branch::$(echo $IS_DEFAULT_BRANCH)"
+          echo "::set-output name=is_push::$(echo $IS_PUSH)"
+          echo "::set-output name=is_push_to_default_branch::$(echo $IS_PUSH_TO_DEFAULT_BRANCH)"
+
+      - if: steps.conditionals_handler.outputs.is_push_to_default_branch == 'true' && matrix.python-version == '3.9'
+        name: Project version/deploy determiner
+        id: proj_ver_determiner
+        run: |
+          git fetch --all --tags
+
+          PACKAGE_VERSION=$(python3 setup.py --version)
+          PACKAGE_VERSION_TAG=`echo v$PACKAGE_VERSION | sed -e 's/[[:space:]]//'`
+          LATEST_GITHUB_TAG=`echo $(git tag | sort --version-sort | tail -n1)`
+          IS_NEW_VERSION=$(python3 -c "import sys, packaging.version as v;p=v.parse;s=sys.argv;a=p(s[1]);b=p(s[2]);print((a>b)-(a<b))" $PACKAGE_VERSION_TAG $LATEST_GITHUB_TAG)
+          SHOULD_DEPLOY="false"
+
+          if [ -z "$LATEST_GITHUB_TAG" ] || [ $IS_NEW_VERSION == 1 ]; then
+            SHOULD_DEPLOY="true"
+          fi
+
+          echo "::set-output name=package_version::$(echo $PACKAGE_VERSION)"
+          echo "::set-output name=package_version_tag::$(echo $PACKAGE_VERSION_TAG)"
+          echo "::set-output name=latest_github_tag::$(echo $LATEST_GITHUB_TAG)"
+          echo "::set-output name=should_deploy::$(echo $SHOULD_DEPLOY)"
+
+      # Code validations and logs generation
+
+      - name: Create logs directory
+        run: |
+          mkdir -p "Python ${{ matrix.python-version }} - logs"
+
+      - name: Install requirements for Python ${{ matrix.python-version }}
+        run: |
+          REQS_FILE="requirements.txt"
+          PYTHON_VERSION="${{ matrix.python-version }}"
+
+          if [ -f $REQS_FILE ]; then
+            if [ $PYTHON_VERSION == '2.7' ]; then
+              pip2 install -r $REQS_FILE 2>&1 | tee "Python $PYTHON_VERSION - logs/requirements.log"
+              exit ${PIPESTATUS[0]} # without this explicit exit code return, even if the previous command fails, the step won't return error because of 'tee'
+            else
+              pip3 install -r $REQS_FILE 2>&1 | tee "Python $PYTHON_VERSION - logs/requirements.log"
+              exit ${PIPESTATUS[0]}
+            fi
+          fi
+
+      - name: Upload requirements log as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: Python ${{ matrix.python-version }} - requirements-log
+          path: "Python ${{ matrix.python-version }} - logs/requirements.log"
+
+      - if: matrix.python-version == '3.9'
+        name: Lint with flake8
+        run: |
+          flake8 pydeps/** --max-line-length=199
+
+      - name: Run tests with pytest
+        run: |
+          pytest -vv --cov=pydeps . 2>&1 | tee "Python ${{ matrix.python-version }} - logs/pytest.log"
+          exit ${PIPESTATUS[0]}
+
+      - name: Upload pytest log as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: Python ${{ matrix.python-version }} - pytest-log
+          path: "Python ${{ matrix.python-version }} - logs/pytest.log"
+
+      - name: Upload coverage to codecov.io
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN}}
+          fail_ci_if_error: false
+
+      # Package application
+
+      - if: matrix.python-version == '3.9'
+        name: Package application
+        run: |
+          python3 setup.py sdist bdist_wheel
+
+      - if: matrix.python-version == '3.9'
+        name: Upload packages as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: Packages
+          path: dist/
+
+  cd:
+    if: needs.ci.outputs.should_deploy == 'true'
+    name: Continuous Deployment
+    needs: ci
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Tooling setup
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install deployment tools
+        run: |
+          sudo apt update
+          sudo apt install -y python3-pip
+          pip3 install twine
+
+      # Download CI artifacts
+
+      - name: Download and extract package artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: Packages
+          path: dist/
+
+      # Package deployment
+
+      - name: Package deployment
+        run: |
+          twine upload -u __token__ -p ${{ secrets.PYPI_API_TOKEN }} dist/*
+
+      # GitHub deploy
+
+      - name: Push GitHub tag
+        run: |
+          GITHUB_TAG="${{ needs.ci.outputs.package_version_tag }}"
+
+          git config --global user.email ${{ secrets.GH_USER_EMAIL }}
+          git config --global user.name ${{ secrets.GH_USER_NAME }}
+          git tag $GITHUB_TAG
+          git push origin --tags
+
+      - name: Create and publish release
+        run: |
+          PACKAGE_VERSION="${{ needs.ci.outputs.package_version }}"
+          RELEASE_TAG="${{ needs.ci.outputs.package_version_tag }}"
+          PREVIOUS_TAG="${{ needs.ci.outputs.latest_github_tag }}"
+          RELEASE_TITLE="Version $PACKAGE_VERSION"
+          START_LINE=$(( $( grep -n "## $RELEASE_TAG" CHANGELOG.md | grep -Eo '^[^:]+' ) + 2 ))
+          END_LINE=$(( $( grep -n "## $PREVIOUS_TAG" CHANGELOG.md | grep -Eo '^[^:]+' ) - 2 ))
+          RELEASE_NOTES=$(echo "$( sed -n "$START_LINE,$END_LINE"p CHANGELOG.md )")
+          RELEASE_ASSETS="dist/pydeps-$PACKAGE_VERSION-py3-none-any.whl dist/pydeps-$PACKAGE_VERSION.tar.gz" # list the relative paths to the files separated by a single space
+
+          gh release create $RELEASE_TAG \
+          --title "$RELEASE_TITLE" \
+          --notes "$RELEASE_NOTES" \
+          $RELEASE_ASSETS
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+# Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)
