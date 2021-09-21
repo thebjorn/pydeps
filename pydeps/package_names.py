@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 import os
-from distutils import sysconfig
+import sysconfig
 
 
 def find_package_names():
-    site_packages = sysconfig.get_python_lib()
+    site_packages = sysconfig.get_paths()['purelib']
     # initialize with well-known packages that don't seem to have a top_level.txt
     res = {
         'yaml': 'PyYAML',

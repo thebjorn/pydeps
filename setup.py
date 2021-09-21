@@ -8,7 +8,6 @@ import io
 import sys
 
 import setuptools
-from distutils.core import setup
 from setuptools.command.test import test as TestCommand
 
 version='1.10.0'
@@ -33,7 +32,7 @@ class PyTest(TestCommand):
         sys.exit(errno)
 
 
-setup(
+setuptools.setup(
     name='pydeps',
     version=version,
     packages=['pydeps'],
