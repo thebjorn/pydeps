@@ -1,6 +1,10 @@
 # Changelog
 
 
+## v1.10.0
+
+Support for Python 3.10.
+
 ## v1.9.15
 
 Improved CI CD pipelines.
