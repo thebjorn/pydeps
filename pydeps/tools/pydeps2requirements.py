@@ -60,7 +60,8 @@ def main():
     """
     if len(sys.argv) == 2:
         fname = sys.argv[1]
-        data = json.load(open(fname, 'rb'))
+        with open(fname, 'rb') as fp:
+            data = json.load(fp)
     else:
         data = json.loads(sys.stdin.read())
     print(pydeps2reqs(data))
