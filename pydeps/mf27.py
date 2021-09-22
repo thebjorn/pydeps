@@ -11,11 +11,7 @@ import sys
 import types
 import struct
 
-if hasattr(sys.__stdout__, "newlines"):
-    READ_MODE = "U"  # universal line endings
-else:  # pragma: nocover
-    # remain compatible with Python  < 2.3
-    READ_MODE = "r"
+READ_MODE = "r"
 
 LOAD_CONST = chr(dis.opname.index('LOAD_CONST'))
 IMPORT_NAME = chr(dis.opname.index('IMPORT_NAME'))

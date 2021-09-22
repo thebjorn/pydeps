@@ -284,6 +284,8 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
 Version history
 ---------------
 
+**Version 1.10.0** supports Python 3.10.
+
 **Version 1.9.15** Thanks to `Pipeline Foundation`_ for a very much improved CI
 pipeline, and a CD pipeline as well.
 
