@@ -120,7 +120,7 @@ class Source(object):
         return self.name > other.name
 
     def __ge__(self, other):
-        return self.name >= other.name        
+        return self.name >= other.name
 
     def __repr__(self):
         return json.dumps(self.__json__(), indent=4)
