@@ -3,6 +3,7 @@ from collections import defaultdict
 from io import StringIO
 from contextlib import contextmanager
 import textwrap
+import enum
 
 
 def to_unicode(s):
@@ -12,8 +13,18 @@ def to_unicode(s):
         return s
 
 
+class Rankdir(enum.Enum):
+    BOTTOM_TOP = 'BT'
+    TOP_BOTTOM = 'TB'
+    LEFT_RIGHT = 'LR'
+    RIGHT_LEFT = 'RL'
+
+    def reverse(self):
+        return Rankdir(self.value[::-1])
+
+
 class RenderContext(object):
-    def __init__(self, out=None, reverse=False):
+    def __init__(self, out=None, reverse=False, rankdir=Rankdir.TOP_BOTTOM):
         self.out = out
         self.fp = StringIO()
         self.fillcolor = '#ffffff'
@@ -21,9 +32,9 @@ class RenderContext(object):
         self.name = None
         self.concentrate = None
         self.compound = None
-        self.rankdir = None
         self.width = 0.75
         self.reverse = reverse
+        self.rankdir = rankdir
 
     @contextmanager
     def graph(self, **kw):
@@ -32,7 +43,6 @@ class RenderContext(object):
         self.name = kw.get('name', 'G')
         self.fillcolor = kw.get('fillcolor', '#ffffff')
         self.fontcolor = kw.get('fontcolor', '#000000')
-        self.rankdir = kw.get('rankdir', 'BT' if self.reverse else 'TB')
         if kw.get('concentrate', True):
             self.concentrate = 'concentrate = true;'
         else:
@@ -42,7 +52,7 @@ class RenderContext(object):
             digraph {self.name} {{
                 {self.concentrate}
                 {self.compound}
-                rankdir = {self.rankdir};
+                rankdir = {self.rankdir.value};
                 node [style=filled,fillcolor="{self.fillcolor}",fontcolor="{self.fontcolor}",fontname=Helvetica,fontsize=10];
 
         """.format(self=self))
@@ -132,6 +142,7 @@ class RenderContext(object):
 class RenderBuffer(object):
     def __init__(self, target,
                  reverse=False,
+                 rankdir=Rankdir.TOP_BOTTOM,
                  cluster=False,
                  min_cluster_size=0,
                  max_cluster_size=1,
@@ -141,6 +152,9 @@ class RenderBuffer(object):
         self.clusters = defaultdict(list)
         self.rules = {}
         self.reverse = reverse
+        self.rankdir = Rankdir(rankdir)
+        if self.reverse:
+            self.rankdir = self.rankdir.reverse()
         self.cluster = cluster
         self.min_cluster_size = min_cluster_size
         self.max_cluster_size = max_cluster_size
@@ -179,7 +193,8 @@ class RenderBuffer(object):
         self.nodes.append((clusterid, first_attrs))
 
         for node, attrs in nodes:   # for each node in this cluster
-            rules = list(self.rules.items())  # check all rules for in/out relations
+            # check all rules for in/out relations
+            rules = list(self.rules.items())
             self.rules = {}
             for (a, b), rule_attrs in rules:
                 # orig = (a, b)
@@ -208,7 +223,7 @@ class RenderBuffer(object):
                 self._collapse_cluster(clusterid, nodes)
 
     def text(self):
-        ctx = RenderContext(reverse=self.reverse)
+        ctx = RenderContext(reverse=self.reverse, rankdir=self.rankdir)
         if self.cluster:
             self.triage_clusters()
             if self.clusters:   # are there any clusters left after triage?
