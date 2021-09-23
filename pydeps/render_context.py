@@ -113,9 +113,8 @@ class RenderContext(object):
         """Write comma separated attribute values (if exists).
         """
         if attrs:
-            items = (kv for kv in sorted(attrs.items()))
             self.write(
-                ' [' + ','.join('%s="%s"' % items) + ']'
+                ' [' + ','.join('%s="%s"' % kv for kv in sorted(attrs.items())) + ']'
             )
         else:  # pragma: nocover
             pass

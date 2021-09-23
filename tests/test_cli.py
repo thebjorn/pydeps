@@ -37,3 +37,23 @@ def test_error(capsys):
         assert False
     captured_stdout = capsys.readouterr().out
     assert "(Did you forget to include an __init__.py?)" in captured_stdout
+
+
+def test_rankdir_BT(tmpdir, capsys):
+    files = """
+        unrelated: []
+        foo:
+            - __init__.py
+            - a.py: |
+                from bar import b
+        bar:
+            - __init__.py
+            - b.py
+    """
+    with create_files(files) as workdir:
+        assert os.getcwd() == workdir
+
+        outname = os.path.join('unrelated', 'foo.svg')
+        pydeps(fname='foo', **empty('--noshow --show-dot --rankdir=BT', output=outname))
+        captured_stdout = capsys.readouterr().out
+        assert 'rankdir = BT' in captured_stdout
