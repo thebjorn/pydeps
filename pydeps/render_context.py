@@ -16,6 +16,8 @@ def to_unicode(s):
 class Rankdir(enum.Enum):
     BOTTOM_TOP = 'BT'
     TOP_BOTTOM = 'TB'
+    LEFT_RIGHT = 'LR'
+    RIGHT_LEFT = 'RL'
 
     def reverse(self):
         return Rankdir(self.value[::-1])
