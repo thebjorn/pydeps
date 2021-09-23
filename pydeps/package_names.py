@@ -12,6 +12,8 @@ def find_package_names():
         'Crypto': 'pycrypto',
     }
     for site_packages in reversed(site_package_dirs):
+        if not os.path.isdir(site_packages):
+            continue
         for pth in os.listdir(site_packages):
             if not pth.endswith('.dist-info'):
                 continue
