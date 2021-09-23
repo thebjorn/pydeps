@@ -263,19 +263,19 @@ Top to bottom (default)::
 
 .. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pydeps-rankdir-tb.svg?sanitize=true
 
-Bottom to top (default)::
+Bottom to top::
 
     shell> pydeps pydeps --rankdir BT
 
 .. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pydeps-rankdir-bt.svg?sanitize=true
 
-Left to right (default)::
+Left to right::
 
     shell> pydeps pydeps --rankdir LR
 
 .. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pydeps-rankdir-lr.svg?sanitize=true
 
-Right to left (default)::
+Right to left::
 
     shell> pydeps pydeps --rankdir RL
 

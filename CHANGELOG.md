@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.10.2
+
+Fix documentation bug.
 
 ## v1.10.1
 
