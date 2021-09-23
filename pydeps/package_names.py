@@ -21,7 +21,10 @@ def find_package_names():
                 print("ERR:", pth, 'has not top_level.txt')
             continue
 
-        for modname in open(top_level_fname).read().split():
+        with open(top_level_fname) as fp:
+            modnames = fp.read().split()
+
+        for modname in modnames:
             modname = modname.replace('/', '.')
             if modname.startswith(r'win32\lib'):
                 modname = modname.rsplit('\\')[1]

@@ -108,16 +108,16 @@ class ModuleFinder:
 
     def run_script(self, pathname):
         self.msg(2, "run_script", pathname)
-        fp = open(pathname, READ_MODE)
-        stuff = ("", "r", imp.PY_SOURCE)
-        self.load_module('__main__', fp, pathname, stuff)
+        with open(pathname, READ_MODE) as fp:
+            stuff = ("", "r", imp.PY_SOURCE)
+            self.load_module('__main__', fp, pathname, stuff)
 
     def load_file(self, pathname):
         _dir, name = os.path.split(pathname)
         name, ext = os.path.splitext(name)
-        fp = open(pathname, READ_MODE)
-        stuff = (ext, "r", imp.PY_SOURCE)
-        self.load_module(name, fp, pathname, stuff)
+        with open(pathname, READ_MODE) as fp:
+            stuff = (ext, "r", imp.PY_SOURCE)
+            self.load_module(name, fp, pathname, stuff)
 
     def import_hook(self, name, caller=None, fromlist=None, level=-1):
         self.msg(3, "import_hook: name(%s) caller(%s) fromlist(%s) level(%s)" % (name, caller, fromlist, level))

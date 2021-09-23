@@ -80,7 +80,8 @@ class DummyModule(object):
     def text(self):
         """Return the content of the dummy module.
         """
-        return open(self.fname).read()
+        with open(self.fname) as fp:
+            return fp.read()
 
     def legal_module_name(self, name):
         """Legal module names are dotted strings where each part
