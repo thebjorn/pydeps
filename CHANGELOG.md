@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.10.3
+
+Fix bug in finding site-packages directory on debian derivatives.
+
 ## v1.10.2
 
 Fix documentation bug.
