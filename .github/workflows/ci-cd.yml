@@ -93,13 +93,15 @@ jobs:
         run: |
           git fetch --all --tags
 
+          ORIGINAL_REPO="thebjorn/pydeps"
+          CURRENT_REPO="${{ github.repository }}"
           PACKAGE_VERSION=$(python3 setup.py --version)
           PACKAGE_VERSION_TAG=`echo v$PACKAGE_VERSION | sed -e 's/[[:space:]]//'`
           LATEST_GITHUB_TAG=`echo $(git tag | sort --version-sort | tail -n1)`
           IS_NEW_VERSION=$(python3 -c "import sys, packaging.version as v;p=v.parse;s=sys.argv;a=p(s[1]);b=p(s[2]);print((a>b)-(a<b))" $PACKAGE_VERSION_TAG $LATEST_GITHUB_TAG)
           SHOULD_DEPLOY="false"
 
-          if [ -z "$LATEST_GITHUB_TAG" ] || [ $IS_NEW_VERSION == 1 ]; then
+          if [ -z "$LATEST_GITHUB_TAG" ] || [ $IS_NEW_VERSION == 1 ] && [ "$CURRENT_REPO" == "$ORIGINAL_REPO" ]; then
             SHOULD_DEPLOY="true"
           fi
 
