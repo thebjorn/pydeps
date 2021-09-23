@@ -1,6 +1,11 @@
 # Changelog
 
 
+## v1.10.1
+
+Support for rendering the graph in different directions using the `--rankdir`
+option.
+
 ## v1.10.0
 
 Support for Python 3.10.

@@ -50,7 +50,7 @@ Usage
                   [--noise-level INT] [--max-bacon INT] [--pylib] [--pylib-all]
                   [--include-missing] [-x PATTERN [PATTERN ...]]
                   [-xx MODULE [MODULE ...]] [--only MODULE_PATH [MODULE_PATH ...]]
-                  [--externals] [--reverse] [--rankdir {TB,BT}] [--cluster] 
+                  [--externals] [--reverse] [--rankdir {TB,BT,LR,RL}] [--cluster]
                   [--min-cluster-size INT] [--max-cluster-size INT] [--keep-target-cluster]
                   [--rmprefix PREFIX [PREFIX ...]]
                   fname
@@ -84,7 +84,7 @@ optional arguments:
   --only MODULE_PATH                     only include modules that start with MODULE_PATH, multiple paths can be provided
   --externals                            create list of direct external dependencies
   --reverse                              draw arrows to (instead of from) imported modules
-  --rankdir {TB,BT}                      set the direction of the graph, legal values are TB (default, imported modules above importing modules) and BT (opposite direction of TB)
+  --rankdir                              set the direction of the graph, legal values are TB (default, imported modules above importing modules), BT (opposite direction of TB), LR (left-to-right) and RL (right-to-left)
   --cluster                              draw external dependencies as separate clusters
   --min-cluster-size INT                 the minimum number of nodes a dependency must have before being clustered (default=0)
   --max-cluster-size INT                 the maximum number of nodes a dependency can have before the cluster is collapsed to a single node (default=0)
@@ -252,6 +252,37 @@ In some situations it can be useful to draw the target module as a cluster::
 
 .. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pydeps-rmprefix.svg?sanitize=true
 
+Graph direction
+---------------
+
+The direction of the graph can be specified using the ``--rankdir`` flag.
+
+Top to bottom (default)::
+
+    shell> pydeps pydeps --rankdir TB
+
+.. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pydeps-rankdir-tb.svg?sanitize=true
+
+Bottom to top (default)::
+
+    shell> pydeps pydeps --rankdir BT
+
+.. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pydeps-rankdir-bt.svg?sanitize=true
+
+Left to right (default)::
+
+    shell> pydeps pydeps --rankdir LR
+
+.. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pydeps-rankdir-lr.svg?sanitize=true
+
+Right to left (default)::
+
+    shell> pydeps pydeps --rankdir RL
+
+.. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pydeps-rankdir-rl.svg?sanitize=true
+
+
+
 Intermediate format
 -------------------
 
@@ -284,6 +315,9 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
 
 Version history
 ---------------
+
+**Version 1.10.1** Thanks to vector400_ for a new option ``--rankdir`` which
+renders the graph in different directions.
 
 **Version 1.10.0** supports Python 3.10.
 
@@ -417,3 +451,4 @@ Contributing
 .. _SimonBiggs: https://github.com/SimonBiggs
 .. _poneill: https://github.com/poneill
 .. _Pipeline Foundation: https://pipeline.foundation
+.. _vector400: https://github.com/vector400
