@@ -113,6 +113,15 @@ class Source(object):
     def __lt__(self, other):
         return self.name < other.name
 
+    def __le__(self, other):
+        return self.name <= other.name
+
+    def __gt__(self, other):
+        return self.name > other.name
+
+    def __ge__(self, other):
+        return self.name >= other.name
+
     def __repr__(self):
         return json.dumps(self.__json__(), indent=4)
 
@@ -195,7 +204,7 @@ class DepGraph(object):
             res += ap == bp
             if n >= 3:
                 break
-        if res == 0: res = 1
+        if res == 0: res = 1    # noqa
         return 4 if res > 4 else res
 
     def dissimilarity_metric(self, a, b):

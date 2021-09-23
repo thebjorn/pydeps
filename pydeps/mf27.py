@@ -11,11 +11,7 @@ import sys
 import types
 import struct
 
-if hasattr(sys.__stdout__, "newlines"):
-    READ_MODE = "U"  # universal line endings
-else:  # pragma: nocover
-    # remain compatible with Python  < 2.3
-    READ_MODE = "r"
+READ_MODE = "r"
 
 LOAD_CONST = chr(dis.opname.index('LOAD_CONST'))
 IMPORT_NAME = chr(dis.opname.index('IMPORT_NAME'))
@@ -112,16 +108,16 @@ class ModuleFinder:
 
     def run_script(self, pathname):
         self.msg(2, "run_script", pathname)
-        fp = open(pathname, READ_MODE)
-        stuff = ("", "r", imp.PY_SOURCE)
-        self.load_module('__main__', fp, pathname, stuff)
+        with open(pathname, READ_MODE) as fp:
+            stuff = ("", "r", imp.PY_SOURCE)
+            self.load_module('__main__', fp, pathname, stuff)
 
     def load_file(self, pathname):
         _dir, name = os.path.split(pathname)
         name, ext = os.path.splitext(name)
-        fp = open(pathname, READ_MODE)
-        stuff = (ext, "r", imp.PY_SOURCE)
-        self.load_module(name, fp, pathname, stuff)
+        with open(pathname, READ_MODE) as fp:
+            stuff = (ext, "r", imp.PY_SOURCE)
+            self.load_module(name, fp, pathname, stuff)
 
     def import_hook(self, name, caller=None, fromlist=None, level=-1):
         self.msg(3, "import_hook: name(%s) caller(%s) fromlist(%s) level(%s)" % (name, caller, fromlist, level))
@@ -207,7 +203,7 @@ class ModuleFinder:
         m = q
         while tail:
             i = tail.find('.')
-            if i < 0: i = len(tail)
+            if i < 0: i = len(tail)     # noqa
             head, tail = tail[:i], tail[i + 1:]
             mname = "%s.%s" % (m.__name__, head)
             m = self.import_module(head, mname, m)
@@ -282,7 +278,7 @@ class ModuleFinder:
         try:
             m = self.load_module(fqname, fp, pathname, stuff)
         finally:
-            if fp: fp.close()
+            if fp: fp.close()       # noqa
         if parent:
             setattr(parent, partname, m)
         self.msgout(3, "import_module ->", m)
@@ -446,7 +442,7 @@ class ModuleFinder:
             i += 1
 
     def scan_code(self, co, module):
-        code = co.co_code
+        # code = co.co_code
         if sys.version_info >= (3, 4):
             scanner = self.scan_opcodes_34
         elif sys.version_info >= (2, 5):

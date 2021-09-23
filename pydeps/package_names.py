@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 import os
-from distutils import sysconfig
+import sysconfig
 
 
 def find_package_names():
-    site_packages = sysconfig.get_python_lib()
+    site_packages = sysconfig.get_paths()['purelib']
     # initialize with well-known packages that don't seem to have a top_level.txt
     res = {
         'yaml': 'PyYAML',
@@ -21,7 +21,10 @@ def find_package_names():
                 print("ERR:", pth, 'has not top_level.txt')
             continue
 
-        for modname in open(top_level_fname).read().split():
+        with open(top_level_fname) as fp:
+            modnames = fp.read().split()
+
+        for modname in modnames:
             modname = modname.replace('/', '.')
             if modname.startswith(r'win32\lib'):
                 modname = modname.rsplit('\\')[1]

@@ -6,8 +6,8 @@ command line interface (cli) code.
 from __future__ import print_function
 import argparse
 from .arguments import Arguments
-import json
-from .pycompat import configparser
+# import json
+# from .pycompat import configparser
 import logging
 import os
 import sys
@@ -46,7 +46,7 @@ def _mkverbose(level):
 
 
 def _find_current_package():
-    startdir = cwd = os.getcwd()
+    cwd = os.getcwd()
     while 'setup.py' not in os.listdir(cwd) and cwd != os.path.dirname(cwd):
         cwd = os.path.dirname(cwd)
     if 'setup.py' not in os.listdir(cwd):

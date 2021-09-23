@@ -23,8 +23,29 @@ def test_output(tmpdir):
 
         outname = os.path.join('unrelated', 'foo.svg')
         assert not os.path.exists(outname)
-        pydeps(fname='foo', **empty('--noshow', output=outname))
+        pydeps(fname='foo', **empty('--noshow --show-dot', output=outname))
         assert os.path.exists(outname)
+
+
+def test_rankdir_default(tmpdir, capsys):
+    files = """
+        unrelated: []
+        foo:
+            - __init__.py
+            - a.py: |
+                from bar import b
+        bar:
+            - __init__.py
+            - b.py
+    """
+    with create_files(files) as workdir:
+        assert os.getcwd() == workdir
+
+        outname = os.path.join('unrelated', 'foo.svg')
+        pydeps(fname='foo', **empty('--noshow --show-dot', output=outname))
+        captured_stdout = capsys.readouterr().out
+        assert 'rankdir = TB' in captured_stdout
+
 
 def test_error(capsys):
     """Test that error function prints reminder about missing inits on FileNotFoundErrors."""

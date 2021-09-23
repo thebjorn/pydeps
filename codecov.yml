@@ -1,0 +1,10 @@
+coverage:
+  range: "60...100"
+  status:
+    patch:
+      default:
+        threshold: 5%
+    project:
+      default:
+        threshold: 5%
+        informational: true
