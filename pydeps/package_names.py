@@ -6,6 +6,7 @@ import site
 
 def find_package_names():
     site_package_dirs = site.getsitepackages()
+    site_package_dirs.append(site.getusersitepackages())
     # initialize with well-known packages that don't seem to have a top_level.txt
     res = {
         'yaml': 'PyYAML',
