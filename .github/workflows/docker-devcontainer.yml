@@ -1,0 +1,39 @@
+name: Docker devcontainer image
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'docker-images/devcontainer/Dockerfile'
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    name: Build and push image
+    runs-on: ubuntu-20.04
+    env:
+      IMAGE_TAG: '1.0.0'
+      DOCKER_USER: ${{ secrets.DOCKER_USER }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Login to Docker Hub
+        run: |
+          DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
+
+          echo $DOCKER_PASSWORD | docker login \
+          --username $DOCKER_USER \
+          --password-stdin
+
+      - name: Build image
+        run: |
+          docker build --no-cache \
+          --progress=plain \
+          --tag $DOCKER_USER/pydeps-devcontainer:$IMAGE_TAG \
+          --file docker-images/devcontainer/Dockerfile .
+
+      - name: Push image to Docker Hub
+        run: |
+          docker push $DOCKER_USER/pydeps-devcontainer:$IMAGE_TAG
