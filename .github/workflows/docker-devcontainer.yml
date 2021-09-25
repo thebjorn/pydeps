@@ -14,26 +14,24 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       IMAGE_TAG: '1.0.0'
-      DOCKER_USER: ${{ secrets.DOCKER_USER }}
+      DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Login to Docker Hub
-        run: |
-          DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
-
-          echo $DOCKER_PASSWORD | docker login \
-          --username $DOCKER_USER \
-          --password-stdin
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build image
         run: |
           docker build --no-cache \
           --progress=plain \
-          --tag $DOCKER_USER/pydeps-devcontainer:$IMAGE_TAG \
+          --tag $DOCKER_USERNAME/pydeps-devcontainer:$IMAGE_TAG \
           --file docker-images/devcontainer/Dockerfile .
 
       - name: Push image to Docker Hub
         run: |
-          docker push $DOCKER_USER/pydeps-devcontainer:$IMAGE_TAG
+          docker push $DOCKER_USERNAME/pydeps-devcontainer:$IMAGE_TAG
