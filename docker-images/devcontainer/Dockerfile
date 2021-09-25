@@ -21,11 +21,12 @@ RUN apt update; \
 		libbz2-dev; \
 	wget https://www.python.org/ftp/python/3.9.7/Python-3.9.7.tgz; \
 	tar -xf Python-3.9.7.tgz; \
-	cd Python-3.9.7; \
-	./configure --enable-optimizations; \
-	make -j 12; \
-	make altinstall; \
-	cd ..; \
+	( \
+		cd Python-3.9.7 || exit; \
+		./configure --enable-optimizations; \
+		make -j 12; \
+		make altinstall; \
+	); \
 	rm -rf Python-3.9.7.tgz Python-3.9.7; \
 	# install pip for Python3.9
 	curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py; \
