@@ -1,0 +1,57 @@
+name: Docker agent image
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'docker-images/agent/Dockerfile'
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    name: Build and push image
+    runs-on: ubuntu-20.04
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+    strategy:
+      matrix:
+        python-version: [ 2.7, 3.6, 3.7, 3.8, 3.9 ]
+        is-ci: [ 'true' ]
+        include:
+          - python-version: 3.9
+            is-ci: 'false'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build image
+        run: |
+          if [ "${{ matrix.is-ci }}" = "true" ]; then
+            IMAGE_TAG="ci-${{ matrix.python-version }}"
+          else
+            IMAGE_TAG="cd-${{ matrix.python-version }}"
+          fi
+
+          docker build --build-arg PYTHON_VERSION="${{ matrix.python-version }}" \
+          --build-arg IS_CI="${{ matrix.is-ci }}" \
+          --no-cache \
+          --progress=plain \
+          --tag $DOCKER_USERNAME/pydeps-agent:$IMAGE_TAG \
+          --file docker-images/agent/Dockerfile .
+
+      - name: Push image to Docker Hub
+        run: |
+          if [ "${{ matrix.is-ci }}" = "true" ]; then
+            IMAGE_TAG="ci-${{ matrix.python-version }}"
+          else
+            IMAGE_TAG="cd-${{ matrix.python-version }}"
+          fi
+
+          docker push $DOCKER_USERNAME/pydeps-agent:$IMAGE_TAG
