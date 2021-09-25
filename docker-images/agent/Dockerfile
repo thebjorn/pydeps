@@ -80,3 +80,5 @@ RUN set -x; \
 		# install twine for PyPI deployment
 		pip install twine; \
 	fi;
+	
+# Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)
