@@ -6,6 +6,7 @@ jobs:
   ci:
     name: Continuous Integration
     runs-on: ubuntu-20.04
+    container: thebjorn/pydeps-agent:ci-${{ matrix.python-version }}
     outputs:
       package_version: ${{ steps.proj_ver_determiner.outputs.package_version }}
       package_version_tag: ${{ steps.proj_ver_determiner.outputs.package_version_tag }}
@@ -15,45 +16,17 @@ jobs:
       matrix:
         python-version: [ 2.7, 3.6, 3.7, 3.8, 3.9 ]
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      # Tooling setup
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install graphviz
+      - name: Clone repository
         run: |
-          sudo apt-get update -y
-          sudo apt-get install -y graphviz
-
-      - name: Install pip for Python ${{ matrix.python-version }}
-        run: |
-          PYTHON_VERSION="${{ matrix.python-version }}"
-
-          if [ $PYTHON_VERSION == '2.7' ]; then
-            curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
-            python2 get-pip.py
-            pip2 --version
-          else
-            sudo apt update
-            sudo apt install -y python3-pip
-            pip3 --version
-          fi
-
-      - if: matrix.python-version == '3.9'
-        name: Install Python tools
-        run: |
-          pip3 install flake8 wheel packaging
+          git config --global http.sslverify false
+          git clone https://github.com/${{ github.repository }}.git .
 
       # Information setup
 
       - if: matrix.python-version == '3.9'
         name: Pipeline data gatherer
         id: data_gatherer
+        shell: bash
         run: |
           # Get default branch
           REPO="${{ github.repository }}"
@@ -64,6 +37,7 @@ jobs:
       - if: matrix.python-version == '3.9'
         name: Pipeline conditionals handler
         id: conditionals_handler
+        shell: bash
         run: |
           DEFAULT_BRANCH="${{ steps.data_gatherer.outputs.default_branch }}"
           GITHUB_REF="${{ github.ref }}"
@@ -90,15 +64,16 @@ jobs:
       - if: steps.conditionals_handler.outputs.is_push_to_default_branch == 'true' && matrix.python-version == '3.9'
         name: Project version/deploy determiner
         id: proj_ver_determiner
+        shell: bash
         run: |
           git fetch --all --tags
 
           ORIGINAL_REPO="thebjorn/pydeps"
           CURRENT_REPO="${{ github.repository }}"
-          PACKAGE_VERSION=$(python3 setup.py --version)
+          PACKAGE_VERSION=$(python3.9 setup.py --version)
           PACKAGE_VERSION_TAG=`echo v$PACKAGE_VERSION | sed -e 's/[[:space:]]//'`
           LATEST_GITHUB_TAG=`echo $(git tag | sort --version-sort | tail -n1)`
-          IS_NEW_VERSION=$(python3 -c "import sys, packaging.version as v;p=v.parse;s=sys.argv;a=p(s[1]);b=p(s[2]);print((a>b)-(a<b))" $PACKAGE_VERSION_TAG $LATEST_GITHUB_TAG)
+          IS_NEW_VERSION=$(python3.9 -c "import sys, packaging.version as v;p=v.parse;s=sys.argv;a=p(s[1]);b=p(s[2]);print((a>b)-(a<b))" $PACKAGE_VERSION_TAG $LATEST_GITHUB_TAG)
           SHOULD_DEPLOY="false"
 
           if [ -z "$LATEST_GITHUB_TAG" ] || [ $IS_NEW_VERSION == 1 ] && [ "$CURRENT_REPO" == "$ORIGINAL_REPO" ]; then
@@ -113,23 +88,18 @@ jobs:
       # Code validations and logs generation
 
       - name: Create logs directory
+        shell: bash
         run: |
           mkdir -p "Python ${{ matrix.python-version }} - logs"
 
       - name: Install requirements for Python ${{ matrix.python-version }}
+        shell: bash
         run: |
           REQS_FILE="requirements.txt"
           PYTHON_VERSION="${{ matrix.python-version }}"
 
-          if [ -f $REQS_FILE ]; then
-            if [ $PYTHON_VERSION == '2.7' ]; then
-              pip2 install -r $REQS_FILE 2>&1 | tee "Python $PYTHON_VERSION - logs/requirements.log"
-              exit ${PIPESTATUS[0]} # without this explicit exit code return, even if the previous command fails, the step won't return error because of 'tee'
-            else
-              pip3 install -r $REQS_FILE 2>&1 | tee "Python $PYTHON_VERSION - logs/requirements.log"
-              exit ${PIPESTATUS[0]}
-            fi
-          fi
+          pip install -r $REQS_FILE 2>&1 | tee "Python $PYTHON_VERSION - logs/requirements.log"
+          exit ${PIPESTATUS[0]} # without this explicit exit code return, even if the previous command fails, the step won't return error because of 'tee'
 
       - name: Upload requirements log as artifact
         uses: actions/upload-artifact@v2
@@ -139,10 +109,12 @@ jobs:
 
       - if: matrix.python-version == '3.9'
         name: Lint with flake8
+        shell: bash
         run: |
           flake8 pydeps/** --max-line-length=199
 
       - name: Run tests with pytest
+        shell: bash
         run: |
           pytest -vv --cov=pydeps . 2>&1 | tee "Python ${{ matrix.python-version }} - logs/pytest.log"
           exit ${PIPESTATUS[0]}
@@ -163,8 +135,9 @@ jobs:
 
       - if: matrix.python-version == '3.9'
         name: Package application
+        shell: bash
         run: |
-          python3 setup.py sdist bdist_wheel
+          python3.9 setup.py sdist bdist_wheel
 
       - if: matrix.python-version == '3.9'
         name: Upload packages as artifact
@@ -178,22 +151,12 @@ jobs:
     name: Continuous Deployment
     needs: ci
     runs-on: ubuntu-20.04
+    container: thebjorn/pydeps-agent:cd-3.9
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      # Tooling setup
-
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-
-      - name: Install deployment tools
+      - name: Clone repository
         run: |
-          sudo apt update
-          sudo apt install -y python3-pip
-          pip3 install twine
+          git config --global http.sslverify false
+          git clone https://token:${{ secrets.GIT_REPO_TOKEN }}@github.com/${{ github.repository }}.git .
 
       # Download CI artifacts
 
@@ -206,12 +169,14 @@ jobs:
       # Package deployment
 
       - name: Package deployment
+        shell: bash
         run: |
           twine upload -u __token__ -p ${{ secrets.PYPI_API_TOKEN }} dist/*
 
       # GitHub deploy
 
       - name: Push GitHub tag
+        shell: bash
         run: |
           GITHUB_TAG="${{ needs.ci.outputs.package_version_tag }}"
 
@@ -220,7 +185,8 @@ jobs:
           git tag $GITHUB_TAG
           git push origin --tags
 
-      - name: Create and publish release
+      - name: Create and publish GitHub release
+        shell: bash
         run: |
           PACKAGE_VERSION="${{ needs.ci.outputs.package_version }}"
           RELEASE_TAG="${{ needs.ci.outputs.package_version_tag }}"
