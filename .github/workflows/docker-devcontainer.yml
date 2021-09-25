@@ -35,3 +35,5 @@ jobs:
       - name: Push image to Docker Hub
         run: |
           docker push $DOCKER_USERNAME/pydeps-devcontainer:$IMAGE_TAG
+
+# Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)
