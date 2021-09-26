@@ -1,5 +1,9 @@
 # Changelog
 
+## v.1.10.4
+
+Jump start CD pipeline.
+
 ## v1.10.3
 
 Fix bug in finding site-packages directory on debian derivatives.
