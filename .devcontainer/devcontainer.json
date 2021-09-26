@@ -1,5 +1,6 @@
 {
 	"name": "devcontainer",
+	"image": "thebjorn/pydeps-devcontainer:1.0.0",
 	"settings": {
 		"workbench.colorTheme": "Default Dark+",
 		"terminal.integrated.defaultProfile.linux": "bash"
@@ -20,11 +21,7 @@
 		"ms-python.vscode-pylance",
 		"VisualStudioExptTeam.vscodeintellicode"
 	],
-	"postCreateCommand": "pip install -r requirements.txt",
-	"build": {
-		"dockerfile": "Dockerfile"
-	},
-	"remoteUser": "vscode"
+	"postCreateCommand": "pip install -r requirements.txt"
 }
 
 // Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)
