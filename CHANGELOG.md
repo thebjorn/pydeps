@@ -1,5 +1,9 @@
 # Changelog
 
+## v.1.10.5
+
+Check PAT permissions.
+
 ## v.1.10.4
 
 Jump start CD pipeline.
