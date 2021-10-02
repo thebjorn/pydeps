@@ -14,9 +14,7 @@ jobs:
       should_deploy: ${{ steps.proj_ver_determiner.outputs.should_deploy }}
     strategy:
       matrix:
-        # commenting out while debugging actions/ci-cd pipelines
-        # python-version: [ 2.7, 3.6, 3.7, 3.8, 3.9 ]
-        python-version: [ 3.9 ]
+        python-version: [ 2.7, 3.6, 3.7, 3.8, 3.9 ]
     steps:
       - name: Clone repository
         run: |
@@ -103,11 +101,19 @@ jobs:
           pip install -r $REQS_FILE 2>&1 | tee "Python $PYTHON_VERSION - logs/requirements.log"
           exit ${PIPESTATUS[0]} # without this explicit exit code return, even if the previous command fails, the step won't return error because of 'tee'
 
+      - name: List installed packages
+        shell: bash
+        run: |
+            pip list 2>&1 | tee "Python $PYTHON_VERSION - logs/pip-list.log"
+            exit ${PIPESTATUS[0]}
+
       - name: Upload requirements log as artifact
         uses: actions/upload-artifact@v2
         with:
           name: Python ${{ matrix.python-version }} - requirements-log
-          path: "Python ${{ matrix.python-version }} - logs/requirements.log"
+          path:
+            "Python ${{ matrix.python-version }} - logs/requirements.log"
+            "Python ${{ matrix.python-version }} - logs/pip-list.log"
 
       - if: matrix.python-version == '3.9'
         name: Lint with flake8
@@ -189,15 +195,6 @@ jobs:
                     ref: `refs/tags/${process.env.RELEASE_TAG}`,
                     sha: context.sha
                 })
-        # XXX: this is causing an immediate re-run of the ci-cd pipeline on the tag...
-        # shell: bash
-        # run: |
-        #   GITHUB_TAG="${{ needs.ci.outputs.package_version_tag }}"
-        #
-        #   git config --global user.email ${{ secrets.GH_USER_EMAIL }}
-        #   git config --global user.name ${{ secrets.GH_USER_NAME }}
-        #   git tag $GITHUB_TAG
-        #   git push origin --tags
 
       - name: Create and publish GitHub release
         shell: bash
@@ -211,9 +208,7 @@ jobs:
           RELEASE_NOTES=$(echo "$( sed -n "$START_LINE,$END_LINE"p CHANGELOG.md )")
           RELEASE_ASSETS="dist/pydeps-$PACKAGE_VERSION-py3-none-any.whl dist/pydeps-$PACKAGE_VERSION.tar.gz" # list the relative paths to the files separated by a single space
 
-          gh version
           ls -l dist/*
-          echo "gh relase create $RELEASE_TAG --title [$RELEASE_TITLE] --notes [RELEASE_NOTES] $RELEASE_ASSETS"
 
           gh release create $RELEASE_TAG \
           --title "$RELEASE_TITLE" \
