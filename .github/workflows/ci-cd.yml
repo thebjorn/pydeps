@@ -214,6 +214,10 @@ jobs:
           RELEASE_NOTES=$(echo "$( sed -n "$START_LINE,$END_LINE"p CHANGELOG.md )")
           RELEASE_ASSETS="dist/pydeps-$PACKAGE_VERSION-py3-none-any.whl dist/pydeps-$PACKAGE_VERSION.tar.gz" # list the relative paths to the files separated by a single space
 
+          gh version
+          ls -l dist/*
+          echo "gh relase create $RELEASE_TAG --title [$RELEASE_TITLE] --notes [RELEASE_NOTES] $RELEASE_ASSETS"
+
           gh release create $RELEASE_TAG \
           --title "$RELEASE_TITLE" \
           --notes "$RELEASE_NOTES" \
