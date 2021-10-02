@@ -14,7 +14,9 @@ jobs:
       should_deploy: ${{ steps.proj_ver_determiner.outputs.should_deploy }}
     strategy:
       matrix:
-        python-version: [ 2.7, 3.6, 3.7, 3.8, 3.9 ]
+        # commenting out while debugging actions/ci-cd pipelines
+        # python-version: [ 2.7, 3.6, 3.7, 3.8, 3.9 ]
+        python-version: [ 3.9 ]
     steps:
       - name: Clone repository
         run: |
@@ -175,15 +177,30 @@ jobs:
 
       # GitHub deploy
 
-      - name: Push GitHub tag
-        shell: bash
-        run: |
-          GITHUB_TAG="${{ needs.ci.outputs.package_version_tag }}"
+      - name: Create GitHub tag
+        uses: actions/github-script@v5
+        env:
+            RELEASE_TAG: ${{ needs.ci.outputs.package_version_tag }}
+        with:
+            script: |
+                github.rest.git.createRef({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    ref: `refs/tags/${process.env.RELEASE_TAG}`,
+                    sha: context.sha
+                })
+        # XXX: this is causing an immediate re-run of the ci-cd pipeline on the tag...
+        # shell: bash
+        # run: |
+        #   GITHUB_TAG="${{ needs.ci.outputs.package_version_tag }}"
+        #
+        #   git config --global user.email ${{ secrets.GH_USER_EMAIL }}
+        #   git config --global user.name ${{ secrets.GH_USER_NAME }}
+        #   git tag $GITHUB_TAG
+        #   git push origin --tags
 
-          git config --global user.email ${{ secrets.GH_USER_EMAIL }}
-          git config --global user.name ${{ secrets.GH_USER_NAME }}
-          git tag $GITHUB_TAG
-          git push origin --tags
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
 
       - name: Create and publish GitHub release
         shell: bash

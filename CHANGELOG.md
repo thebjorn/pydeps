@@ -1,5 +1,8 @@
 # Changelog
 
+## v.1.10.6
+
+
 ## v.1.10.5
 
 Check PAT permissions.
