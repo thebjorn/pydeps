@@ -199,9 +199,6 @@ jobs:
         #   git tag $GITHUB_TAG
         #   git push origin --tags
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-
       - name: Create and publish GitHub release
         shell: bash
         run: |
