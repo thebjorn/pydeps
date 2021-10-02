@@ -2,6 +2,9 @@ name: CI/CD Pipeline
 
 on: [ push, pull_request, workflow_dispatch ]
 
+env:
+  PIP_CACHE_DIR: /tmp/pipcache
+
 jobs:
   ci:
     name: Continuous Integration
@@ -16,6 +19,12 @@ jobs:
       matrix:
         python-version: [ 2.7, 3.6, 3.7, 3.8, 3.9 ]
     steps:
+      - name: Setup directories
+        shell: bash
+        run: |
+          mkdir -p $PIP_CACHE_DIR
+          mkdir -p "Python ${{ matrix.python-version }} - logs"
+
       - name: Clone repository
         run: |
           git config --global http.sslverify false
@@ -87,10 +96,7 @@ jobs:
 
       # Code validations and logs generation
 
-      - name: Create logs directory
-        shell: bash
-        run: |
-          mkdir -p "Python ${{ matrix.python-version }} - logs"
+
 
       - name: Install requirements for Python ${{ matrix.python-version }}
         shell: bash
