@@ -111,7 +111,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Python ${{ matrix.python-version }} - requirements-log
-          path:
+          path: |
             "Python ${{ matrix.python-version }} - logs/requirements.log"
             "Python ${{ matrix.python-version }} - logs/pip-list.log"
 
