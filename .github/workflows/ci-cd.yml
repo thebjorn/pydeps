@@ -104,7 +104,7 @@ jobs:
       - name: List installed packages
         shell: bash
         run: |
-            pip list 2>&1 | tee "Python $PYTHON_VERSION - logs/pip-list.log"
+            pip list 2>&1 | tee "Python ${{ matrix.python-version }} - logs/pip-list.log"
             exit ${PIPESTATUS[0]}
 
       - name: Upload requirements log as artifact
