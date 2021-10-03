@@ -108,19 +108,23 @@ jobs:
           pip install -r $REQS_FILE 2>&1 | tee "Python $PYTHON_VERSION - logs/requirements.log"
           exit ${PIPESTATUS[0]} # without this explicit exit code return, even if the previous command fails, the step won't return error because of 'tee'
 
+      - name: Upload requirements log as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: Python ${{ matrix.python-version }} - requirements-log
+          path: "Python ${{ matrix.python-version }} - logs/requirements.log"
+
       - name: List installed packages
         shell: bash
         run: |
             pip list 2>&1 | tee "Python ${{ matrix.python-version }} - logs/pip-list.log"
             exit ${PIPESTATUS[0]}
 
-      - name: Upload requirements log as artifact
+      - name: Upload pip list log as artifact
         uses: actions/upload-artifact@v2
         with:
-          name: Python ${{ matrix.python-version }} - requirements-log
-          path: |
-            "Python ${{ matrix.python-version }} - logs/requirements.log"
-            "Python ${{ matrix.python-version }} - logs/pip-list.log"
+          name: Python ${{ matrix.python-version }} - piplist-log
+          path: "Python ${{ matrix.python-version }} - logs/pip-list.log"
 
       - if: matrix.python-version == '3.9'
         name: Lint with flake8
