@@ -19,16 +19,17 @@ jobs:
       matrix:
         python-version: [ '2.7', '3.6', '3.7', '3.8', '3.9' ]
     steps:
-      - name: Setup directories
-        shell: bash
-        run: |
-          mkdir -p $PIP_CACHE_DIR
-          mkdir -p "Python ${{ matrix.python-version }} - logs"
 
       - name: Clone repository
         run: |
           git config --global http.sslverify false
           git clone https://github.com/${{ github.repository }}.git .
+
+      - name: Setup directories
+        shell: bash
+        run: |
+          mkdir -p $PIP_CACHE_DIR
+          mkdir -p "Python ${{ matrix.python-version }} - logs"
 
       # Information setup
 
