@@ -17,7 +17,7 @@ jobs:
       should_deploy: ${{ steps.proj_ver_determiner.outputs.should_deploy }}
     strategy:
       matrix:
-        python-version: [ 2.7, 3.6, 3.7, 3.8, 3.9 ]
+        python-version: [ '2.7', '3.6', '3.7', '3.8', '3.9' ]
     steps:
       - name: Setup directories
         shell: bash
