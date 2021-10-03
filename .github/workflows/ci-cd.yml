@@ -98,13 +98,13 @@ jobs:
           REQS_FILE="requirements.txt"
           PYTHON_VERSION="${{ matrix.python-version }}"
 
-          pip install -r $REQS_FILE 2>&1 | tee "Python $PYTHON_VERSION - logs/requirements.log"
+          pip install -r $REQS_FILE 2>&1 | tee $LOGDIR/requirements.log
           exit ${PIPESTATUS[0]} # without this explicit exit code return, even if the previous command fails, the step won't return error because of 'tee'
 
       - name: List installed packages
         shell: bash
         run: |
-            pip list 2>&1 | tee "Python ${{ matrix.python-version }} - logs/pip-list.log"
+            pip list 2>&1 | tee $LOGDIR/pip-list.log
             exit ${PIPESTATUS[0]}
 
       ## LINT
@@ -118,7 +118,7 @@ jobs:
       - name: Run tests with pytest
         shell: bash
         run: |
-          pytest -vv --cov=pydeps . 2>&1 | tee "Python ${{ matrix.python-version }} - logs/pytest.log"
+          pytest -vv --cov=pydeps . 2>&1 | tee $LOGDIR/pytest.log
           exit ${PIPESTATUS[0]}
 
       - name: Upload coverage to codecov.io
