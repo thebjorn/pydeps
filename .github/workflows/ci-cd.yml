@@ -9,6 +9,26 @@ env:
   REPO: ${{ github.repository }}
 
 jobs:
+  lint:
+    name: Code linting
+    runs-on: ubuntu-latest
+    env:
+      LINTDIR = ./ghlint
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install linters
+        run: pip install flake8
+
+      - name: flake8
+        run: flake8 pydeps/** --max-line-length=199
+
+
   ci:
     name: Continuous Integration
     runs-on: ubuntu-20.04
@@ -95,10 +115,7 @@ jobs:
       - name: Install requirements for Python ${{ matrix.python-version }}
         shell: bash
         run: |
-          REQS_FILE="requirements.txt"
-          PYTHON_VERSION="${{ matrix.python-version }}"
-
-          pip install -r $REQS_FILE 2>&1 | tee $LOGDIR/requirements.log
+          pip install -r requirements.txt 2>&1 | tee $LOGDIR/requirements.log
           exit ${PIPESTATUS[0]} # without this explicit exit code return, even if the previous command fails, the step won't return error because of 'tee'
 
       - name: List installed packages
@@ -106,13 +123,6 @@ jobs:
         run: |
             pip list 2>&1 | tee $LOGDIR/pip-list.log
             exit ${PIPESTATUS[0]}
-
-      ## LINT
-      - if: matrix.python-version == '3.9'
-        name: Lint with flake8
-        shell: bash
-        run: |
-          flake8 pydeps/** --max-line-length=199
 
       ## TEST
       - name: Run tests with pytest
