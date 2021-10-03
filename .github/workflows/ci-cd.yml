@@ -4,6 +4,9 @@ on: [ push, pull_request, workflow_dispatch ]
 
 env:
   PIP_CACHE_DIR: /tmp/pipcache
+  ORIGINAL_REPO: thebjorn/pydeps
+  DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+  REPO: ${{ github.repository }}
 
 jobs:
   ci:
@@ -18,6 +21,8 @@ jobs:
     strategy:
       matrix:
         python-version: [ '2.7', '3.6', '3.7', '3.8', '3.9' ]
+    env:
+      LOGDIR: ./ghlogs/${{ matrix.python-version }}
     steps:
 
       - name: Clone repository
@@ -29,29 +34,20 @@ jobs:
         shell: bash
         run: |
           mkdir -p $PIP_CACHE_DIR
-          mkdir -p "Python ${{ matrix.python-version }} - logs"
+          mkdir -p $LOGDIR
 
       # Information setup
 
-      - if: matrix.python-version == '3.9'
-        name: Pipeline data gatherer
-        id: data_gatherer
+      - name: Get branch name
         shell: bash
-        run: |
-          # Get default branch
-          REPO="${{ github.repository }}"
-          DEFAULT_BRANCH=`(curl -X GET https://api.github.com/repos/$REPO) | jq '.default_branch'`
-
-          echo "::set-output name=default_branch::$(echo $DEFAULT_BRANCH)"
+        run: echo "CURRENT_BRANCH=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
 
       - if: matrix.python-version == '3.9'
         name: Pipeline conditionals handler
         id: conditionals_handler
         shell: bash
         run: |
-          DEFAULT_BRANCH="${{ steps.data_gatherer.outputs.default_branch }}"
           GITHUB_REF="${{ github.ref }}"
-          CURRENT_BRANCH=`echo $GITHUB_REF | sed -e "s/^refs\/heads\///"`
           GITHUB_EVENT_NAME="${{ github.event_name }}"
           IS_DEFAULT_BRANCH='false'
           IS_PUSH='false'
@@ -78,15 +74,13 @@ jobs:
         run: |
           git fetch --all --tags
 
-          ORIGINAL_REPO="thebjorn/pydeps"
-          CURRENT_REPO="${{ github.repository }}"
           PACKAGE_VERSION=$(python3.9 setup.py --version)
           PACKAGE_VERSION_TAG=`echo v$PACKAGE_VERSION | sed -e 's/[[:space:]]//'`
           LATEST_GITHUB_TAG=`echo $(git tag | sort --version-sort | tail -n1)`
           IS_NEW_VERSION=$(python3.9 -c "import sys, packaging.version as v;p=v.parse;s=sys.argv;a=p(s[1]);b=p(s[2]);print((a>b)-(a<b))" $PACKAGE_VERSION_TAG $LATEST_GITHUB_TAG)
           SHOULD_DEPLOY="false"
 
-          if [ -z "$LATEST_GITHUB_TAG" ] || [ $IS_NEW_VERSION == 1 ] && [ "$CURRENT_REPO" == "$ORIGINAL_REPO" ]; then
+          if [ -z "$LATEST_GITHUB_TAG" ] || [ $IS_NEW_VERSION == 1 ] && [ "$GITHUB_REPOSITORY" == "$ORIGINAL_REPO" ]; then
             SHOULD_DEPLOY="true"
           fi
 
@@ -95,9 +89,8 @@ jobs:
           echo "::set-output name=latest_github_tag::$(echo $LATEST_GITHUB_TAG)"
           echo "::set-output name=should_deploy::$(echo $SHOULD_DEPLOY)"
 
+      ## INSTALL
       # Code validations and logs generation
-
-
 
       - name: Install requirements for Python ${{ matrix.python-version }}
         shell: bash
@@ -108,41 +101,25 @@ jobs:
           pip install -r $REQS_FILE 2>&1 | tee "Python $PYTHON_VERSION - logs/requirements.log"
           exit ${PIPESTATUS[0]} # without this explicit exit code return, even if the previous command fails, the step won't return error because of 'tee'
 
-      - name: Upload requirements log as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: Python ${{ matrix.python-version }} - requirements-log
-          path: "Python ${{ matrix.python-version }} - logs/requirements.log"
-
       - name: List installed packages
         shell: bash
         run: |
             pip list 2>&1 | tee "Python ${{ matrix.python-version }} - logs/pip-list.log"
             exit ${PIPESTATUS[0]}
 
-      - name: Upload pip list log as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: Python ${{ matrix.python-version }} - piplist-log
-          path: "Python ${{ matrix.python-version }} - logs/pip-list.log"
-
+      ## LINT
       - if: matrix.python-version == '3.9'
         name: Lint with flake8
         shell: bash
         run: |
           flake8 pydeps/** --max-line-length=199
 
+      ## TEST
       - name: Run tests with pytest
         shell: bash
         run: |
           pytest -vv --cov=pydeps . 2>&1 | tee "Python ${{ matrix.python-version }} - logs/pytest.log"
           exit ${PIPESTATUS[0]}
-
-      - name: Upload pytest log as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: Python ${{ matrix.python-version }} - pytest-log
-          path: "Python ${{ matrix.python-version }} - logs/pytest.log"
 
       - name: Upload coverage to codecov.io
         uses: codecov/codecov-action@v1
@@ -150,6 +127,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN}}
           fail_ci_if_error: false
 
+      ## BUILD
       # Package application
 
       - if: matrix.python-version == '3.9'
@@ -164,6 +142,17 @@ jobs:
         with:
           name: Packages
           path: dist/
+
+
+      ## REPORT ERRORS/LOGS
+      - name: Upload logs as artifacts
+        # if: ${{ failure() }}  # if any step failed
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+            name: Python ${{ matrix.python-version }} - artifacts
+            path: ${{ env.LOGDIR }}/*
+
 
   cd:
     if: needs.ci.outputs.should_deploy == 'true'
