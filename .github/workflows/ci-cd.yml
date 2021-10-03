@@ -13,10 +13,16 @@ jobs:
     name: Code linting
     runs-on: ubuntu-latest
     env:
-      LINTDIR = ./ghlint
+      LINTDIR: ./ghlint
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: setup directories
+        shell: bash
+        run: |
+          mkdir -p $PIP_CACHE_DIR
+          mkdir -p $LINTDIR
 
       - uses: actions/setup-python@v2
         with:
@@ -27,6 +33,15 @@ jobs:
 
       - name: flake8
         run: flake8 pydeps/** --max-line-length=199
+
+      ## REPORT ERRORS/LOGS
+      - name: Upload logs as artifacts
+        if: ${{ failure() }}  # if any step failed
+        uses: actions/upload-artifact@v2
+        with:
+            name: Python ${{ matrix.python-version }} - linter failures
+            path: ${{ env.LINTDIR }}/*
+
 
 
   ci:
