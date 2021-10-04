@@ -206,7 +206,10 @@ jobs:
     name: Build (wheels, docs)
     runs-on: ubuntu-latest
     needs: ci
-
+      package_version: ${{ steps.deploy.outputs.package_version }}
+      package_version_tag: ${{ steps.deploy.outputs.package_version_tag }}
+      latest_github_tag: ${{ steps.deploy.outputs.latest_github_tag }}
+      should_deploy: ${{ steps.deploy.outputs.should_deploy }}
     steps:
       - uses: actions/checkout@v2
 
@@ -245,6 +248,31 @@ jobs:
           name: Docs
           path: build/sphinx/html/
 
+      - name: Setup deploy info
+        id: deploy
+        run: |
+          git fetch --all --tags
+
+          PACKAGE_VERSION=$(python setup.py --version)
+          PACKAGE_VERSION_TAG=`echo v$PACKAGE_VERSION | sed -e 's/[[:space:]]//'`
+          PACKAGE_VERSION_TAG2=$(v$PACKAGE_VERSION | sed -e 's/[[:space:]]//')
+          LATEST_GITHUB_TAG=`echo $(git tag | sort --version-sort | tail -n1)`
+          LATEST_GITHUB_TAG2=$(git tag | sort --version-sort | tail -n1)
+
+          IS_NEW_VERSION=$(python -c "import sys, packaging.version as v;p=v.parse;s=sys.argv;a=p(s[1]);b=p(s[2]);print((a>b)-(a<b))" $PACKAGE_VERSION_TAG $LATEST_GITHUB_TAG)
+          SHOULD_DEPLOY="false"
+
+          if [ -z "$LATEST_GITHUB_TAG" ] || [ $IS_NEW_VERSION == 1 ] && [ "$GITHUB_REPOSITORY" == "$ORIGINAL_REPO" ]; then
+            SHOULD_DEPLOY="true"
+          fi
+          export
+
+          echo "::set-output name=package_version::$(echo $PACKAGE_VERSION)"
+          echo "::set-output name=package_version_tag::$(echo $PACKAGE_VERSION_TAG)"
+          echo "::set-output name=latest_github_tag::$(echo $LATEST_GITHUB_TAG)"
+          echo "::set-output name=should_deploy::$(echo $SHOULD_DEPLOY)"
+
+
 
   cd:
     # if: needs.ci.outputs.should_deploy == 'true'
@@ -253,6 +281,8 @@ jobs:
     runs-on: ubuntu-20.04
     container: thebjorn/pydeps-agent:cd-3.9
     steps:
+      - name: Have dir
+        run: ls -l
       - name: Clone repository
         run: |
           git config --global http.sslverify false
@@ -292,16 +322,14 @@ jobs:
       - name: Create and publish GitHub release
         shell: bash
         run: |
-          PACKAGE_VERSION="${{ needs.ci.outputs.package_version }}"
-          RELEASE_TAG="${{ needs.ci.outputs.package_version_tag }}"
-          PREVIOUS_TAG="${{ needs.ci.outputs.latest_github_tag }}"
+          PACKAGE_VERSION="${{ needs.build.outputs.package_version }}"
+          RELEASE_TAG="${{ needs.build.outputs.package_version_tag }}"
+          PREVIOUS_TAG="${{ needs.build.outputs.latest_github_tag }}"
           RELEASE_TITLE="Version $PACKAGE_VERSION"
           START_LINE=$(( $( grep -n "## $RELEASE_TAG" CHANGELOG.md | grep -Eo '^[^:]+' ) + 2 ))
           END_LINE=$(( $( grep -n "## $PREVIOUS_TAG" CHANGELOG.md | grep -Eo '^[^:]+' ) - 2 ))
           RELEASE_NOTES=$(echo "$( sed -n "$START_LINE,$END_LINE"p CHANGELOG.md )")
           RELEASE_ASSETS="dist/pydeps-$PACKAGE_VERSION-py3-none-any.whl dist/pydeps-$PACKAGE_VERSION.tar.gz" # list the relative paths to the files separated by a single space
-
-          ls -l dist/*
 
           export
 
