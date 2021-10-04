@@ -186,7 +186,9 @@ jobs:
           python-version: '3.9'
 
       - name: Setup packaging environment
-        run: pip install -r requirements.txt
+        run: |
+          pip install -U wheel packaging twine
+          pip install -r requirements.txt
 
       - name: Create wheel and .tgz files
         run: |
