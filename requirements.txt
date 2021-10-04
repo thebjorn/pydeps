@@ -4,7 +4,7 @@ PyYAML>=3.12
 enum34==1.0.4;		python_version < "3.4"
 stdlib-list>=0.6.0
 
-coverage==5.5
+coverage==6.0
 pytest>=4.6
 pytest-cov>=2.12.1
 
