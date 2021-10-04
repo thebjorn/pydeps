@@ -10,7 +10,7 @@ env:
 
 jobs:
   lint:
-    name: Code linting
+    name: Check (lint)
     runs-on: ubuntu-latest
     env:
       LINTDIR: ./ghlint
@@ -50,7 +50,7 @@ jobs:
             path: ${{ env.LINTDIR }}/*
 
   ci:
-    name: Continuous Integration
+    name: Test
     runs-on: ubuntu-20.04
     container: thebjorn/pydeps-agent:ci-${{ matrix.python-version }}
     outputs:
@@ -168,8 +168,42 @@ jobs:
             name: Python ${{ matrix.python-version }} - artifacts
             path: ${{ env.LOGDIR }}/*
 
+#   docs:
+#     name: Build docs
+#     runs-on: ubuntu-latest
+#     needs: [lint, ci]
+
+#     steps:
+#       - uses: actions/checkout@v2
+
+#       - name: setup directories
+#         shell: bash
+#         run: |
+#           ls -ld /tmp/pip*
+#           mkdir -p $PIP_CACHE_DIR
+
+#       - uses: actions/setup-python@v2
+#         with:
+#           python-version: '3.9'
+
+#       - name: Setup packaging environment
+#         run: |
+#           pip install -U wheel packaging twine
+#           pip install -r requirements.txt
+
+#       - name: Create wheel and .tgz files
+#         run: |
+#           rm -rf build
+#           python setup.py build_sphinx
+
+#       - name: Upload docs as artifact
+#         uses: actions/upload-artifact@v2
+#         with:
+#           name: Docs
+#           path: build/sphinx/html/
+
   build:
-    name: Build wheels
+    name: Build (wheels, docs)
     runs-on: ubuntu-latest
     needs: ci
 
@@ -208,7 +242,7 @@ jobs:
       - name: Upload docs as artifact
         uses: actions/upload-artifact@v2
         with:
-          name: Packages
+          name: Docs
           path: build/sphinx/html/
 
 
@@ -268,10 +302,13 @@ jobs:
           RELEASE_ASSETS="dist/pydeps-$PACKAGE_VERSION-py3-none-any.whl dist/pydeps-$PACKAGE_VERSION.tar.gz" # list the relative paths to the files separated by a single space
 
           ls -l dist/*
-          echo "gh release create $RELEASE_TAG \
-          --title \"$RELEASE_TITLE\" \
-          --notes \"$RELEASE_NOTES\" \
-          $RELEASE_ASSETS"
+
+          export
+
+        #   echo "gh release create $RELEASE_TAG \
+        #   --title \"$RELEASE_TITLE\" \
+        #   --notes \"$RELEASE_NOTES\" \
+        #   $RELEASE_ASSETS"
 
         #   gh release create $RELEASE_TAG \
         #   --title "$RELEASE_TITLE" \
