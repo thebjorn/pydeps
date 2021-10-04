@@ -326,6 +326,7 @@ jobs:
           PACKAGE_VERSION: ${{ needs.build.outputs.package_version }}
           RELEASE_TAG: ${{ needs.build.outputs.package_version_tag }}
           PREVIOUS_TAG: ${{ needs.build.outputs.latest_github_tag }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
         run: |
           RELEASE_TITLE="Version $PACKAGE_VERSION"
@@ -346,7 +347,5 @@ jobs:
         #   --title "$RELEASE_TITLE" \
         #   --notes "$RELEASE_NOTES" \
         #   $RELEASE_ASSETS
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 # Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)
