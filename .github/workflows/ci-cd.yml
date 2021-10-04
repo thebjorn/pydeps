@@ -336,7 +336,7 @@ jobs:
           RELEASE_NOTES2=$(sed -n "$START_LINE,$END_LINE"p CHANGELOG.md)
           RELEASE_ASSETS="dist/pydeps-$PACKAGE_VERSION-py3-none-any.whl dist/pydeps-$PACKAGE_VERSION.tar.gz" # list the relative paths to the files separated by a single space
 
-          python3.9 -c "import os;for k,v in os.environ.items():print(k,v)"
+          python3.9 -c "import os;print('\n'.join('{:30} {}'.format(k,v) for k,v in os.environ.items()))"
 
         #   echo "gh release create $RELEASE_TAG \
         #   --title \"$RELEASE_TITLE\" \
