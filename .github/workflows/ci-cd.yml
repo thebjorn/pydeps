@@ -206,6 +206,7 @@ jobs:
     name: Build (wheels, docs)
     runs-on: ubuntu-latest
     needs: ci
+    outputs:
       package_version: ${{ steps.deploy.outputs.package_version }}
       package_version_tag: ${{ steps.deploy.outputs.package_version_tag }}
       latest_github_tag: ${{ steps.deploy.outputs.latest_github_tag }}
