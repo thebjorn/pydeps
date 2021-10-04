@@ -266,7 +266,7 @@ jobs:
           if [ -z "$LATEST_GITHUB_TAG" ] || [ $IS_NEW_VERSION == 1 ] && [ "$GITHUB_REPOSITORY" == "$ORIGINAL_REPO" ]; then
             SHOULD_DEPLOY="true"
           fi
-          export
+          python -c "import os;for k,v in os.environ.items():print(k,v)"
 
           echo "::set-output name=package_version::$(echo $PACKAGE_VERSION)"
           echo "::set-output name=package_version_tag::$(echo $PACKAGE_VERSION_TAG)"
@@ -322,17 +322,20 @@ jobs:
 
       - name: Create and publish GitHub release
         shell: bash
+        env:
+          PACKAGE_VERSION: ${{ needs.build.outputs.package_version }}
+          RELEASE_TAG: ${{ needs.build.outputs.package_version_tag }}
+          PREVIOUS_TAG: ${{ needs.build.outputs.latest_github_tag }}
+
         run: |
-          PACKAGE_VERSION="${{ needs.build.outputs.package_version }}"
-          RELEASE_TAG="${{ needs.build.outputs.package_version_tag }}"
-          PREVIOUS_TAG="${{ needs.build.outputs.latest_github_tag }}"
           RELEASE_TITLE="Version $PACKAGE_VERSION"
           START_LINE=$(( $( grep -n "## $RELEASE_TAG" CHANGELOG.md | grep -Eo '^[^:]+' ) + 2 ))
           END_LINE=$(( $( grep -n "## $PREVIOUS_TAG" CHANGELOG.md | grep -Eo '^[^:]+' ) - 2 ))
           RELEASE_NOTES=$(echo "$( sed -n "$START_LINE,$END_LINE"p CHANGELOG.md )")
+          RELEASE_NOTES2=$(sed -n "$START_LINE,$END_LINE"p CHANGELOG.md)
           RELEASE_ASSETS="dist/pydeps-$PACKAGE_VERSION-py3-none-any.whl dist/pydeps-$PACKAGE_VERSION.tar.gz" # list the relative paths to the files separated by a single space
 
-          export
+          python3.9 -c "import os;for k,v in os.environ.items():print(k,v)"
 
         #   echo "gh release create $RELEASE_TAG \
         #   --title \"$RELEASE_TITLE\" \
