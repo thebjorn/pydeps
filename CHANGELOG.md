@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.10.11
+
+Look for top_level.txt in .egg-info and .egg directories as well.
 
 ## v1.10.10
 
