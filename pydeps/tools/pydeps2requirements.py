@@ -37,10 +37,12 @@ def pydeps2reqs(deps):
     """Convert a deps instance into requirements.
     """
     reqs = defaultdict(set)
+    baseprefix = sys.real_prefix if hasattr(sys, 'real_prefix') else sys.base_prefix
     for k, v in list(deps.items()):
         # not a built-in
         p = v['path']
-        if p and not p.startswith(sys.real_prefix):
+        
+        if p and not p.startswith(baseprefix):
             if p.startswith(sys.prefix) and 'site-packages' in p:
                 if not p.endswith('.pyd'):
                     if '/win32/' in p.replace('\\', '/'):
