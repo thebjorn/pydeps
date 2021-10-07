@@ -21,7 +21,7 @@
 		"ms-python.vscode-pylance",
 		"VisualStudioExptTeam.vscodeintellicode"
 	],
-	"postCreateCommand": "pip install -r requirements.txt"
+	"postCreateCommand": "pip install -r requirements.txt && echo '\n# add python modules to PATH globally\nPATH=$PATH:~/.local/bin/' >> ~/.bashrc"
 }
 
 // Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)
