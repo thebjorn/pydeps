@@ -33,6 +33,10 @@ RUN apt update; \
 	python3.9 get-pip.py; \
 	rm -rf get-pip.py; \
 	# install flake8
-	pip install flake8
+	pip install flake8; \
+	# add dev non-root user
+	useradd --shell /bin/bash --create-home devcontainer;
+
+USER devcontainer
 
 # Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)
