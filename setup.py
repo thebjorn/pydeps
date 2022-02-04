@@ -52,7 +52,9 @@ setuptools.setup(
     author='bjorn',
     author_email='bp@datakortet.no',
     description='Display module dependencies',
+    keywords='Python Module Dependency graphs',
     classifiers=[
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'License :: OSI Approved :: BSD License',
