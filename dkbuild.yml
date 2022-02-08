@@ -8,3 +8,6 @@ package:
 
 build:
   venv: pydeps
+
+requirements:
+  update: manual
