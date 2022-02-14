@@ -4,7 +4,7 @@ from modulefinder import ModuleFinder as NativeModuleFinder
 
 class ModuleFinder(NativeModuleFinder):
     def scan_code(self, co, m):
-        code = co.co_code
+        # code = co.co_code
         scanner = self.scan_opcodes
         for what, args in scanner(co):
             if what == "store":
