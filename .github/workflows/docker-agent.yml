@@ -16,7 +16,7 @@ jobs:
       DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
     strategy:
       matrix:
-        python-version: [ 2.7, 3.6, 3.7, 3.8, 3.9 ]
+        python-version: [ '2.7', '3.6', '3.7', '3.8', '3.9', '3.10' ]
         is-ci: [ 'true' ]
         include:
           - python-version: 3.9
