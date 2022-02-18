@@ -146,7 +146,8 @@ class RenderBuffer(object):
                  cluster=False,
                  min_cluster_size=0,
                  max_cluster_size=1,
-                 keep_target_cluster=False, **kw):
+                 keep_target_cluster=False,
+                 collapse_target_cluster=False, **kw):
         self.target = target
         self.nodes = []
         self.clusters = defaultdict(list)
@@ -160,6 +161,7 @@ class RenderBuffer(object):
         self.max_cluster_size = max_cluster_size
         self.graph_attrs = {}
         self.keep_target_cluster = keep_target_cluster
+        self.collapse_target_cluster = collapse_target_cluster
 
     def _nodecolor(self, n):
         for node, attrs in self.nodes:
@@ -174,8 +176,14 @@ class RenderBuffer(object):
 
     def _remove_small_clusters(self):
         # remove clusters that are too small
+        target_cluster = self._target_clusterid()
+
         _remove = []
         for clusterid, nodes in sorted(self.clusters.items()):
+            if clusterid == target_cluster:
+                # Target cluster must always be there, don't remove it even if it's small. We can get here
+                # when --collapse-target-cluster flag is used.
+                continue
             if len(nodes) < self.min_cluster_size:
                 # print("REMOVING:CLUSTER:", clusterid, nodes)
                 self.nodes += nodes
@@ -209,13 +217,18 @@ class RenderBuffer(object):
         del self.clusters[clusterid]
 
     def triage_clusters(self):
-        target_cluster = self._clusterid(self.target.fname)
-        if not self.keep_target_cluster:
+        target_cluster = self._target_clusterid()
+
+        if not self.collapse_target_cluster and not self.keep_target_cluster:
             # don't put nodes from the target into a cluster
             self.nodes += self.clusters[target_cluster]
             del self.clusters[target_cluster]
 
         self._remove_small_clusters()
+
+        # collapse target cluster if requested
+        if self.collapse_target_cluster:
+            self._collapse_cluster(target_cluster, self.clusters[target_cluster])
 
         # collapse clusters that are too big
         for clusterid, nodes in sorted(self.clusters.items()):
@@ -303,3 +316,6 @@ class RenderBuffer(object):
 
     def write_rule(self, a, b, **attrs):
         self.rules[(a, b)] = attrs
+
+    def _target_clusterid(self):
+        return self._clusterid(self.target.fname)

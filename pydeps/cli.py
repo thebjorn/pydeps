@@ -151,6 +151,7 @@ def parse_args(argv=()):
     args.add('--min-cluster-size', default=0, type=int, metavar="INT", help="the minimum number of nodes a dependency must have before being clustered (default=0)")
     args.add('--max-cluster-size', default=0, type=int, metavar="INT", help="the maximum number of nodes a dependency can have before the cluster is collapsed to a single node (default=0)")
     args.add('--keep-target-cluster', action='store_true', help="draw target module as a cluster")
+    args.add('--collapse-target-cluster', action='store_true', help="collapse target module (--keep-target-cluster will be ignored)")
     args.add('--rmprefix', default=[], nargs="+", metavar="PREFIX", help="remove PREFIX from the displayed name of the nodes")
     args.add('--start-color', default=0, type=int, metavar="INT", help="starting value for hue from 0 (red/default) to 360.")
 
@@ -175,7 +176,12 @@ def parse_args(argv=()):
         _args.show_dot = False
     if _args.max_bacon == 0:
         _args.max_bacon = sys.maxsize
-    if _args.keep_target_cluster or _args.min_cluster_size > 0 or _args.max_cluster_size > 0:
+    if (
+        _args.keep_target_cluster
+        or _args.min_cluster_size > 0
+        or _args.max_cluster_size > 0
+        or _args.collapse_target_cluster
+    ):
         _args.cluster = True
     if find_package:
         _args.fname = _find_current_package()
