@@ -290,7 +290,7 @@ When internal target package dependencies are unimportant, they can be collapsed
 
     shell> pydeps pydeps --collapse-target-cluster
 
-.. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pydeps.svg?sanitize=true
+.. image:: https://raw.githubusercontent.com/mlga/pydeps/collapse-target/docs/_static/pydeps-collapse-target-cluster.svg?sanitize=true
 
 Intermediate format
 -------------------
