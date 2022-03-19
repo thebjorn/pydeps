@@ -27,6 +27,7 @@ omit =
     setup.py
     tasks.py
     tests/conftest.py
+    pydeps/mf/*.py
 
 ignore_errors = True
 
