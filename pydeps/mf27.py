@@ -1,23 +1,162 @@
-"""Find modules used by a script, using introspection."""
-from modulefinder import ModuleFinder as NativeModuleFinder
+
+# from .mf.mf_next import *     # for debugging next version
+from modulefinder import (
+    # STORE_OPS,
+    # LOAD_CONST,
+    # IMPORT_NAME,
+    ModuleFinder as NativeModuleFinder
+)
+# import struct
+import imp
+import marshal
+import dis
+# import sys
+HAVE_ARGUMENT = dis.HAVE_ARGUMENT
 
 
 class ModuleFinder(NativeModuleFinder):
+    def import_hook(self, name, caller=None, fromlist=None, level=-1):
+        self.msg(3, "import_hook: name(%s) caller(%s) fromlist(%s) level(%s)" % (name, caller, fromlist, level))
+        parent = self.determine_parent(caller, level=level)
+        q, tail = self.find_head_package(parent, name)
+        if q.shortname in ('__future__', 'future'):  # [pydeps] the future package causes recursion overflow
+            return None
+        m = self.load_tail(q, tail)
+        if not fromlist:
+            return q
+        if m.__path__:
+            self.ensure_fromlist(m, fromlist)
+        return None
+
+    def load_module(self, fqname, fp, pathname, file_info):
+        # fqname = dotted module name we're loading
+        suffix, mode, kind = file_info
+        kstr = {
+            imp.PKG_DIRECTORY: 'PKG_DIRECTORY',
+            imp.PY_SOURCE: 'PY_SOURCE',
+            imp.PY_COMPILED: 'PY_COMPILED',
+        }.get(kind, 'unknown-kind')
+        self.msgin(2, "load_module(%s) fqname=%s, fp=%s, pathname=%s" % (kstr, fqname, fp and "fp", pathname))
+
+        if kind == imp.PKG_DIRECTORY:
+            module = self.load_package(fqname, pathname)
+            self.msgout(2, "load_module ->", module)
+            return module
+
+        if kind == imp.PY_SOURCE:
+            txt = fp.read()
+            txt += b'\n' if isinstance(txt, bytes) else '\n'
+            co = compile(
+                txt,
+                pathname,
+                'exec',            # compile code block
+                dont_inherit=True  # [pydeps] don't inherit future statements from current environment
+            )
+
+        elif kind == imp.PY_COMPILED:
+            # a .pyc file is a binary file containing only thee things:
+            #  1. a four-byte magic number
+            #  2. a four byte modification timestamp, and
+            #  3. a Marshalled code object
+            # from: https://nedbatchelder.com/blog/200804/the_structure_of_pyc_files.html
+            if fp.read(4) != imp.get_magic():
+                self.msgout(2, "raise ImportError: Bad magic number", pathname)
+                raise ImportError("Bad magic number in %s" % pathname)
+            fp.read(4)   # skip modification timestamp
+            co = marshal.load(fp)  # load marshalled code object.
+
+        else:
+            co = None
+        m = self.add_module(fqname)
+        m.__file__ = pathname
+        if co:
+            if self.replace_paths:
+                co = self.replace_paths_in_code(co)
+            m.__code__ = co
+            self.scan_code(co, m)
+        self.msgout(2, "load_module ->", m)
+        return m
+
+    # def scan_opcodes_24(self, co,
+    #                  unpack=struct.unpack):  # pragma: nocover
+    #     # Scan the code, and yield 'interesting' opcode combinations
+    #     # Version for Python 2.4 and older
+    #     code = co.co_code
+    #     names = co.co_names
+    #     consts = co.co_consts
+    #     while code:
+    #         c = code[0]
+    #         if c in STORE_OPS:
+    #             oparg, = unpack('<H', code[1:3])
+    #             yield "store", (names[oparg],)
+    #             code = code[3:]
+    #             continue
+    #         if c == LOAD_CONST and code[3] == IMPORT_NAME:
+    #             oparg_1, oparg_2 = unpack('<xHxH', code[:6])
+    #             yield "import", (consts[oparg_1], names[oparg_2])
+    #             code = code[6:]
+    #             continue
+    #         if c >= HAVE_ARGUMENT:
+    #             code = code[3:]
+    #         else:
+    #             code = code[1:]
+
+    # def scan_opcodes_25(self, co,
+    #                     unpack = struct.unpack):
+    #     # Scan the code, and yield 'interesting' opcode combinations
+    #     # Python 2.5 version (has absolute and relative imports)
+    #     code = co.co_code
+    #     names = co.co_names
+    #     consts = co.co_consts
+    #     LOAD_LOAD_AND_IMPORT = LOAD_CONST + LOAD_CONST + IMPORT_NAME
+    #     while code:
+    #         c = code[0]
+    #         if c in STORE_OPS:
+    #             oparg, = unpack('<H', code[1:3])
+    #             yield "store", (names[oparg],)
+    #             code = code[3:]
+    #             continue
+    #         if code[:9:3] == LOAD_LOAD_AND_IMPORT:
+    #             oparg_1, oparg_2, oparg_3 = unpack('<xHxHxH', code[:9])
+    #             level = consts[oparg_1]
+    #             if level == -1:  # normal import
+    #                 yield "import", (consts[oparg_2], names[oparg_3])
+    #             elif level == 0:  # absolute import
+    #                 yield "absolute_import", (consts[oparg_2], names[oparg_3])
+    #             else:  # relative import
+    #                 yield "relative_import", (level, consts[oparg_2], names[oparg_3])
+    #             code = code[9:]
+    #             continue
+    #         if c >= HAVE_ARGUMENT:
+    #             code = code[3:]
+    #         else:
+    #             code = code[1:]
+
     def scan_code(self, co, m):
-        # code = co.co_code
+        code = co.co_code
+        # if sys.version_info >= (3, 4):
+        #     scanner = self.scan_opcodes
+        # elif sys.version_info >= (2, 5):
+        #     scanner = self.scan_opcodes_25
+        # else:
+        #     scanner = self.scan_opcodes_24
         scanner = self.scan_opcodes
         for what, args in scanner(co):
             if what == "store":
-                (name,) = args
+                name, = args
                 m.globalnames[name] = 1
-            elif what == "absolute_import":
+            elif what in ("import", "absolute_import"):
                 fromlist, name = args
                 have_star = 0
                 if fromlist is not None:
                     if "*" in fromlist:
                         have_star = 1
                     fromlist = [f for f in fromlist if f != "*"]
-                self._safe_import_hook(name, m, fromlist, level=0)
+                if what == "absolute_import":
+                    level = 0
+                else:
+                    level = -1
+                self._safe_import_hook(name, m, fromlist, level=level)
                 if have_star:
                     # We've encountered an "import *". If it is a Python module,
                     # the code has already been parsed and we can suck out the
@@ -43,11 +182,7 @@ class ModuleFinder(NativeModuleFinder):
                     self._safe_import_hook(name, m, fromlist, level=level)
                 else:
                     parent = self.determine_parent(m, level=level)
-                    # This is the only place where this differs from the stdlib
-                    # as of 04676b69466d2e6d2903f1c6879d2cb292721455.
-                    # The change is in the second argument (`None` -> `m`)
-                    # to preserve more information about the parent module
-                    # which is not important for the stdlib though vital to pydeps
+                    # m is still the caller here... [bp]
                     self._safe_import_hook(parent.__name__, m, fromlist, level=0)
             else:
                 # We don't expect anything else from the generator.
