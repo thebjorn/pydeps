@@ -133,7 +133,7 @@ class ModuleFinder(NativeModuleFinder):
     #             code = code[1:]
 
     def scan_code(self, co, m):
-        code = co.co_code
+        code = co.co_code   # noqa
         # if sys.version_info >= (3, 4):
         #     scanner = self.scan_opcodes
         # elif sys.version_info >= (2, 5):
