@@ -51,7 +51,8 @@ Usage
                   [--include-missing] [-x PATTERN [PATTERN ...]]
                   [-xx MODULE [MODULE ...]] [--only MODULE_PATH [MODULE_PATH ...]]
                   [--externals] [--reverse] [--rankdir {TB,BT,LR,RL}] [--cluster]
-                  [--min-cluster-size INT] [--max-cluster-size INT] [--keep-target-cluster]
+                  [--min-cluster-size INT] [--max-cluster-size INT]
+                  [--keep-target-cluster] [--collapse-target-cluster]
                   [--rmprefix PREFIX [PREFIX ...]]
                   fname
 
@@ -89,6 +90,7 @@ optional arguments:
   --min-cluster-size INT                 the minimum number of nodes a dependency must have before being clustered (default=0)
   --max-cluster-size INT                 the maximum number of nodes a dependency can have before the cluster is collapsed to a single node (default=0)
   --keep-target-cluster                  draw target module as a cluster
+  --collapse-target-cluster              collapse target module (this implies --cluster)
   --rmprefix PREFIX                      remove PREFIX from the displayed name of the nodes (multiple prefixes can be provided)
   -x PATTERN, --exclude PATTERN          input files to skip (e.g. `foo.*`), multiple patterns can be provided
   --exclude-exact MODULE                 (shorthand -xx MODULE) same as --exclude, except requires the full match. `-xx foo.bar` will exclude foo.bar, but not foo.bar.blob
@@ -281,7 +283,14 @@ Right to left::
 
 .. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pydeps-rankdir-rl.svg?sanitize=true
 
+Collapsing target package
+-------------------------
 
+When internal target package dependencies are unimportant, they can be collapsed using the ``--collapse-target-cluster`` flag. This option also implies ``--cluster``::
+
+    shell> pydeps pydeps --collapse-target-cluster
+
+.. image:: https://raw.githubusercontent.com/mlga/pydeps/collapse-target/docs/_static/pydeps-collapse-target-cluster.svg?sanitize=true
 
 Intermediate format
 -------------------
