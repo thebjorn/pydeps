@@ -1,16 +1,15 @@
 
 # from .mf.mf_next import *     # for debugging next version
 from modulefinder import (
-    # STORE_OPS,
-    # LOAD_CONST,
-    # IMPORT_NAME,
     ModuleFinder as NativeModuleFinder
 )
-# import struct
-import imp
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter('ignore', PendingDeprecationWarning)
+    import imp
 import marshal
 import dis
-# import sys
+
 HAVE_ARGUMENT = dis.HAVE_ARGUMENT
 
 
@@ -76,61 +75,6 @@ class ModuleFinder(NativeModuleFinder):
             self.scan_code(co, m)
         self.msgout(2, "load_module ->", m)
         return m
-
-    # def scan_opcodes_24(self, co,
-    #                  unpack=struct.unpack):  # pragma: nocover
-    #     # Scan the code, and yield 'interesting' opcode combinations
-    #     # Version for Python 2.4 and older
-    #     code = co.co_code
-    #     names = co.co_names
-    #     consts = co.co_consts
-    #     while code:
-    #         c = code[0]
-    #         if c in STORE_OPS:
-    #             oparg, = unpack('<H', code[1:3])
-    #             yield "store", (names[oparg],)
-    #             code = code[3:]
-    #             continue
-    #         if c == LOAD_CONST and code[3] == IMPORT_NAME:
-    #             oparg_1, oparg_2 = unpack('<xHxH', code[:6])
-    #             yield "import", (consts[oparg_1], names[oparg_2])
-    #             code = code[6:]
-    #             continue
-    #         if c >= HAVE_ARGUMENT:
-    #             code = code[3:]
-    #         else:
-    #             code = code[1:]
-
-    # def scan_opcodes_25(self, co,
-    #                     unpack = struct.unpack):
-    #     # Scan the code, and yield 'interesting' opcode combinations
-    #     # Python 2.5 version (has absolute and relative imports)
-    #     code = co.co_code
-    #     names = co.co_names
-    #     consts = co.co_consts
-    #     LOAD_LOAD_AND_IMPORT = LOAD_CONST + LOAD_CONST + IMPORT_NAME
-    #     while code:
-    #         c = code[0]
-    #         if c in STORE_OPS:
-    #             oparg, = unpack('<H', code[1:3])
-    #             yield "store", (names[oparg],)
-    #             code = code[3:]
-    #             continue
-    #         if code[:9:3] == LOAD_LOAD_AND_IMPORT:
-    #             oparg_1, oparg_2, oparg_3 = unpack('<xHxHxH', code[:9])
-    #             level = consts[oparg_1]
-    #             if level == -1:  # normal import
-    #                 yield "import", (consts[oparg_2], names[oparg_3])
-    #             elif level == 0:  # absolute import
-    #                 yield "absolute_import", (consts[oparg_2], names[oparg_3])
-    #             else:  # relative import
-    #                 yield "relative_import", (level, consts[oparg_2], names[oparg_3])
-    #             code = code[9:]
-    #             continue
-    #         if c >= HAVE_ARGUMENT:
-    #             code = code[3:]
-    #         else:
-    #             code = code[1:]
 
     def scan_code(self, co, m):
         code = co.co_code   # noqa
