@@ -87,7 +87,7 @@ jobs:
       - run: python setup.py sdist bdist_wheel
 
       - name: Upload packages as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Packages
           path: dist/
@@ -96,7 +96,7 @@ jobs:
       #   run: python setup.py build_sphinx
 
       # - name: Upload docs as artifact
-      #   uses: actions/upload-artifact@v2
+      #   uses: actions/upload-artifact@v3
       #   with:
       #     name: Docs
       #     path: build/sphinx/html/          
