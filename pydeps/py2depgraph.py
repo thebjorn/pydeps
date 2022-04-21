@@ -139,8 +139,8 @@ class MyModuleFinder(mf27.ModuleFinder):
         self._add_import(module)
         return module
 
-    def load_module(self, fqname, fp, pathname, xxx_todo_changeme):
-        (suffix, mode, kind) = xxx_todo_changeme
+    def load_module(self, fqname, fp, pathname, suffix_mode_kind):
+        (suffix, mode, kind) = suffix_mode_kind
         try:
             module = mf27.ModuleFinder.load_module(
                 self, fqname, fp, pathname, (suffix, mode, kind)
@@ -149,6 +149,13 @@ class MyModuleFinder(mf27.ModuleFinder):
             # this happened first when pyinvoke tried to load yaml3/2 based on
             # an `if six.PY3`
             # print "SYNTAX_ERROR"
+            module = None
+        except AttributeError as e:
+            # See issues #139 and #140...
+            print("ERROR trying to load {} from {} (py38+ _find_module reimplementation of imp.find_module called .is_package on None...)\n{}".format(
+                fqname, pathname,
+                e
+            ))
             module = None
 
         if module is not None:
