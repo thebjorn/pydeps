@@ -1,5 +1,6 @@
 
 # from .mf.mf_next import *     # for debugging next version
+import modulefinder
 from modulefinder import (
     ModuleFinder as NativeModuleFinder
 )
@@ -11,6 +12,12 @@ import marshal
 import dis
 
 HAVE_ARGUMENT = dis.HAVE_ARGUMENT
+
+# monkey-patch broken modulefinder._find_module 
+# (https://github.com/python/cpython/issues/84530)
+# in Python 3.8-3.10
+if hasattr(modulefinder, '_find_module'):
+    modulefinder._find_module = imp.find_module
 
 
 class ModuleFinder(NativeModuleFinder):
