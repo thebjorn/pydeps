@@ -3,6 +3,7 @@
 Graphviz interface.
 """
 import os
+import platform
 import sys
 from subprocess import Popen
 import subprocess
@@ -86,6 +87,12 @@ def call_graphviz_dot(src, fmt):
     return svg
 
 
+def in_wsl():
+    """Are we running under wsl?
+    """
+    return 'microsoft-standard' in platform.uname().release
+
+
 def display_svg(kw, fname):  # pragma: nocover
     """Try to display the svg file on this platform.
 
@@ -100,7 +107,13 @@ def display_svg(kw, fname):  # pragma: nocover
         if sys.platform == 'win32':
             os.startfile(fname)
         else:
-            display = "open" if sys.platform == "darwin" else "xdg-open"
+            if sys.platform == "darwin":
+                display = "open"
+            elif in_wsl():
+                # this is still borked...
+                display = "/usr/bin/wslview"
+            else:
+                display = "xdg-open"
             subprocess.check_call([display, fname])
     else:
         cli.verbose(display + " " + fname)
