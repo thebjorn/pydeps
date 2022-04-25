@@ -24,12 +24,12 @@ jobs:
           python-version: 3.9
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v1
+        uses: github/codeql-action/init@v2
         with:
           config-file: ./.github/codeql/codeql-config.yml
           languages: python
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v1
+        uses: github/codeql-action/analyze@v2
 
 # Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)
