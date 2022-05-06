@@ -34,6 +34,9 @@ def _not_verbose(*args, **kwargs):  # pragma: nocover
     pass
 
 
+verbose = _not_verbose
+
+
 def _mkverbose(level):
     def _verbose(n, *args, **kwargs):
         if not isinstance(n, int):  # we're only interested in small integers
