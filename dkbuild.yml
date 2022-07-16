@@ -3,7 +3,7 @@ _schema: https://static.datakortet.no/schema/dkbuild.schema.yaml
 package:
   name: pydeps
   description: Display module dependencies
-  version: 1.10.20
+  version: 1.10.21
   created: 2014
 
 build:
