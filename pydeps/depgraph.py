@@ -43,13 +43,7 @@ class Source(object):
     """
     def __init__(self, name, path=None, imports=(), exclude=False, args=None):
         self.args = args or {}
-        if name == "__main__" and path:
-            self.name = path.replace('\\', '/').replace('/', '.')
-            if self.args.get('verbose', 0) >= 2:  # pragma: nocover
-                print("changing __main__ =>", self.name)
-        else:
-            self.name = name
-
+        self.name = name
         # self.kind = kind
         self.path = path             # needed here..?
         self.imports = set(imports)  # modules we import
@@ -60,6 +54,10 @@ class Source(object):
     @property
     def name_parts(self):
         return self.name.split('.')
+
+    @property
+    def module_depth(self):
+        return self.name.count('.')
 
     @property
     def path_parts(self):
@@ -176,35 +174,34 @@ class DepGraph(object):
         """.split()
 
     def __init__(self, depgraf, types, **args):
+        # depgraph is py2depgraph.MyModulefinder._depgraph
         self.curhue = 150  # start with a green-ish color
         self.colors = {}
         self.cycles = []
         self.cyclenodes = set()
         self.cyclerelations = set()
+        self.max_module_depth = args.get('max_module_depth', 0)
 
         self.args = args
 
-        self.sources = {}             # module_name -> Source
+        #: dict[module_name] -> Source object
+        self.sources = {}
         self.skiplist = [re.compile(fnmatch.translate(arg)) for arg in args['exclude']]
         self.skiplist += [re.compile('^%s$' % fnmatch.translate(arg)) for arg in args['exclude_exact']]
         # depgraf = {name: imports for (name, imports) in depgraf.items()}
 
-        for name, imports in list(depgraf.items()):
+        for name, imports in depgraf.items():
             log.debug("depgraph name=%r imports=%r", name, imports)
-            # if name.endswith('.py'):
-            #     name = name[:-3]
             src = Source(
-                name=name,
-                imports=list(imports.keys()),  # XXX: throwing away .values(), which is abspath!
+                name=self.source_name(name),
+                imports=[self.source_name(n) for n in imports.keys()],  # values handled below
                 args=args,
                 exclude=self._exclude(name),
             )
             self.add_source(src)
-            for iname, path in list(imports.items()):
-                # if iname.endswith('.py'):
-                #     iname = iname[:-3]
+            for iname, path in imports.items():
                 src = Source(
-                    name=iname,
+                    name=self.source_name(iname, path),
                     path=path,
                     args=args,
                     exclude=self._exclude(iname)
@@ -236,7 +233,20 @@ class DepGraph(object):
         self.remove_excluded()
 
         if not self.args['show_deps']:
-            cli.verbose(3, self)        
+            cli.verbose(3, self)
+
+    def source_name(self, name, path=None):
+        """Returns the module name, possibly limited by --max-module-depth.
+        """
+        res = name
+        if name == "__main__" and path:
+            res = path.replace('\\', '/').replace('/', '.')
+            if self.args.get('verbose', 0) >= 2:  # pragma: nocover
+                print("changing __main__ =>", res)
+
+        if self.max_module_depth > 0:
+            res = '.'.join(res.split('.')[:self.max_module_depth])
+        return res
 
     def levelcounts(self):
         pass
@@ -313,7 +323,7 @@ class DepGraph(object):
     def add_source(self, src):
         if src.name in self.sources:
             log.debug("ADD-SOURCE[+=]\n%r", src)
-            self.sources[src.name] += src
+            self.sources[src.name] += src   # merge
         else:
             log.debug("ADD-SOURCE[=]\n%r", src)
             self.sources[src.name] = src

@@ -252,7 +252,7 @@ def py2dep(target, **kw):
             log.debug('depgraph item: %r %r', k, v)
             if k in pylib:
                 continue
-            vals = {vk: vv for vk, vv in list(v.items()) if vk not in pylib}
+            vals = {vk: vv for vk, vv in v.items() if vk not in pylib}
             mf_depgraph[k] = vals
 
         # mf_modules = {k: os.syspath.abspath(v.__file__)

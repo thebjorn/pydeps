@@ -140,6 +140,7 @@ def parse_args(argv=()):
     args.add('--debug-mf', default=0, type=int, metavar="INT", help="set the ModuleFinder.debug flag to this value")
     args.add('--noise-level', default=200, type=int, metavar="INT", help="exclude sources or sinks with degree greater than noise-level")
     args.add('--max-bacon', default=2, type=int, metavar="INT", help="exclude nodes that are more than n hops away (default=2, 0 -> infinite)")
+    args.add('--max-module-depth', default=0, type=int, metavar="INT", help="coalesce deep modules to at most n levels")
     args.add('--pylib', action='store_true', help="include python std lib modules")
     args.add('--pylib-all', action='store_true', help="include python all std lib modules (incl. C modules)")
     args.add('--include-missing', action='store_true', help="include modules that are not installed (or can't be found on sys.path)")
