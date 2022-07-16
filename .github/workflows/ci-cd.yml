@@ -27,6 +27,29 @@ jobs:
       - run: pip install flake8
       - run: flake8 pydeps/** --max-line-length=199 --exit-zero --exclude mf
 
+  docs:
+    name: CI:Docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'
+      - name: setup directories
+        shell: bash
+        run: |
+          mkdir -p build
+      - run: pip install sphinx
+      - run: pip install -e .
+      - run: sphinx-build -b html docs build/sphinx/html
+      - run: sphinx-build -n -T -b man docs build/sphinx/man
+
+      - name: Upload docs as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Docs
+          path: build/sphinx/    
+
   ci-test:
     name: CI:Test
     runs-on: ${{ matrix.os }}
@@ -91,15 +114,6 @@ jobs:
         with:
           name: Packages
           path: dist/
-
-      # - name: Build docs
-      #   run: python setup.py build_sphinx
-
-      # - name: Upload docs as artifact
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: Docs
-      #     path: build/sphinx/html/          
 
       - name: Deploy to PyPI
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && github.repository == env.HOME_REPO

@@ -166,7 +166,7 @@ class Source(object):
 class DepGraph(object):
     """The dependency graph.
     
-       It is the output of :func:`py2depgraph.py2dep`
+       It is the output of :func:`pydeps.py2depgraph.py2dep`
     """
     skip_modules = """
         os sys qt time __future__ types re string bdb pdb __main__
