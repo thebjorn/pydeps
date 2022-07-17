@@ -13,7 +13,7 @@ import dis
 
 HAVE_ARGUMENT = dis.HAVE_ARGUMENT
 
-# monkey-patch broken modulefinder._find_module 
+# monkey-patch broken modulefinder._find_module
 # (https://github.com/python/cpython/issues/84530)
 # in Python 3.8-3.10
 if hasattr(modulefinder, '_find_module'):

@@ -37,7 +37,7 @@ class imp(enum.Enum):
 
 class Source(object):
     """A node (contained) in the dependency graph.
-    
+
        It contains info about which modules are imported by this source,
        and which modules import this source.
     """
@@ -165,7 +165,7 @@ class Source(object):
 
 class DepGraph(object):
     """The dependency graph.
-    
+
        It is the output of :func:`pydeps.py2depgraph.py2dep`
     """
     skip_modules = """
