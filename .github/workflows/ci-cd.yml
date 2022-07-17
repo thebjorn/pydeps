@@ -41,8 +41,8 @@ jobs:
           mkdir -p build
       - run: pip install sphinx
       - run: pip install -e .
-      - run: sphinx-build -b html docs build/sphinx/html
-      - run: sphinx-build -n -T -b man docs build/sphinx/man
+      - run: sphinx-build -W -b html docs build/sphinx/html
+      - run: sphinx-build -W -n -T -b man docs build/sphinx/man
 
       - name: Upload docs as artifact
         uses: actions/upload-artifact@v3
