@@ -11,6 +11,7 @@ import sys
 import tempfile
 from contextlib import contextmanager
 
+from . import dummymodule
 
 class Target(object):
     """The compilation target.
@@ -28,7 +29,7 @@ class Target(object):
             sys.exit(1)
         self.is_dir = os.path.isdir(self.path)
         self.is_module = self.is_dir and '__init__.py' in os.listdir(self.path)
-        self.is_pysource = os.path.splitext(self.path)[1] in ('.py', '.pyc', '.pyo')
+        self.is_pysource = dummymodule.is_pysource(self.path)
         self.fname = os.path.basename(self.path)
         if self.is_dir:
             self.dirname = self.fname

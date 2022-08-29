@@ -13,6 +13,13 @@ def test_file():
     with create_files(files) as workdir:
         assert simpledeps('a.py') == set()
 
+def test_file_no_py_extension():
+    files = """
+        a: |
+            import collections
+    """
+    with create_files(files) as workdir:
+        assert 'other -> a' in simpledeps('a', '--pylib')
 
 def test_file_pylib():
     files = """
