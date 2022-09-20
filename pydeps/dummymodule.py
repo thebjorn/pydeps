@@ -16,10 +16,10 @@ def is_module(directory):
 
 
 def is_pysource(fname):
-    """A file name is a python source file iff it ends with '.py' and doesn't
-       start with a dot.
+    """A file name is a python source file iff it ends with '.py(w?)' and 
+       doesn't start with a dot.
     """
-    return not fname.startswith('.') and fname.endswith('.py')
+    return not fname.startswith('.') and fname.endswith(('.py', '.pyw'))
 
 
 def fname2modname(fname, package_root):
