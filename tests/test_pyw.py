@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+import sys
 from tests.filemaker import create_files
 from tests.simpledeps import simpledeps
+import pytest
 
 
+@pytest.mark.skipif(sys.platform != 'win32', reason=".pyw files only exist on windows")
 def test_from_pyw():
     files = """
         baz.pyw: |
