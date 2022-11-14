@@ -65,6 +65,10 @@ class Source(object):
         return p.replace('\\', '/').lower().split('/')
 
     @property
+    def filename(self):
+        return self.path_parts[-1]
+
+    @property
     def in_degree(self):
         """Number of incoming arrows.
         """
@@ -354,6 +358,9 @@ class DepGraph(object):
                 cli.verbose(4, "Yielding", source[0], source[1])
                 yield source
 
+    def source_iter(self):
+        return iter(self.sources.values())
+
     def __repr__(self):
         return json.dumps(self.sources, indent=4, sort_keys=True,
                           default=lambda obj: obj.__json__() if hasattr(obj, '__json__') else obj)
@@ -413,24 +420,30 @@ class DepGraph(object):
             # print('\n'*10, "USING DUMMY", repr(self.sources))
             bacon(self.sources[self.args['dummyname']], 0)
 
+    def exclude_source(self, src):
+        src.excluded = True
+        self._add_skip(src.name)
+
     def exclude_noise(self):
         for src in list(self.sources.values()):
             if src.excluded:
                 continue
             if src.is_noise():
                 cli.verbose(2, "excluding", src, "because it is noisy:", src.degree)
-                src.excluded = True
                 # print "Exluding noise:", src.name
-                self._add_skip(src.name)
+                self.exclude_sourc(src)
+                # src.excluded = True
+                # self._add_skip(src.name)
 
     def exclude_bacon(self, limit):
         """Exclude modules that are more than `limit` hops away from __main__.
         """
         for src in list(self.sources.values()):
             if src.bacon > limit:
-                src.excluded = True
                 # print "Excluding bacon:", src.name
-                self._add_skip(src.name)
+                self.exclude_source(src)
+                # src.excluded = True
+                # self._add_skip(src.name)
 
     def only_filter(self, paths):
         """Exclude nodes that have a prefix in paths.
@@ -447,9 +460,10 @@ class DepGraph(object):
 
         for src in list(self.sources.values()):
             if not should_include(src):
-                src.excluded = True
                 # print "Excluding bacon:", src.name
-                self._add_skip(src.name)
+                self.exclude_source(src)
+                # src.excluded = True
+                # self._add_skip(src.name)
 
     def remove_excluded(self):
         """Remove all sources marked as excluded.

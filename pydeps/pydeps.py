@@ -6,6 +6,8 @@ import json
 import os
 import pprint
 import sys
+
+from . import prune
 from . import py2depgraph, cli, dot, target
 from .depgraph2dot import dep2dot, cycles2dot
 import logging
@@ -30,6 +32,10 @@ def _pydeps(trgt, **kw):
         os.chdir(trgt.workdir)
 
     dep_graph = py2depgraph.py2dep(trgt, **kw)
+
+    for prune_action in kw.get('prune', '').split(','):
+        if prune_action == 'empty-init':
+            dep_graph = prune.prune_emptyish_init_files(dep_graph)
 
     if kw.get('show_deps'):
         cli.verbose("DEPS:")

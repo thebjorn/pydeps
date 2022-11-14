@@ -54,6 +54,7 @@ Usage
                   [--min-cluster-size INT] [--max-cluster-size INT]
                   [--keep-target-cluster] [--collapse-target-cluster]
                   [--rmprefix PREFIX [PREFIX ...]]
+                  [--prune PRUNE]
                   fname
 
 positional arguments:
@@ -94,6 +95,7 @@ optional arguments:
   --rmprefix PREFIX                      remove PREFIX from the displayed name of the nodes (multiple prefixes can be provided)
   -x PATTERN, --exclude PATTERN          input files to skip (e.g. `foo.*`), multiple patterns can be provided
   --exclude-exact MODULE                 (shorthand -xx MODULE) same as --exclude, except requires the full match. `-xx foo.bar` will exclude foo.bar, but not foo.bar.blob
+  --prune PRUNE                          comma separated list of pruning actions (currently only "empty-init")
 
 **Note:** if an option with a variable number of arguments (like ``-x``) is provided
 before ``fname``, separe the arguments from the filename with ``--`` otherwise ``fname``
@@ -291,6 +293,18 @@ When internal target package dependencies are unimportant, they can be collapsed
     shell> pydeps pydeps --collapse-target-cluster
 
 .. image:: https://raw.githubusercontent.com/mlga/pydeps/collapse-target/docs/_static/pydeps-collapse-target-cluster.svg?sanitize=true
+
+
+Pruning the graph
+-----------------
+
+There is currently only one pruning command:
+
+    shell> pydeps mypackage --prune=empty-init
+
+which will remove artifacts of the Python import machinere where
+`import a.b` causes both `a` and `a.b` to be listed as imported
+modules.
 
 Intermediate format
 -------------------

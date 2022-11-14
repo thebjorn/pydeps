@@ -158,6 +158,7 @@ def parse_args(argv=()):
     args.add('--collapse-target-cluster', action='store_true', help="collapse target module (--keep-target-cluster will be ignored)")
     args.add('--rmprefix', default=[], nargs="+", metavar="PREFIX", help="remove PREFIX from the displayed name of the nodes")
     args.add('--start-color', default=0, type=int, metavar="INT", help="starting value for hue from 0 (red/default) to 360.")
+    args.add('--prune', default="", help="comma separated list of pruning actions (one of: empty-init, ..")
 
     _args = args.parse_args(argv)
 
