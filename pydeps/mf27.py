@@ -15,6 +15,11 @@ import dis
 
 HAVE_ARGUMENT = dis.HAVE_ARGUMENT
 
+# from stdlib's modulefinder
+_PY_SOURCE = 1
+_PY_COMPILED = 2
+_PKG_DIRECTORY = 5
+
 # monkey-patch broken modulefinder._find_module
 # (https://github.com/python/cpython/issues/84530)
 # in Python 3.8-3.10
@@ -40,18 +45,18 @@ class ModuleFinder(NativeModuleFinder):
         # fqname = dotted module name we're loading
         suffix, mode, kind = file_info
         kstr = {
-            modulefinder._PKG_DIRECTORY: 'PKG_DIRECTORY',
-            modulefinder._PY_SOURCE: 'PY_SOURCE',
-            modulefinder._PY_COMPILED: 'PY_COMPILED',
+            _PKG_DIRECTORY: 'PKG_DIRECTORY',
+            _PY_SOURCE: 'PY_SOURCE',
+            _PY_COMPILED: 'PY_COMPILED',
         }.get(kind, 'unknown-kind')
         self.msgin(2, "load_module(%s) fqname=%s, fp=%s, pathname=%s" % (kstr, fqname, fp and "fp", pathname))
 
-        if kind == modulefinder._PKG_DIRECTORY:
+        if kind == _PKG_DIRECTORY:
             module = self.load_package(fqname, pathname)
             self.msgout(2, "load_module ->", module)
             return module
 
-        if kind == modulefinder._PY_SOURCE:
+        if kind == _PY_SOURCE:
             txt = fp.read()
             txt += b'\n' if isinstance(txt, bytes) else '\n'
             co = compile(
@@ -61,7 +66,7 @@ class ModuleFinder(NativeModuleFinder):
                 dont_inherit=True  # [pydeps] don't inherit future statements from current environment
             )
 
-        elif kind == modulefinder._PY_COMPILED:
+        elif kind == _PY_COMPILED:
             # a .pyc file is a binary file containing only three things:
             #  1. a four-byte magic number
             #  2. a four byte modification timestamp, and
