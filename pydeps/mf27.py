@@ -5,26 +5,22 @@ from modulefinder import (
     ModuleFinder as NativeModuleFinder
 )
 from importlib.util import MAGIC_NUMBER
-import warnings
-with warnings.catch_warnings():
-    warnings.simplefilter('ignore', PendingDeprecationWarning)
-    warnings.simplefilter('ignore', DeprecationWarning)
-    import imp
 import marshal
 import dis
+from . import mfimp
 
 HAVE_ARGUMENT = dis.HAVE_ARGUMENT
 
 # from stdlib's modulefinder
-_PY_SOURCE = 1
-_PY_COMPILED = 2
-_PKG_DIRECTORY = 5
+_PY_SOURCE = mfimp.PY_SOURCE
+_PY_COMPILED = mfimp.PY_COMPILED
+_PKG_DIRECTORY = mfimp.PKG_DIRECTORY
 
 # monkey-patch broken modulefinder._find_module
 # (https://github.com/python/cpython/issues/84530)
 # in Python 3.8-3.10
 if hasattr(modulefinder, '_find_module'):
-    modulefinder._find_module = imp.find_module
+    modulefinder._find_module = mfimp.find_module
 
 
 class ModuleFinder(NativeModuleFinder):
