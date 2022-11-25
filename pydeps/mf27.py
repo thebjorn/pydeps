@@ -4,14 +4,21 @@ import modulefinder
 from modulefinder import (
     ModuleFinder as NativeModuleFinder
 )
+from importlib.util import MAGIC_NUMBER
 import warnings
 with warnings.catch_warnings():
     warnings.simplefilter('ignore', PendingDeprecationWarning)
+    warnings.simplefilter('ignore', DeprecationWarning)
     import imp
 import marshal
 import dis
 
 HAVE_ARGUMENT = dis.HAVE_ARGUMENT
+
+# from stdlib's modulefinder
+_PY_SOURCE = 1
+_PY_COMPILED = 2
+_PKG_DIRECTORY = 5
 
 # monkey-patch broken modulefinder._find_module
 # (https://github.com/python/cpython/issues/84530)
@@ -38,18 +45,18 @@ class ModuleFinder(NativeModuleFinder):
         # fqname = dotted module name we're loading
         suffix, mode, kind = file_info
         kstr = {
-            imp.PKG_DIRECTORY: 'PKG_DIRECTORY',
-            imp.PY_SOURCE: 'PY_SOURCE',
-            imp.PY_COMPILED: 'PY_COMPILED',
+            _PKG_DIRECTORY: 'PKG_DIRECTORY',
+            _PY_SOURCE: 'PY_SOURCE',
+            _PY_COMPILED: 'PY_COMPILED',
         }.get(kind, 'unknown-kind')
         self.msgin(2, "load_module(%s) fqname=%s, fp=%s, pathname=%s" % (kstr, fqname, fp and "fp", pathname))
 
-        if kind == imp.PKG_DIRECTORY:
+        if kind == _PKG_DIRECTORY:
             module = self.load_package(fqname, pathname)
             self.msgout(2, "load_module ->", module)
             return module
 
-        if kind == imp.PY_SOURCE:
+        if kind == _PY_SOURCE:
             txt = fp.read()
             txt += b'\n' if isinstance(txt, bytes) else '\n'
             co = compile(
@@ -59,13 +66,13 @@ class ModuleFinder(NativeModuleFinder):
                 dont_inherit=True  # [pydeps] don't inherit future statements from current environment
             )
 
-        elif kind == imp.PY_COMPILED:
-            # a .pyc file is a binary file containing only thee things:
+        elif kind == _PY_COMPILED:
+            # a .pyc file is a binary file containing only three things:
             #  1. a four-byte magic number
             #  2. a four byte modification timestamp, and
             #  3. a Marshalled code object
             # from: https://nedbatchelder.com/blog/200804/the_structure_of_pyc_files.html
-            if fp.read(4) != imp.get_magic():
+            if fp.read(4) != MAGIC_NUMBER:
                 self.msgout(2, "raise ImportError: Bad magic number", pathname)
                 raise ImportError("Bad magic number in %s" % pathname)
             fp.read(4)   # skip modification timestamp
