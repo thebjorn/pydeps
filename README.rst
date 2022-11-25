@@ -325,6 +325,10 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
 Version history
 ---------------
 
+**Version 1.11.0** drop support for Python 3.6.
+Thanks to pawamoy_ for removing imports of the deprecated ``imp`` module.
+(Parts of it has been vendorized due to a Python bug, see the code for details.)
+
 **Version 1.10.1** Thanks to vector400_ for a new option ``--rankdir`` which
 renders the graph in different directions.
 
@@ -461,3 +465,4 @@ Contributing
 .. _poneill: https://github.com/poneill
 .. _Pipeline Foundation: https://pipeline.foundation
 .. _vector400: https://github.com/vector400
+.. _pawamoy: https://github.com/pawamoy
