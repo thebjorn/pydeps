@@ -4,15 +4,16 @@ import modulefinder
 from modulefinder import (
     ModuleFinder as NativeModuleFinder
 )
+from importlib.util import MAGIC_NUMBER
 import warnings
 with warnings.catch_warnings():
+    warnings.simplefilter('ignore', PendingDeprecationWarning)
     warnings.simplefilter('ignore', DeprecationWarning)
     import imp
 import marshal
 import dis
 
 HAVE_ARGUMENT = dis.HAVE_ARGUMENT
-PYC_MAGIC_NUMBER = b'\xa7\r\r\n'
 
 # monkey-patch broken modulefinder._find_module
 # (https://github.com/python/cpython/issues/84530)
@@ -66,7 +67,7 @@ class ModuleFinder(NativeModuleFinder):
             #  2. a four byte modification timestamp, and
             #  3. a Marshalled code object
             # from: https://nedbatchelder.com/blog/200804/the_structure_of_pyc_files.html
-            if fp.read(4) != PYC_MAGIC_NUMBER:
+            if fp.read(4) != MAGIC_NUMBER:
                 self.msgout(2, "raise ImportError: Bad magic number", pathname)
                 raise ImportError("Bad magic number in %s" % pathname)
             fp.read(4)   # skip modification timestamp
