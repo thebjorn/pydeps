@@ -46,7 +46,8 @@ def identity(v):
 typefns = {
     'BOOL': boolval,
     'INT': int,
-    'LIST': listval
+    'LIST': listval,
+    'STR': str,
 }
 
 
