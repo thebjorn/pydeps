@@ -8,6 +8,10 @@ import warnings
 def pystdlib():
     """Return a set of all module-names in the Python standard library.
     """
+    if sys.version_info[:2] >= (3, 10):
+        # Python 3.10 has this functionality built-in.
+        return list(sys.stdlib_module_names | set(sys.builtin_module_names))
+
     curver = '.'.join(str(x) for x in sys.version_info[:2])
     if curver not in stdlib_list.short_versions:
         # if stdlib_list doesn't know about our version, then use the last
