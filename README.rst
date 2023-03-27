@@ -53,7 +53,8 @@ Usage
                   [--externals] [--reverse] [--rankdir {TB,BT,LR,RL}] [--cluster]
                   [--min-cluster-size INT] [--max-cluster-size INT]
                   [--keep-target-cluster] [--collapse-target-cluster]
-                  [--rmprefix PREFIX [PREFIX ...]]
+                  [--rmprefix PREFIX [PREFIX ...]] [--dot-output FILENAME]
+                  [--deps-output FILENAME]
                   fname
 
 positional arguments:
@@ -72,7 +73,9 @@ optional arguments:
   --noshow                               don't call external program to display graph
   --show-deps                            show output of dependency analysis
   --show-raw-deps                        show output of dependency analysis before removing skips
+  --deps-output                          write output of dependency analysis to file (instead of screen)
   --show-dot                             show output of dot conversion
+  --dot-output                           write dot code to file (instead of screen)
   --nodot                                skip dot conversion
   --no-output                            don't create .svg/.png file, implies --no-show (-t/-o will be ignored)
   --show-cycles                          show only import cycles

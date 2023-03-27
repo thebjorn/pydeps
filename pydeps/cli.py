@@ -133,7 +133,9 @@ def parse_args(argv=()):
     args.add('--noshow', '--no-show', action='store_true', default=False, dest='no_show', help="don't call external program to display graph")
     args.add('--show-deps', action='store_true', help="show output of dependency analysis")
     args.add('--show-raw-deps', action='store_true', help="show output of dependency analysis before removing skips")
+    args.add('--deps-output', dest='deps_out', default=None, kind="FNAME:output", help="write output of dependency analysis to 'file'")
     args.add('--show-dot', action='store_true', help="show output of dot conversion")
+    args.add('--dot-output', dest='dot_out', default=None, kind="FNAME:output", help="write dot code to 'file'")
     args.add('--nodot', '--no-dot', action='store_true', help="skip dot conversion")
     args.add('--no-output', action='store_true', help="don't create .svg/.png file, implies --no-show (-t/-o will be ignored)")
     args.add('--show-cycles', action='store_true', help="show only import cycles")
@@ -168,7 +170,7 @@ def parse_args(argv=()):
             noise_level=200, no_show=True, output=None, pylib=False, pylib_all=False,
             show=False, show_cycles=False, show_deps=False, show_dot=False,
             show_raw_deps=False, verbose=0, include_missing=True, reverse=False,
-            start_color=0, find_package=False,
+            start_color=0, find_package=False, deps_out=None, dot_out=None, 
         )
 
     if _args.no_output:

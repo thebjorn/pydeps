@@ -193,7 +193,7 @@ class RawDependencies(object):
         self.types = mf._types
 
 
-def py2dep(target, **kw):
+def py2dep(target, **kw) -> depgraph.DepGraph:
     """"Calculate dependencies for ``pattern`` and return a DepGraph.
     """
     log.info("py2dep(%r)", target)

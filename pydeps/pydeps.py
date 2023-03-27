@@ -17,6 +17,10 @@ def _pydeps(trgt, **kw):
     # Pass args as a **kw dict since we need to pass it down to functions
     # called, but extract locally relevant parameters first to make the
     # code prettier (and more fault tolerant).
+    # print("KW:", kw, '\n', os.getcwd())
+    # print('abspath:', os.path.abspath(kw.get('deps_out')))
+    # print('target', trgt.workdir)
+    # print('target', trgt)
     colors.START_COLOR = kw.get('start_color')
     # show_cycles = kw.get('show_cycles')
     nodot = kw.get('nodot')
@@ -24,6 +28,8 @@ def _pydeps(trgt, **kw):
     output = kw.get('output')
     fmt = kw['format']
     show_svg = kw.get('show')
+    deps_out = kw.get('deps_out')
+    dot_out = kw.get('dot_out')
     # reverse = kw.get('reverse')
     if os.getcwd() != trgt.workdir:
         # the tests are calling _pydeps directoy
@@ -33,14 +39,31 @@ def _pydeps(trgt, **kw):
 
     if kw.get('show_deps'):
         cli.verbose("DEPS:")
-        pprint.pprint(dep_graph)
+        if deps_out:
+            # make sure output files are written to sensible directories
+            directory, _fname = os.path.split(deps_out)
+            if not directory:
+                deps_out = os.path.join(trgt.calling_dir, deps_out)
+            with open(deps_out, 'w') as fp:
+                # XXX: this is potentially not a valid JSON file...
+                fp.write(pprint.pformat(dep_graph))
+        else:
+            pprint.pprint(dep_graph)
 
     dotsrc = depgraph_to_dotsrc(trgt, dep_graph, **kw)
 
     if not nodot:
         if kw.get('show_dot'):
             cli.verbose("DOTSRC:")
-            print(dotsrc)
+            if dot_out:
+                # make sure output files are written to sensible directories
+                directory, _fname = os.path.split(dot_out)
+                if not directory:
+                    dot_out = os.path.join(trgt.calling_dir, dot_out)
+                with open(dot_out, 'w') as fp:
+                    fp.write(dotsrc)
+            else:
+                print(dotsrc)
 
         if not no_output:
             try:
@@ -123,6 +146,7 @@ def pydeps(**args):
     """
     sys.setrecursionlimit(10000)
     _args = args if args else cli.parse_args(sys.argv[1:])
+    _args['curdir'] = os.getcwd()
     inp = target.Target(_args['fname'])
     log.debug("Target: %r", inp)
 
