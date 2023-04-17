@@ -37,7 +37,12 @@ class Target(object):
             self.dirname = os.path.dirname(self.path)
             self.modname = os.path.splitext(self.fname)[0]
 
-        self.workdir = os.path.realpath(tempfile.mkdtemp())
+        if self.is_pysource:
+            # we will work directly on the file (in-situ)
+            self.workdir = os.path.dirname(self.path)
+        else:
+            self.workdir = os.path.realpath(tempfile.mkdtemp())
+
         self.syspath_dir = self.get_package_root()
         # split path such that syspath_dir + relpath == path
         self.relpath = self.path[len(self.syspath_dir):].lstrip(os.path.sep)
@@ -93,7 +98,9 @@ class Target(object):
         """Clean up after ourselves.
         """
         try:
-            if hasattr(self, 'workdir'):
+            # make sure we don't delete the user's source file if we're working
+            # on it in-situ.
+            if not self.is_pysource and hasattr(self, 'workdir'):
                 shutil.rmtree(self.workdir)
         except OSError:
             pass

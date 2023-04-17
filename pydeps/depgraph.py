@@ -173,14 +173,17 @@ class DepGraph(object):
         south
         """.split()
 
-    def __init__(self, depgraf, types, **args):
+    def __init__(self, depgraf, types, target, **args):
         # depgraph is py2depgraph.MyModulefinder._depgraph
+        log.debug("DepGraph: depgraf=%r", depgraf)
+
         self.curhue = 150  # start with a green-ish color
         self.colors = {}
         self.cycles = []
         self.cyclenodes = set()
         self.cyclerelations = set()
         self.max_module_depth = args.get('max_module_depth', 0)
+        self.target = target
 
         self.args = args
 
@@ -198,6 +201,7 @@ class DepGraph(object):
                 args=args,
                 exclude=self._exclude(name),
             )
+            log.debug("depgraph src=%r", src)
             self.add_source(src)
             for iname, path in imports.items():
                 src = Source(
@@ -239,7 +243,13 @@ class DepGraph(object):
         """Returns the module name, possibly limited by --max-module-depth.
         """
         res = name
+        if name == "__main__" and self.target.is_pysource:
+            # use the target file name directly if we're working on a 
+            # single file
+            return self.target.fname
+
         if name == "__main__" and path:
+            # use the path to the main module if we're working on a module.
             res = path.replace('\\', '/').replace('/', '.')
             if self.args.get('verbose', 0) >= 2:  # pragma: nocover
                 print("changing __main__ =>", res)

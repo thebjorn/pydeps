@@ -74,8 +74,13 @@ class DummyModule(object):
         else:
             assert target.is_pysource
             cli.verbose(1, "target is a FILE")
-            with open(self.fname, 'w') as fp:
-                self.print_import(fp, target.modpath)
+            # if working on a single file, we don't need to create a dummy
+            # module, this also avoids problems with file names that are 
+            # not importable (e.g. `foo.bar.py)
+            self.fname = target.calling_fname
+            self.absname = target.package_root
+            # with open(self.fname, 'w') as fp:
+            #     self.print_import(fp, target.modpath)
 
     def text(self):
         """Return the content of the dummy module.

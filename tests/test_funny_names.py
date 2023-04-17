@@ -20,3 +20,14 @@ def test_from_html5lib():
             'bar -> foo.a',
             'bar.py -> foo.a'
         }
+
+
+def test_multidot():
+    files = """
+        foo.bar.py: |
+            from math import pi
+    """
+    with create_files(files) as workdir:
+        assert simpledeps('foo.bar.py', '--show-deps --pylib -LINFO -vv') == {
+            'math -> foo.bar.py',
+        }

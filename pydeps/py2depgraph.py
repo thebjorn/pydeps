@@ -268,7 +268,7 @@ def py2dep(target, **kw) -> depgraph.DepGraph:
     except ImportError:
         log.info("mf_depgraph:\n%s", json.dumps(dict(mf_depgraph), indent=4))
 
-    return depgraph.DepGraph(mf_depgraph, mf._types, **kw)
+    return depgraph.DepGraph(mf_depgraph, mf._types, target, **kw)
 
 
 def py2depgraph():

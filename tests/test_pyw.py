@@ -20,8 +20,8 @@ def test_from_pyw():
     """
     with create_files(files) as workdir:
         assert simpledeps('baz.pyw', '--show-deps -LINFO -vv') == {
-            'foo.a -> baz',
-            'foo -> baz',
-            'bar -> baz',
+            'foo.a -> baz.pyw',
+            'foo -> baz.pyw',
+            'bar -> baz.pyw',
             'bar -> foo.a',
         }
