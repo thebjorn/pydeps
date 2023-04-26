@@ -10,15 +10,21 @@ import shutil
 import sys
 import tempfile
 from contextlib import contextmanager
+import logging
+log = logging.getLogger(__name__)
 
 
 class Target(object):
     """The compilation target.
     """
     def __init__(self, path):
+        # log.debug("CURDIR: %s, path: %s, exists: %s", os.getcwd(), path, os.path.exists(path))
+        # print("Target::CURDIR: %s, path: %s, exists: %s" % (os.getcwd(), path, os.path.exists(path)))
+
         self.calling_fname = path
         self.calling_dir = os.getcwd()
         self.exists = os.path.exists(path)
+
         if self.exists:
             self.path = os.path.realpath(path)
         else:  # pragma: nocover

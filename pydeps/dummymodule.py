@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 import os
+import sys
 import textwrap
 import logging
 
@@ -53,7 +54,6 @@ class DummyModule(object):
         self.target = target
         self.fname = '_dummy_' + target.modpath.replace('.', '_') + '.py'
         self.absname = os.path.join(target.workdir, self.fname)
-        log.debug("dummy-filename: %r (%s)", self.fname, self.absname)
 
         if target.is_module:
             cli.verbose(1, "target is a PACKAGE")
@@ -66,10 +66,22 @@ class DummyModule(object):
             # FIXME?: not sure what the intended semantics was here, as it is
             #         this will almost certainly not do the right thing...
             cli.verbose(1, "target is a DIRECTORY")
+            log.debug('curdir: %r', os.getcwd())
+            log.debug('fname: %r', self.fname)
+            log.debug('target.dirname: %r', target.dirname)
+
             with open(self.fname, 'w') as fp:
-                for fname in os.listdir(target.dirname):
+                dirname = os.path.abspath(os.path.join(target.calling_dir, target.calling_fname))
+                for fname in os.listdir(dirname):
+                    fname = os.path.join(dirname, fname)
+                    log.debug("fname: %r", fname)
                     if is_pysource(fname):
                         self.print_import(fp, fname2modname(fname, ''))
+                    elif is_module(fname):
+                        log.debug("fname is a module: %r", fname)
+                        for fnamea in python_sources_below(fname):
+                            modname = fname2modname(fnamea, target.syspath_dir)
+                            self.print_import(fp, modname)
 
         else:
             assert target.is_pysource
@@ -77,14 +89,21 @@ class DummyModule(object):
             # if working on a single file, we don't need to create a dummy
             # module, this also avoids problems with file names that are 
             # not importable (e.g. `foo.bar.py)
-            self.fname = target.calling_fname
+            # self.fname = target.calling_fname
+            self.fname = target.fname
             self.absname = target.package_root
             # with open(self.fname, 'w') as fp:
             #     self.print_import(fp, target.modpath)
 
+        log.debug("dummy-filename: %r (%s)[module=%s, dir=%s, file=%s]", 
+            self.fname, self.absname, target.is_module, target.is_dir, target.is_pysource)
+
+
     def text(self):
         """Return the content of the dummy module.
         """
+        log.debug("Getting text from %r", self.fname)
+        # log.debug("sys.path: %r", sys.path)
         with open(self.fname) as fp:
             return fp.read()
 

@@ -216,8 +216,9 @@ def py2dep(target, **kw) -> depgraph.DepGraph:
         **kw
     )
     mf.debug = max(mf.debug, kw.get('debug_mf', 0))
-    log.debug("CURDIR: %s", os.getcwd())
-    log.debug("FNAME: %r, CONTENT:\n%s\n", dummy.fname, dummy.text())
+    if log.isEnabledFor(logging.DEBUG):
+        log.debug("CURDIR: %s", os.getcwd())
+        log.debug("FNAME: %r, CONTENT:\n%s\n", dummy.fname, dummy.text())
     mf.run_script(dummy.fname)
 
     log.info("mf._depgraph:\n%s", json.dumps(dict(mf._depgraph), indent=4))

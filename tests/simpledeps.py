@@ -12,7 +12,12 @@ def empty(args="", **kw):
 
 
 def depgrf(item, args=""):
-    return py2dep(Target(item), **empty(args))
+    t = Target(item)
+    # print("TARGET:", t)
+    with t.chdir_work():
+        res = py2dep(t, **empty(args))
+        # print("DEPGRPH:", res)
+        return res
 
 
 def simpledeps(item, args=""):
