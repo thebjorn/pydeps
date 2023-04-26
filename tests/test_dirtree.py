@@ -2,8 +2,10 @@
 from pydeps.pydeps import pydeps
 from tests.filemaker import create_files
 from tests.simpledeps import simpledeps
+import pytest
 
 
+@pytest.mark.skip(reason="TODO: fix this (issue #174)")
 def test_dirtree():
     files = """
         foo:

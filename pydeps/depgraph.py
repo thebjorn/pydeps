@@ -258,6 +258,10 @@ class DepGraph(object):
             res = '.'.join(res.split('.')[:self.max_module_depth])
         return res
 
+    def __json__(self):
+        return json.dumps(self.sources, indent=4, sort_keys=True,
+                          default=lambda obj: obj.__json__() if hasattr(obj, '__json__') else obj)
+
     def levelcounts(self):
         pass
 

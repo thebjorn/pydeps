@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 import os
+import sys
 import textwrap
 import logging
 
@@ -53,8 +54,6 @@ class DummyModule(object):
         self.target = target
         self.fname = '_dummy_' + target.modpath.replace('.', '_') + '.py'
         self.absname = os.path.join(target.workdir, self.fname)
-        log.debug("dummy-filename: %r (%s)[module=%s, dir=%s, file=%s]", 
-            self.fname, self.absname, target.is_module, target.is_dir, target.is_pysource)
 
         if target.is_module:
             cli.verbose(1, "target is a PACKAGE")
@@ -90,14 +89,21 @@ class DummyModule(object):
             # if working on a single file, we don't need to create a dummy
             # module, this also avoids problems with file names that are 
             # not importable (e.g. `foo.bar.py)
-            self.fname = target.calling_fname
+            # self.fname = target.calling_fname
+            self.fname = target.fname
             self.absname = target.package_root
             # with open(self.fname, 'w') as fp:
             #     self.print_import(fp, target.modpath)
 
+        log.debug("dummy-filename: %r (%s)[module=%s, dir=%s, file=%s]", 
+            self.fname, self.absname, target.is_module, target.is_dir, target.is_pysource)
+
+
     def text(self):
         """Return the content of the dummy module.
         """
+        log.debug("Getting text from %r", self.fname)
+        # log.debug("sys.path: %r", sys.path)
         with open(self.fname) as fp:
             return fp.read()
 

@@ -45,10 +45,9 @@ def _pydeps(trgt, **kw):
             if not directory:
                 deps_out = os.path.join(trgt.calling_dir, deps_out)
             with open(deps_out, 'w') as fp:
-                # XXX: this is potentially not a valid JSON file...
-                fp.write(pprint.pformat(dep_graph))
+                fp.write(dep_graph.__json__())
         else:
-            pprint.pprint(dep_graph)
+            print(dep_graph.__json__())
 
     dotsrc = depgraph_to_dotsrc(trgt, dep_graph, **kw)
 
@@ -159,6 +158,7 @@ def pydeps(**args):
         )
 
     with inp.chdir_work():
+        # log.debug("Current directory: %s", os.getcwd())
         _args['fname'] = inp.fname
         _args['isdir'] = inp.is_dir
 
@@ -173,6 +173,9 @@ def pydeps(**args):
             try:
                 return _pydeps(inp, **_args)
             except (OSError, RuntimeError) as cause:
+                if log.isEnabledFor(logging.DEBUG):
+                    # we only want to log the exception if we're in debug mode
+                    log.exception("While running pydeps:")
                 cli.error(str(cause))
 
 
