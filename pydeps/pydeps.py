@@ -4,8 +4,9 @@
 from __future__ import print_function
 import json
 import os
-import pprint
 import sys
+
+from .depgraph import DepGraph
 from . import py2depgraph, cli, dot, target
 from .depgraph2dot import dep2dot, cycles2dot
 import logging
@@ -30,12 +31,16 @@ def _pydeps(trgt, **kw):
     show_svg = kw.get('show')
     deps_out = kw.get('deps_out')
     dot_out = kw.get('dot_out')
+    from_deps = kw.get('from_deps')
     # reverse = kw.get('reverse')
     if os.getcwd() != trgt.workdir:
         # the tests are calling _pydeps directoy
         os.chdir(trgt.workdir)
 
-    dep_graph = py2depgraph.py2dep(trgt, **kw)
+    if from_deps:
+        dep_graph = DepGraph.from_file(from_deps)
+    else:
+        dep_graph = py2depgraph.py2dep(trgt, **kw)
 
     if kw.get('show_deps'):
         cli.verbose("DEPS:")

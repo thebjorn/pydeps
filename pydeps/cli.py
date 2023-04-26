@@ -134,6 +134,7 @@ def parse_args(argv=()):
     args.add('--show-deps', action='store_true', help="show output of dependency analysis")
     args.add('--show-raw-deps', action='store_true', help="show output of dependency analysis before removing skips")
     args.add('--deps-output', dest='deps_out', default=None, kind="FNAME:output", help="write output of dependency analysis to 'file'")
+    args.add('--from-deps', dest='from_deps', default=None, kind="FNAME:input", help="read dependency analysis from 'file' instead of running it")
     args.add('--show-dot', action='store_true', help="show output of dot conversion")
     args.add('--dot-output', dest='dot_out', default=None, kind="FNAME:output", help="write dot code to 'file'")
     args.add('--nodot', '--no-dot', action='store_true', help="skip dot conversion")
