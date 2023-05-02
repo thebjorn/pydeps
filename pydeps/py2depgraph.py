@@ -229,7 +229,7 @@ def py2dep(target, **kw) -> depgraph.DepGraph:
             if k not in mf._depgraph:
                 mf._depgraph[k] = {}
             for v in vdict:
-                if v not in mf._depgraph['__main__']:
+                if not target.is_pysource and v not in mf._depgraph['__main__']:
                     mf._depgraph['__main__'][v] = None
                 if v in mf._depgraph:
                     mf._depgraph[v][k] = None
