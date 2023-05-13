@@ -305,7 +305,7 @@ class RenderBuffer(object):
         yield
 
     def _clusterid(self, n):
-        return n.split('.')[0].replace('_', '')
+        return n.split('.')[0]
 
     def write_node(self, n, **attrs):
         clusterid = self._clusterid(n)
