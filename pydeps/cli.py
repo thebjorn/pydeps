@@ -5,6 +5,8 @@ command line interface (cli) code.
 # pylint: disable=line-too-long
 from __future__ import print_function
 import argparse
+
+from pydeps.configs import Config
 from .arguments import Arguments
 # import json
 # from .pycompat import configparser
@@ -66,7 +68,7 @@ def base_argparser(argv=()):
     verbose = _not_verbose
 
     _p = argparse.ArgumentParser(add_help=False)
-    _p.add_argument('--debug', action='store_true', help="turn on all the show and verbose options (mainly for debugging pydeps itself)")
+    _p.add_argument('--debug', action='store_true', dest='debug', help="turn on all the show and verbose options (mainly for debugging pydeps itself)")
     _p.add_argument('--config', help="specify config file", metavar="FILE")
     _p.add_argument('--no-config', help="disable processing of config files", action='store_true')
     _p.add_argument('--version', action='store_true', help='print pydeps version')
@@ -113,6 +115,21 @@ def parse_args(argv=()):
         if os.path.exists(local_pydeps):
             config_files.append(local_pydeps)
 
+        # pydeps.yml file specified in current directory is next
+        local_pydeps = os.path.join(os.getcwd(), 'pydeps.yml')
+        if os.path.exists(local_pydeps):
+            config_files.append(local_pydeps)
+
+        # is there a pyproject.toml file?
+        pyproj = os.path.join(os.getcwd(), 'pyproject.toml')
+        if os.path.exists(pyproj):
+            config_files.append(pyproj)
+
+        # is there a setup.cfg file?
+        pyproj = os.path.join(os.getcwd(), 'setup.cfg')
+        if os.path.exists(pyproj):
+            config_files.append(pyproj)
+
         # finally the .pydeps file in the the user's homedir
         home = os.environ['USERPROFILE' if sys.platform == 'win32' else 'HOME']
         home_pydeps = os.path.join(home, '.pydeps')
@@ -126,7 +143,7 @@ def parse_args(argv=()):
     else:
         args.add('--fname', kind="FNAME:input", help='filename')
 
-    args.add('-v', '--verbose', default=0, action='count', help="be more verbose (-vv, -vvv for more verbosity)")
+    args.add('-v', '--verbose', default=0, dest='verbose', action='count', help="be more verbose (-vv, -vvv for more verbosity)")
     args.add('-o', default=None, kind="FNAME:output", dest='output', metavar="file", help="write output to 'file'")
     args.add('-T', default='svg', dest='format', help="output format (svg|png)")
     args.add('--display', kind="FNAME:exe", default=None, help="program to use to display the graph (png or svg file depending on the T parameter)", metavar="PROGRAM")
@@ -161,24 +178,19 @@ def parse_args(argv=()):
     args.add('--rmprefix', default=[], nargs="+", metavar="PREFIX", help="remove PREFIX from the displayed name of the nodes")
     args.add('--start-color', default=0, type=int, metavar="INT", help="starting value for hue from 0 (red/default) to 360.")
 
+    # args.write_default_config()
     _args = args.parse_args(argv)
 
     if _args.externals:
-        return dict(
-            T='svg', config=None, debug=False, display=None, exclude=[], externals=True,
-            fname=_args.fname, format='svg', max_bacon=10, no_config=False, nodot=False,
-            noise_level=200, no_show=True, output=None, pylib=False, pylib_all=False,
-            show=False, show_cycles=False, show_deps=False, show_dot=False,
-            show_raw_deps=False, verbose=0, include_missing=True, reverse=False,
-            start_color=0, find_package=False, deps_out=None, dot_out=None, 
-        )
+        return Config(externals=True, fname=_args.fname, max_bacon=10, 
+                      include_missing=True, no_show=True)
 
     if _args.no_output:
         _args.no_show = True
     _args.show = not _args.no_show
-    if _args.nodot and _args.show_cycles:
-        error("Can't use --nodot and --show-cycles together")  # pragma: nocover
-    if _args.nodot:
+    if _args.no_dot and _args.show_cycles:
+        error("Can't use --no=dot and --show-cycles together")  # pragma: nocover
+    if _args.no_dot:
         _args.show_dot = False
     if _args.max_bacon == 0:
         _args.max_bacon = sys.maxsize
@@ -192,7 +204,7 @@ def parse_args(argv=()):
     if find_package:
         _args.fname = _find_current_package()
 
-    _args.format = getattr(_args, 'T', getattr(_args, 'format', None))
+    _args.format = getattr(_args, 'format', 'svg')
 
     verbose = _mkverbose(max(_args.verbose, int(_args.debug)))
     verbose(2, _args, '\n')

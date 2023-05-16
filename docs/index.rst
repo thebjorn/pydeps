@@ -72,6 +72,14 @@ pydeps.dummymodule module
     :undoc-members:
     :show-inheritance:
 
+pydeps.configs module
+---------------------
+
+.. automodule:: pydeps.configs
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pydeps.mf27 module
 ------------------
 

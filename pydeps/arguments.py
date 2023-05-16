@@ -1,58 +1,27 @@
 from __future__ import print_function, unicode_literals
+from io import StringIO
+import sys
+import textwrap
 import warnings
 import json
 import argparse
 from .pycompat import configparser
+# from devtools import debug
+from .configs import Config, typefns, identity
 
-try:
-    unicode     # noqa
-
-    def is_string(v):
-        return isinstance(v, (str, unicode))    # noqa
-except NameError:
-    def is_string(v):
-        return isinstance(v, str)
 
 
 DEFAULT_NONE = '____'
 
 
-def boolval(v):
-    if isinstance(v, bool):
-        return v
-    if isinstance(v, int):
-        return bool(v)
-    if is_string(v):
-        v = v.lower()
-        if v in {'j', 'y', 'ja', 'yes', '1', 'true'}:
-            return True
-        if v in {'n', 'nei', 'no', '0', 'false'}:
-            return False
-    raise ValueError("Don't know how to convert %r to bool" % v)
-
-
-def listval(v):
-    if is_string(v):
-        return [x for x in v.split() if x.strip()]
-    if isinstance(v, (list, tuple)):
-        return v
-    raise ValueError("Don't know how to convert %r to list" % v)
-
-
-def identity(v):
-    return v
-
-
-typefns = {
-    'BOOL': boolval,
-    'INT': int,
-    'LIST': listval,
-    'STR': str,
-}
 
 
 class Argument(object):
     def __init__(self, *flags, **args):
+        if 'choices' in args and args['choices'] is None:
+            del args['choices']
+        if 'container' in args:
+            del args['container']
         self._args = args
         self._flags = flags
         # self.__dict__.update(args)
@@ -72,11 +41,40 @@ class Argument(object):
         if v is None:
             return DEFAULT_NONE
         return v.__class__.__name__.upper()
+    
+    def typefn(self):
+        return typefns.get(self.typename(), identity)
+
+    def pytype(self):
+        argname = self.argname()
+        if argname == 'fname':
+            return 'str'
+        if 'choices' in self._args:
+            return 'Literal[%s]' % ', '.join(repr(x) for x in self._args['choices'])
+        if 'type' in self._args:
+            res = self._args['type']
+        elif self._args.get('action') in {'store_true', 'store_false'}:
+            res = bool
+        elif self._args.get('kind', 'unknown') is None:
+            return 'None'
+        elif self._args.get('kind', '').startswith("FNAME"):
+            res = str
+        else:
+            res = self._args.get('default').__class__
+        if res is None:
+            return 'None'
+        return res.__name__
 
     def argname(self):
         if 'dest' in self._args:
             return self._args['dest']
-        return self._flags[-1].lstrip('-').replace('-', '_')
+        return self._flags[0].lstrip('-').replace('-', '_')
+        # return self._flags[-1].lstrip('-').replace('-', '_')
+    
+    def help(self):
+        if 'help' in self._args:
+            return self._args['help']
+        return ''
 
     def default(self):
         if 'default' in self._args:
@@ -85,7 +83,7 @@ class Argument(object):
             return False
         if self._args.get('action') == 'store_false':
             return True
-        return '___'
+        return DEFAULT_NONE
 
     def add_to_parser(self, parser):
         args = self._args
@@ -93,6 +91,7 @@ class Argument(object):
         args.pop('kind', None)     # remove our attributes
         if args.get('action') in {'store_true', 'store_false'}:
             args['default'] = None
+        # debug("ADD_TO_PARSER:", self._flags, args)
         parser.add_argument(*self._flags, **args)
 
 
@@ -120,7 +119,9 @@ class Namespace(object):
 
 
 class Arguments(object):
-    def __init__(self, config_files=None, debug=False, *posargs, **kwargs):
+    def __init__(self, config_files=None, debug=False, *posargs, parents=None, **kwargs):
+        if config_files is None:
+            config_files = []
         # passthrough to argparse
         self.posargs = posargs
         self.kwargs = kwargs
@@ -132,46 +133,98 @@ class Arguments(object):
         self.config_files = config_files
         self.argtypes = {}
         self.defaults = {}
+        self.parents = parents
+
+    def load_config_files(self):
+        for filename in self.config_files:
+            if filename == '.pydeps' or filename.endswith('.pydeps'):
+                self.load_pydeps_config(filename)
+
+    def write_default_config(self):
+        """Utility function to create .configs.Config
+
+           # XXX: a more general utility to create configs from argparse
+           #      would be nice...
+        """
+        fp = StringIO()
+        # fp = sys.stdout
+        print("class Config(object):", file=fp)
+
+        arglist = self.arglist
+
+        if self.parents:
+            parent_actions = []
+            for parent in self.parents:
+                for action in parent._actions:
+                    # if isinstance(action, argparse._StoreAction):
+                    parent_actions.append(Argument(
+                        *action.option_strings, **action.__dict__
+                    ))
+            arglist = parent_actions + arglist
+
+        for arg in arglist:
+            debug(arg._args)
+            
+            default = arg.default()
+            if default == DEFAULT_NONE:
+                default = None
+            elif isinstance(default, str):
+                default = repr(default)
+
+            help = textwrap.wrap(arg.help(), 80 - 7)  # 7 = len("    #: ")
+            for helpline in help:
+                print("", file=fp)
+                print("    #: {help}".format(help=helpline), end="", file=fp)
+            print("", file=fp)
+
+            typename = arg.pytype()
+            if typename == 'list' and default is None:
+                typename = 'Optional[List[str]]'
+            elif default is None:
+                typename = f'Optional[{typename}]'
+            elif default == [] and typename == 'list':
+                typename = 'List[str]'
+            # add py3 type annotations
+            # print(f"    {arg.argname()}: {typename} = {default}", file=fp)
+            
+            # witout type annotations
+            print("    {argname} = {default}".format(argname=arg.argname(), default=default), file=fp)
+
+        print("", file=fp)
+        print("    def set_field(self, field, value):", file=fp)
+        for arg in self.arglist:
+            print("        if field == '{argname}':".format(argname=arg.argname()), file=fp)
+            print("            self.{argname} = {typefn}(value)".format(argname=arg.argname(), typefn=arg.typefn().__name__), file=fp)
+        print("", file=fp)
+        # debug(res)
+        res = fp.getvalue()
+        print(res)
+        return res
 
     def parse_args(self, argv):
-        config = []
-        if self.config_files:
-            conf = configparser.SafeConfigParser()
-            conf.read(self.config_files)
-            try:
-                config = conf.items("pydeps")
-            except (configparser.NoOptionError, configparser.NoSectionError):
-                warnings.warn(' '.join("""
-                    Couldn't find a [pydeps] section in your config files
-                    %r -- or it was empty
-                """.split()) % (self.config_files,))
+        self.kwargs['parents'] = self.parents
         p = argparse.ArgumentParser(*self.posargs, **self.kwargs)
         for arg in self.arglist:
             arg.add_to_parser(p)
         args = Namespace(p.parse_args(argv))
 
-        for key, val in config:
-            if key not in self.args:
-                warnings.warn("Your .pydeps file contained %s = %s which doesn't match any argument" % (key, val))
-                continue
-            argval = args[key]
-            confval = val
-            typeval = self.argtypes[key]
-            typfn = typefns[typeval]
-            if argval is None:
-                args[key] = typfn(confval)
+        config = Config.load(self.config_files)
+        config.update({k : v for k, v in args.items() if v is not None})
 
-        for key, val in args.items():
-            if val in (None, DEFAULT_NONE):
-                default = self.defaults.get(key)
-                if default == DEFAULT_NONE:
-                    default = None
-                args[key] = default
+        # print('---- yaml ---------------')
+        # print(config.write_yaml())
+        # print('---- json ---------------')
+        # print(config.write_json())
+        # print('---- ini ---------------')
+        # print(config.write_ini())
+        # print('---- toml ---------------')
+        # print(config.write_toml())
+        # print('-------------------')
 
-        del args['config']
-        return args.ns
+        return config
 
     def add(self, *flags, **kwargs):
+        # debug(flags, kwargs)
         arg = Argument(*flags, **kwargs)
         self.arglist.append(arg)
         argname = arg.argname()

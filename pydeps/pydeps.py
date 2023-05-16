@@ -6,6 +6,8 @@ import json
 import os
 import pprint
 import sys
+
+from pydeps.configs import Config
 from . import py2depgraph, cli, dot, target
 from .depgraph2dot import dep2dot, cycles2dot
 import logging
@@ -23,7 +25,7 @@ def _pydeps(trgt, **kw):
     # print('target', trgt)
     colors.START_COLOR = kw.get('start_color')
     # show_cycles = kw.get('show_cycles')
-    nodot = kw.get('nodot')
+    nodot = kw.get('no_dot')
     no_output = kw.get('no_output')
     output = kw.get('output')
     fmt = kw['format']
@@ -94,7 +96,7 @@ def depgraph_to_dotsrc(target, dep_graph, **kw):
     """
     if kw.get('show_cycles'):
         dotsrc = cycles2dot(target, dep_graph, **kw)
-    elif not kw.get('nodot'):
+    elif not kw.get('no_dot'):
         dotsrc = dep2dot(target, dep_graph, **kw)
     else:
         dotsrc = None
@@ -144,7 +146,8 @@ def pydeps(**args):
        execution path).
     """
     sys.setrecursionlimit(10000)
-    _args = args if args else cli.parse_args(sys.argv[1:])
+    _args = Config(**args) if args else cli.parse_args(sys.argv[1:])
+    _args = dict(iter(_args))
     _args['curdir'] = os.getcwd()
     inp = target.Target(_args['fname'])
     log.debug("Target: %r", inp)
@@ -178,6 +181,36 @@ def pydeps(**args):
                     log.exception("While running pydeps:")
                 cli.error(str(cause))
 
+
+def call_pydeps(file_or_dir, **kwargs):
+    """Programatic entry point for pydeps.
+
+       See :class:`pydeps.configs.Config` class for the available options.
+    """
+    sys.setrecursionlimit(10000)
+    inp = target.Target(file_or_dir)
+    log.debug("Target: %r", inp)
+    config = Config(**kwargs)
+
+    if config.output:
+        config.output = os.path.abspath(config.output)
+    else:
+        config.output = os.path.join(
+            inp.calling_dir,
+            inp.modpath.replace('.', '_') + '.' + config.format
+        )
+
+    ctx = dict(iter(config))
+
+    with inp.chdir_work():
+        ctx['fname'] = inp.fname
+        ctx['isdir'] = inp.is_dir
+        if config.externals:
+            del ctx['fname']
+            return externals(inp, **ctx)
+        
+        return _pydeps(inp, **ctx)
+    
 
 if __name__ == '__main__':  # pragma: nocover
     pydeps()

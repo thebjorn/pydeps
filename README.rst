@@ -138,8 +138,8 @@ You can also export the name of such a viewer in either the ``PYDEPS_DISPLAY``
 or ``BROWSER`` environment variable, which changes the default behaviour
 when ``--display`` is not used.
 
-.pydeps
--------
+Configuration files
+-------------------
 
 All options can also be set in a ``.pydeps`` file using ``.ini`` file
 syntax (parsable by ``ConfigParser``). Command line options override
@@ -161,6 +161,9 @@ An example .pydeps file::
         sys
         collections
         __future__
+
+pydeps will also look for configuration data in ``pyproject.toml`` (under
+``[tool.pydeps]``) and ``setup.cfg`` (under ``[pydeps]``).
 
 Bacon (Scoring)
 ---------------
@@ -328,6 +331,10 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
 Version history
 ---------------
 
+**Version 1.12.5** Pydeps can now read configuration data from ``pyproject.toml``.
+Thanks to septatrix_ for pushing the idea and for countering my toml-rant with
+an informative argument.
+
 **Version 1.11.0** drop support for Python 3.6.
 Thanks to pawamoy_ for removing imports of the deprecated ``imp`` module.
 (Parts of it has been vendorized due to a Python bug, see the code for details.)
@@ -469,3 +476,4 @@ Contributing
 .. _Pipeline Foundation: https://pipeline.foundation
 .. _vector400: https://github.com/vector400
 .. _pawamoy: https://github.com/pawamoy
+.. _septatrix: https://github.com/septatrix

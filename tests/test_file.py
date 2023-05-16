@@ -31,7 +31,7 @@ def test_file_in_sub_directory():
         # t = Target('a/b.py')
         # with t.chdir_work():
         #     print("CURDIR:", os.getcwd(), os.listdir('.'))
-        #     # deps = py2dep(t, **empty(log="DEBUG", nodot=True, show_deps=True))
+        #     # deps = py2dep(t, **empty(log="DEBUG", no_dot=True, show_deps=True))
         #     deps = py2dep(t, **empty())
         #     print("DEPSx:", deps)
         #     rels = {f'{a.name} -> {b.name}' for a, b in deps}
