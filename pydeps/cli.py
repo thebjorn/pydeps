@@ -214,4 +214,4 @@ def parse_args(argv=()):
         _args.show_deps = True
         _args.show_dot = True
 
-    return vars(_args)
+    return Config(**vars(_args))
