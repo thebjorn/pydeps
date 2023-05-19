@@ -146,8 +146,7 @@ def pydeps(**args):
        execution path).
     """
     sys.setrecursionlimit(10000)
-    _args = Config(**args) if args else cli.parse_args(sys.argv[1:])
-    _args = dict(iter(_args))
+    _args = dict(iter(Config(**args))) if args else cli.parse_args(sys.argv[1:])
     _args['curdir'] = os.getcwd()
     inp = target.Target(_args['fname'])
     log.debug("Target: %r", inp)
@@ -208,9 +207,9 @@ def call_pydeps(file_or_dir, **kwargs):
         if config.externals:
             del ctx['fname']
             return externals(inp, **ctx)
-        
+
         return _pydeps(inp, **ctx)
-    
+
 
 if __name__ == '__main__':  # pragma: nocover
     pydeps()

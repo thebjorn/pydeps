@@ -182,7 +182,7 @@ def parse_args(argv=()):
     _args = args.parse_args(argv)
 
     if _args.externals:
-        return Config(externals=True, fname=_args.fname, max_bacon=10, 
+        return Config(externals=True, fname=_args.fname, max_bacon=10,
                       include_missing=True, no_show=True)
 
     if _args.no_output:
@@ -214,4 +214,4 @@ def parse_args(argv=()):
         _args.show_deps = True
         _args.show_dot = True
 
-    return Config(**vars(_args))
+    return vars(_args)
