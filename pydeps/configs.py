@@ -2,6 +2,9 @@
 from io import StringIO
 import json
 import warnings
+import logging
+
+log = logging.getLogger(__name__)
 
 # from devtools import debug
 
@@ -64,22 +67,33 @@ typefns = {
 
 def load_toml(filename):
     if not HAVE_TOML:
-        raise ImportError("No toml module found")
-    res = toml.loads(open(filename).read())
-    return res['tool']['pydeps']
+        return {}
+    try:
+        res = toml.loads(open(filename).read())
+        return res['tool']['pydeps']
+    except Exception as e:
+        log.debug("Couldn't load toml file %s: %s", filename, e)
+        return {}
 
 
 def load_json(filename):
     import json
-    res = json.loads(open(filename).read())
-    return res['pydeps']
+    try:
+        res = json.loads(open(filename).read())
+        return res['pydeps']
+    except (json.JSONDecodeError, KeyError):
+        return {}
 
 
 def load_yaml(filename):
-    import yaml
-    from yaml import Loader
-    res = yaml.load(open(filename).read(), Loader=Loader)
-    return res['pydeps']
+    try:
+        import yaml
+        from yaml import Loader
+
+        res = yaml.load(open(filename).read(), Loader=Loader)
+        return res['pydeps']
+    except (yaml.YAMLError, KeyError, ImportError):
+        return {}
 
 
 def load_ini(filename):
