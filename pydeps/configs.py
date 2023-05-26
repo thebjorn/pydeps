@@ -69,7 +69,8 @@ def load_toml(filename):
     if not HAVE_TOML:
         return {}
     try:
-        res = toml.loads(open(filename).read())
+        with open(filename) as fp:
+            res = toml.loads(fp.read())
         return res['tool']['pydeps']
     except Exception as e:
         log.debug("Couldn't load toml file %s: %s", filename, e)
@@ -78,7 +79,8 @@ def load_toml(filename):
 
 def load_json(filename):
     try:
-        res = json.loads(open(filename).read())
+        with open(filename) as fp:
+            res = json.loads(fp.read())
         return res['pydeps']
     except (json.JSONDecodeError, KeyError):
         return {}
@@ -88,8 +90,8 @@ def load_yaml(filename):
     try:
         import yaml
         from yaml import Loader
-
-        res = yaml.load(open(filename).read(), Loader=Loader)
+        with open(filename) as fp:
+            res = yaml.load(fp.read(), Loader=Loader)
         return res['pydeps']
     except (yaml.YAMLError, KeyError, ImportError):
         return {}

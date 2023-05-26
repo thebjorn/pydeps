@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 import os
-import sys
 import textwrap
 import logging
 
@@ -149,11 +148,3 @@ class DummyModule(object):
             print(textwrap.dedent("""\
                 from {prefix} import {mname}
             """).format(prefix=mparts[0], mname=mparts[1]), file=fp)
-        # if len(mparts) == 1:
-        #     print(textwrap.dedent("""\
-        #         import {module}
-        #     """).format(module=module))
-        # else:
-        #     print(textwrap.dedent("""\
-        #         from {prefix} import {mname}
-        #     """).format(prefix=mparts[0], mname=mparts[1]))

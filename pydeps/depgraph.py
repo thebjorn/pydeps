@@ -294,9 +294,6 @@ class DepGraph(object):
 
            Returns an int between 1 (unknown, default), and 4 (very related).
         """
-        # if self._is_pylib(a) and self._is_pylib(b):
-        #     return 1
-
         res = 0
         for ap, bp, n in zip(a.name_parts, b.name_parts, list(range(4))):
             res += ap == bp
@@ -313,9 +310,6 @@ class DepGraph(object):
 
            Returns an int between 1 (default) and 4 (highly unrelated).
         """
-        # if self._is_pylib(a) and self._is_pylib(b):
-        #     return 1
-
         res = 4
         for an, bn, n in zip_longest(a.name_parts, b.name_parts, list(range(4))):
             res -= an == bn
@@ -324,15 +318,7 @@ class DepGraph(object):
         return 4 if res > 4 else res
 
     def _exclude(self, name):
-        # excl = any(skip.match(name) for skip in self.skiplist)
-        # if 'metar' in name:
-        #     print "Exclude?", name, excl
-        #     print [s.pattern for s in self.skiplist]
         return any(skip.match(name) for skip in self.skiplist)
-
-    # def verbose(self, n, *args):
-    #     if self.args['verbose'] >= n:
-    #         print(*args)
 
     def add_source(self, src):
         if src.name in self.sources:
@@ -362,7 +348,6 @@ class DepGraph(object):
                     yield impmod, src
                 visit(impmod)
 
-        # for _src in list(self.sources.values()):
         for _src in self.sources.values():
             for source in visit(_src):
                 cli.verbose(4, "Yielding", source[0], source[1])
@@ -398,7 +383,6 @@ class DepGraph(object):
     def connect_generations(self):
         """Traverse depth-first adding imported_by.
         """
-        # for src in list(self.sources.values()):
         for src in self.sources.values():
             for _child in src.imports:
                 if _child in self.sources:
@@ -410,21 +394,15 @@ class DepGraph(object):
 
         def bacon(src, n):
             count[src.name] += 1
-            # print 'bacon:', src, src.bacon, n,
             if src.bacon <= n:
-                # print 'returning'
                 return
             src.bacon = min(src.bacon, n)
-            # print 'new bacon', src.bacon
             for imp in src.imports:
                 bacon(self.sources[imp], n + 1)
 
-        # print("SOURCES:", self.sources)
         if '__main__' in self.sources:
-            # print("FOUND MAIN", self.sources['__main__'])
             bacon(self.sources['__main__'], 0)
         elif self.args['dummyname'] in self.sources:
-            # print('\n'*10, "USING DUMMY", repr(self.sources))
             bacon(self.sources[self.args['dummyname']], 0)
 
     def exclude_noise(self):
@@ -434,7 +412,6 @@ class DepGraph(object):
             if src.is_noise():
                 cli.verbose(2, "excluding", src, "because it is noisy:", src.degree)
                 src.excluded = True
-                # print "Exluding noise:", src.name
                 self._add_skip(src.name)
 
     def exclude_bacon(self, limit):
@@ -443,7 +420,6 @@ class DepGraph(object):
         for src in list(self.sources.values()):
             if src.bacon > limit:
                 src.excluded = True
-                # print "Excluding bacon:", src.name
                 self._add_skip(src.name)
 
     def only_filter(self, paths):
@@ -468,8 +444,6 @@ class DepGraph(object):
     def remove_excluded(self):
         """Remove all sources marked as excluded.
         """
-        # import yaml
-        # print yaml.dump({k:v.__json__() for k,v in self.sources.items()}, default_flow_style=False)
         sources = list(self.sources.values())
         for src in sources:
             if src.excluded:

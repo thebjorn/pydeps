@@ -1,11 +1,8 @@
 from __future__ import print_function, unicode_literals
 from io import StringIO
-import sys
 import textwrap
-import warnings
 import json
 import argparse
-from .pycompat import configparser
 # from devtools import debug
 from .configs import Config, typefns, identity
 
