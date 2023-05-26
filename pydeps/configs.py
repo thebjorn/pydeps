@@ -77,7 +77,6 @@ def load_toml(filename):
 
 
 def load_json(filename):
-    import json
     try:
         res = json.loads(open(filename).read())
         return res['pydeps']
