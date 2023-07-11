@@ -35,7 +35,7 @@ class PyTest(TestCommand):
 setuptools.setup(
     name='pydeps',
     version=version,
-    packages=['pydeps'],
+    packages=setuptools.find_packages(),
     install_requires=[
         'enum34; python_version < "3.4"',
         'stdlib_list',
