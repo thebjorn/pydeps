@@ -38,7 +38,7 @@ setuptools.setup(
     packages=setuptools.find_packages(exclude=['tests*']),
     install_requires=[
         'enum34; python_version < "3.4"',
-        'stdlib_list',
+        'stdlib_list; python_version < "3.10"',
     ],
     long_description=io.open('README.rst', encoding='utf8').read(),
     entry_points={
