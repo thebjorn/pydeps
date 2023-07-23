@@ -17,7 +17,7 @@ pydeps
 
 Python module dependency visualization.
 
-This package is primarly intended to be used from the command line through the
+This package is primarily intended to be used from the command line through the
 ``pydeps`` command.
 
 .. contents::
@@ -43,18 +43,18 @@ Usage
 ------------------
 ::
 
-    usage: pydeps [-h] [--debug] [--config FILE] [--no-config] [--version]
-                  [-L LOG] [-v] [-o file] [-T FORMAT] [--display PROGRAM]
-                  [--noshow] [--show-deps] [--show-raw-deps] [--show-dot]
-                  [--nodot] [--no-output] [--show-cycles] [--debug-mf INT]
-                  [--noise-level INT] [--max-bacon INT] [--pylib] [--pylib-all]
+    usage: pydeps [-h] [--debug] [--config FILE] [--no-config] [--version] [-L LOG]
+                  [--find-package] [-v] [-o file] [-T FORMAT] [--display PROGRAM]
+                  [--noshow] [--show-deps] [--show-raw-deps] [--deps-output DEPS_OUT]
+                  [--show-dot] [--dot-output DOT_OUT] [--nodot] [--no-output]
+                  [--show-cycles] [--debug-mf INT] [--noise-level INT]
+                  [--max-bacon INT] [--max-module-depth INT] [--pylib] [--pylib-all]
                   [--include-missing] [-x PATTERN [PATTERN ...]]
                   [-xx MODULE [MODULE ...]] [--only MODULE_PATH [MODULE_PATH ...]]
                   [--externals] [--reverse] [--rankdir {TB,BT,LR,RL}] [--cluster]
                   [--min-cluster-size INT] [--max-cluster-size INT]
                   [--keep-target-cluster] [--collapse-target-cluster]
-                  [--rmprefix PREFIX [PREFIX ...]] [--dot-output FILENAME]
-                  [--deps-output FILENAME]
+                  [--rmprefix PREFIX [PREFIX ...]] [--start-color INT]
                   fname
 
 positional arguments:
@@ -62,26 +62,29 @@ positional arguments:
 
 optional arguments:
   -h, --help                             show this help message and exit
+  --debug                                turn on all the show and verbose options (mainly for debugging pydeps itself)
   --config FILE                          specify config file
   --no-config                            disable processing of config files
   --version                              print pydeps version
   -L LOG, --log LOG                      set log-level to one of CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET.
+  --find-package                         tries to automatically find the name of the current package.
   -v, --verbose                          be more verbose (-vv, -vvv for more verbosity)
   -o file                                write output to 'file'
   -T FORMAT                              output format (svg|png)
   --display PROGRAM                      program to use to display the graph (png or svg file depending on the T parameter)
-  --noshow                               don't call external program to display graph
+  --noshow, --no-show                    don't call external program to display graph
   --show-deps                            show output of dependency analysis
   --show-raw-deps                        show output of dependency analysis before removing skips
   --deps-output                          write output of dependency analysis to file (instead of screen)
   --show-dot                             show output of dot conversion
   --dot-output                           write dot code to file (instead of screen)
-  --nodot                                skip dot conversion
+  --nodot, --no-dot                      skip dot conversion
   --no-output                            don't create .svg/.png file, implies --no-show (-t/-o will be ignored)
   --show-cycles                          show only import cycles
-  --debug                                turn on all the show and verbose options (mainly for debugging pydeps itself)
+  --debug-mf INT                         set the ModuleFinder.debug flag to this value
   --noise-level INT                      exclude sources or sinks with degree greater than noise-level
   --max-bacon INT                        exclude nodes that are more than n hops away (default=2, 0 -> infinite)
+  --max-module-depth INT                 coalesce deep modules to at most n levels
   --pylib                                include python std lib modules
   --pylib-all                            include python all std lib modules (incl. C modules)
   --include-missing                      include modules that are not installed (or can't be found on sys.path)
@@ -99,7 +102,7 @@ optional arguments:
   --exclude-exact MODULE                 (shorthand -xx MODULE) same as --exclude, except requires the full match. `-xx foo.bar` will exclude foo.bar, but not foo.bar.blob
 
 **Note:** if an option with a variable number of arguments (like ``-x``) is provided
-before ``fname``, separe the arguments from the filename with ``--`` otherwise ``fname``
+before ``fname``, separate the arguments from the filename with ``--`` otherwise ``fname``
 will be parsed as an argument of the option. Example: ``$ pydeps -x os sys -- pydeps``.
 
 You can of course also import ``pydeps`` from Python and use it as a library, look in
@@ -213,9 +216,9 @@ like in the tests)::
 .. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pydeps-cycle.svg?sanitize=true
 
 
-.. _clustering-externals:
+.. _clustering:
 
-Clustering externals
+Clustering
 --------------------
 
 Running `pydeps pydeps --max-bacon=4` on version 1.8.0 of pydeps gives the following graph:
@@ -259,6 +262,17 @@ In some situations it can be useful to draw the target module as a cluster::
     shell> pydeps pydeps --max-bacon=4 --cluster --max-cluster-size=3 --min-cluster-size=2 --keep-target-cluster --rmprefix pydeps. stdlib_list.
 
 .. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pydeps-rmprefix.svg?sanitize=true
+
+For Python packages that have a module structure more than two levels deep, the graph can easily become overwhelmingly complex.
+To examine the internal dependencies of a package while limiting the module depth::
+
+    shell> pydeps pandas --only pandas --max-module-depth=2 -x pandas._* pandas.test* pandas.conftest
+
+Note 1: Private and testing-related modules were also removed to further simplify the graph.
+
+Note 2: At the time of this writing, pydeps does not have modules with a depth greater than two, so ``--max-module-depth=2`` has no effect when analyzing pydeps itself.
+
+.. image:: https://raw.githubusercontent.com/sheromon/pydeps/doc-update-max-module-depth/docs/_static/pandas-max-module-depth.svg?sanitize=true
 
 Graph direction
 ---------------
@@ -388,7 +402,7 @@ only report on the paths specified::
     shell> pydeps mypackage --only mypackage.a mypackage.b
 
 **Version 1.8.0** includes 4 new flags for drawing external dependencies as
-clusters. See clustering-externals_ for examples.
+clusters. See clustering_ for examples.
 Additionally, the arrowheads now have the color of the source node.
 
 **Version 1.7.3** includes a new flag ``-xx`` or ``--exclude-exact`` which
