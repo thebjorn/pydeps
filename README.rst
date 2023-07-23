@@ -263,7 +263,7 @@ In some situations it can be useful to draw the target module as a cluster::
 
 .. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pydeps-rmprefix.svg?sanitize=true
 
-.. _max-module-depth:
+.. _maximum_module_depth:
 
 Maximum module depth
 --------------------
@@ -348,7 +348,7 @@ Version history
 ---------------
 
 **Version 1.12.13** Better docs for larger packages.
-See max-module-depth_ for an example.
+See maximum_module_depth_ for an example.
 Thanks to sheromon_ for the PR.
 
 **Version 1.12.5** Pydeps can now read configuration data from ``pyproject.toml``.
