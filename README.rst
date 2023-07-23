@@ -272,7 +272,7 @@ Note 1: Private and testing-related modules were also removed to further simplif
 
 Note 2: At the time of this writing, pydeps does not have modules with a depth greater than two, so ``--max-module-depth=2`` has no effect when analyzing pydeps itself.
 
-.. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pandas-max-module-depth.svg?sanitize=true
+.. image:: https://raw.githubusercontent.com/sheromon/pydeps/doc-update-max-module-depth/docs/_static/pandas-max-module-depth.svg?sanitize=true
 
 Graph direction
 ---------------
