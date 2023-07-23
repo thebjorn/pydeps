@@ -219,7 +219,7 @@ like in the tests)::
 .. _clustering:
 
 Clustering
---------------------
+----------
 
 Running `pydeps pydeps --max-bacon=4` on version 1.8.0 of pydeps gives the following graph:
 
@@ -263,16 +263,18 @@ In some situations it can be useful to draw the target module as a cluster::
 
 .. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pydeps-rmprefix.svg?sanitize=true
 
+.. _max-module-depth:
+
+Maximum module depth
+--------------------
+
 For Python packages that have a module structure more than two levels deep, the graph can easily become overwhelmingly complex.
-To examine the internal dependencies of a package while limiting the module depth::
+Use the ``--max-module-depth=n`` flag to examine the internal dependencies of a package while limiting the module depth
+(private and testing-related modules are removed to further simplify the graph using ``-x ...``)::
 
     shell> pydeps pandas --only pandas --max-module-depth=2 -x pandas._* pandas.test* pandas.conftest
 
-Note 1: Private and testing-related modules were also removed to further simplify the graph.
-
-Note 2: At the time of this writing, pydeps does not have modules with a depth greater than two, so ``--max-module-depth=2`` has no effect when analyzing pydeps itself.
-
-.. image:: https://raw.githubusercontent.com/sheromon/pydeps/doc-update-max-module-depth/docs/_static/pandas-max-module-depth.svg?sanitize=true
+.. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pandas-max-module-depth.svg?sanitize=true
 
 Graph direction
 ---------------
@@ -344,6 +346,10 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
 
 Version history
 ---------------
+
+**Version 1.12.13** Better docs for larger packages.
+See max-module-depth_ for an example.
+Thanks to sheromon_ for the PR.
 
 **Version 1.12.5** Pydeps can now read configuration data from ``pyproject.toml``.
 Thanks to septatrix_ for pushing the idea and for countering my toml-rant with
@@ -491,3 +497,4 @@ Contributing
 .. _vector400: https://github.com/vector400
 .. _pawamoy: https://github.com/pawamoy
 .. _septatrix: https://github.com/septatrix
+.. _sheromon: https://github.com/sheromon
