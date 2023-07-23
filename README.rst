@@ -216,9 +216,9 @@ like in the tests)::
 .. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pydeps-cycle.svg?sanitize=true
 
 
-.. _clustering-externals:
+.. _clustering:
 
-Clustering externals
+Clustering
 --------------------
 
 Running `pydeps pydeps --max-bacon=4` on version 1.8.0 of pydeps gives the following graph:
@@ -262,6 +262,17 @@ In some situations it can be useful to draw the target module as a cluster::
     shell> pydeps pydeps --max-bacon=4 --cluster --max-cluster-size=3 --min-cluster-size=2 --keep-target-cluster --rmprefix pydeps. stdlib_list.
 
 .. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pydeps-rmprefix.svg?sanitize=true
+
+For Python packages that have a module structure more than two levels deep, the graph can easily become overwhelmingly complex.
+To examine the internal dependencies of a package while limiting the module depth::
+
+    shell> pydeps pandas --only pandas --max-module-depth=2 -x pandas._* pandas.test* pandas.conftest
+
+Note 1: Private and testing-related modules were also removed to further simplify the graph.
+
+Note 2: At the time of this writing, pydeps does not have modules with a depth greater than two, so ``--max-module-depth=2`` has no effect when analyzing pydeps itself.
+
+.. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pandas-max-module-depth.svg?sanitize=true
 
 Graph direction
 ---------------
@@ -391,7 +402,7 @@ only report on the paths specified::
     shell> pydeps mypackage --only mypackage.a mypackage.b
 
 **Version 1.8.0** includes 4 new flags for drawing external dependencies as
-clusters. See clustering-externals_ for examples.
+clusters. See clustering_ for examples.
 Additionally, the arrowheads now have the color of the source node.
 
 **Version 1.7.3** includes a new flag ``-xx`` or ``--exclude-exact`` which
