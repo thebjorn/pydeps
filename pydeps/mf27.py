@@ -1,4 +1,6 @@
-
+import sys
+import time
+import struct
 # from .mf.mf_next import *     # for debugging next version
 import modulefinder
 from modulefinder import (
@@ -21,6 +23,43 @@ _PKG_DIRECTORY = mfimp.PKG_DIRECTORY
 # in Python 3.8-3.10
 if hasattr(modulefinder, '_find_module'):
     modulefinder._find_module = mfimp.find_module
+
+
+def load_pyc(fp, mf=None):
+    """Load a pyc file from a file object.
+    """
+    # adapted from https://github.com/nedbat/coveragepy/blob/master/lab/show_pyc.py#L21
+    data = fp.read()
+    pos = 0
+    if data[:4] != MAGIC_NUMBER:
+        raise ImportError("Bad magic number in .pyc file")
+
+    pos += 4
+    read_date_and_size = True
+    if sys.version_info >= (3, 7):
+        # 3.7 added a flags word
+        flags = struct.unpack('<L', data[4:8])[0]
+        pos += 4
+        hash_based = bool(flags & 0x01)
+        # check_source = bool(flags & 0x02)
+        if hash_based:
+            source_hash = data[pos:pos + 8]
+            pos += 8
+            read_date_and_size = False
+            # print(f"hash {binascii.hexlify(source_hash)}")
+            # print(f"check_source {check_source}")
+    if read_date_and_size:
+        moddate = data[pos:pos + 4]
+        pos += 4
+        # modtime = time.asctime(time.localtime(struct.unpack('<L', moddate)[0]))
+        # print(f"moddate {binascii.hexlify(moddate)} ({modtime})")
+        size = data[pos:pos + 4]
+        pos += 4
+        # size = fp.read(4)
+        # print("pysize %s (%d)" % (binascii.hexlify(size), struct.unpack('<L', size)[0]))
+    assert len(data) >= pos
+    co = marshal.loads(data[pos:])
+    return co
 
 
 class ModuleFinder(NativeModuleFinder):
@@ -63,16 +102,45 @@ class ModuleFinder(NativeModuleFinder):
             )
 
         elif kind == _PY_COMPILED:
-            # a .pyc file is a binary file containing only three things:
-            #  1. a four-byte magic number
-            #  2. a four byte modification timestamp, and
-            #  3. a Marshalled code object
-            # from: https://nedbatchelder.com/blog/200804/the_structure_of_pyc_files.html
-            if fp.read(4) != MAGIC_NUMBER:
+            # (see issue #191)
+            try:
+                co = load_pyc(fp, self)
+            except ImportError:
                 self.msgout(2, "raise ImportError: Bad magic number", pathname)
                 raise ImportError("Bad magic number in %s" % pathname)
-            fp.read(4)   # skip modification timestamp
-            co = marshal.load(fp)  # load marshalled code object.
+
+            # if fp.read(4) != MAGIC_NUMBER:
+            #     self.msgout(2, "raise ImportError: Bad magic number", pathname)
+            #     raise ImportError("Bad magic number in %s" % pathname)
+            # fp.read(4)   # skip modification timestamp
+            # co = marshal.load(fp)  # load marshalled code object.
+
+
+
+            # adapted from https://github.com/nedbat/coveragepy/blob/master/lab/show_pyc.py#L21
+            # if fp.read(4) != MAGIC_NUMBER:
+            #     self.msgout(2, "raise ImportError: Bad magic number", pathname)
+            #     raise ImportError("Bad magic number in %s" % pathname)
+
+            # read_date_and_size = True
+            # if sys.version_info >= (3, 7):
+            #     # 3.7 added a flags word
+            #     flags = struct.unpack('<L', fp.read(4))[0]
+            #     hash_based = bool(flags & 0x01)
+            #     check_source = bool(flags & 0x02)
+            #     # print(f"flags 0x{flags:08x}")
+            #     if hash_based:
+            #         source_hash = fp.read(8)
+            #         read_date_and_size = False
+            #         # print(f"hash {binascii.hexlify(source_hash)}")
+            #         # print(f"check_source {check_source}")
+            # if read_date_and_size:
+            #     moddate = fp.read(4)
+            #     modtime = time.asctime(time.localtime(struct.unpack('<L', moddate)[0]))
+            #     # print(f"moddate {binascii.hexlify(moddate)} ({modtime})")
+            #     size = fp.read(4)
+            #     # print("pysize %s (%d)" % (binascii.hexlify(size), struct.unpack('<L', size)[0]))
+            # co = marshal.load(fp)
 
         else:
             co = None
