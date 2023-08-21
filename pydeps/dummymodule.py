@@ -103,6 +103,8 @@ class DummyModule(object):
         """
         log.debug("Getting text from %r", self.fname)
         # log.debug("sys.path: %r", sys.path)
+        if self.fname.endswith('.pyc') or self.fname.endswith('.pyo'):
+            return '<pyc file, no text>'
         with open(self.fname) as fp:
             return fp.read()
 

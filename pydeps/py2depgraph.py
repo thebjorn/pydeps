@@ -24,6 +24,7 @@ from __future__ import print_function
 import json
 import os
 import sys
+import io
 from collections import defaultdict
 
 import enum
@@ -38,7 +39,7 @@ log = logging.getLogger(__name__)
 PYLIB_PATH = depgraph.PYLIB_PATH
 
 
-class imp(enum.Enum):
+class imp(enum.IntEnum):
     C_BUILTIN = 6
     C_EXTENSION = 3
     IMP_HOOK = 9
@@ -107,6 +108,19 @@ class MyModuleFinder(mf27.ModuleFinder):
             return self.modules[fqname]
         self.modules[fqname] = m = Module(fqname)
         return m
+    
+    def run_script(self, pathname):
+        # overridden so we can work directly with .pyc files
+        # (the stdlig version hardcodes PY_SOURCE below)
+        log.debug("run_script(%r)", pathname)
+        self.msg(2, "run_script", pathname)
+        with io.open_code(pathname) as fp:
+            stuff = (
+                "", 
+                "rb", 
+                imp.PY_SOURCE if pathname.endswith(".py") else imp.PY_COMPILED
+            )
+            self.load_module('__main__', fp, pathname, stuff)
 
     def import_hook(self, name, caller=None, fromlist=None, level=-1):
         old_last_caller = self._last_caller
@@ -140,10 +154,12 @@ class MyModuleFinder(mf27.ModuleFinder):
         return module
 
     def load_module(self, fqname, fp, pathname, suffix_mode_kind):
+        # log.debug("load_module(%r, %r, %r, %r)", fqname, fp, pathname, suffix_mode_kind)
         (suffix, mode, kind) = suffix_mode_kind
         try:
             module = mf27.ModuleFinder.load_module(
-                self, fqname, fp, pathname, (suffix, mode, kind)
+                self, 
+                fqname, fp, pathname, (suffix, mode, kind)
             )
         except SyntaxError:
             # this happened first when pyinvoke tried to load yaml3/2 based on
