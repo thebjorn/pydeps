@@ -10,7 +10,7 @@ import sys
 import setuptools
 from setuptools.command.test import test as TestCommand
 
-version='1.12.16'
+version='1.12.17'
 
 
 class PyTest(TestCommand):
