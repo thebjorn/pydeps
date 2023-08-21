@@ -117,7 +117,7 @@ class MyModuleFinder(mf27.ModuleFinder):
             stuff = (
                 "", 
                 "rb", 
-                imp.PY_SOURCE if pathname.endswith(".py") else imp.PY_COMPILED
+                imp.PY_COMPILED if pathname.endswith(".pyc") or pathname.endswith(".pyo") else imp.PY_SOURCE
             )
             self.load_module('__main__', fp, pathname, stuff)
 
