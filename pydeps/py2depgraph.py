@@ -24,7 +24,6 @@ from __future__ import print_function
 import json
 import os
 import sys
-import io
 from collections import defaultdict
 
 import enum
@@ -114,7 +113,7 @@ class MyModuleFinder(mf27.ModuleFinder):
         # (the stdlig version hardcodes PY_SOURCE below)
         log.debug("run_script(%r)", pathname)
         self.msg(2, "run_script", pathname)
-        with io.open_code(pathname) as fp:
+        with open(pathname, 'rb') as fp:
             stuff = (
                 "", 
                 "rb", 
