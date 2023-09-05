@@ -14,7 +14,7 @@ jobs:
       LINTDIR: ./ghlint
     steps:
       # setup environment
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: setup directories
         shell: bash
         run: |
@@ -31,7 +31,7 @@ jobs:
     name: CI:Docs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           python-version: '3.9'
@@ -67,7 +67,7 @@ jobs:
 
     steps:
       # setup environment
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ts-graphviz/setup-graphviz@v1
       - name: setup global directories
         shell: bash
@@ -92,7 +92,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # setup environment
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: setup directories
         shell: bash
         run: mkdir -p $PIP_CACHE_DIR
