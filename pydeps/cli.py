@@ -182,8 +182,10 @@ def parse_args(argv=()):
     _args = args.parse_args(argv)
 
     if _args.externals:
-        return Config(externals=True, fname=_args.fname, max_bacon=10,
-                      include_missing=True, no_show=True)
+        return dict(vars(Config(
+            externals=True, fname=_args.fname, max_bacon=10,
+            include_missing=True, no_show=True
+        )))
 
     if _args.no_output:
         _args.no_show = True
