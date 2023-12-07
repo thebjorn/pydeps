@@ -224,8 +224,8 @@ class Config(object):
     reverse = False
 
     #: set the direction of the graph, legal values are TB (default, imported
-    #: modules above importing modules), BT (opposite direction of TB), BT
-    #: (opposite direction of TB), LR (left-to-right) and RL (right-to-left)
+    #: modules above importing modules), BT (opposite direction of TB),
+    #: LR (left-to-right), and RL (right-to-left)
     rankdir = 'TB'
 
     #: draw external dependencies as separate clusters
