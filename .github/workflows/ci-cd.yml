@@ -45,7 +45,7 @@ jobs:
       - run: sphinx-build -W -n -T -b man docs build/sphinx/man
 
       - name: Upload docs as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Docs
           path: build/sphinx/    
@@ -109,7 +109,7 @@ jobs:
       - run: python -m build
 
       - name: Upload packages as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Packages
           path: dist/
