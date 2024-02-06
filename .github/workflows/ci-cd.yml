@@ -68,7 +68,7 @@ jobs:
     steps:
       # setup environment
       - uses: actions/checkout@v4
-      - uses: ts-graphviz/setup-graphviz@v1
+      - uses: ts-graphviz/setup-graphviz@v2
       - name: setup global directories
         shell: bash
         run: mkdir -p $PIP_CACHE_DIR
