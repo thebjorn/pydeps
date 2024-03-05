@@ -153,7 +153,7 @@ def parse_args(argv=()):
     args.add('--deps-output', dest='deps_out', default=None, kind="FNAME:output", help="write output of dependency analysis to 'file'")
     args.add('--show-dot', action='store_true', help="show output of dot conversion")
     args.add('--dot-output', dest='dot_out', default=None, kind="FNAME:output", help="write dot code to 'file'")
-    args.add('--nodot', '--no-dot', action='store_true', help="skip dot conversion")
+    args.add('--nodot', '--no-dot', action='store_true', default=False, dest='no_dot', help="skip dot conversion")
     args.add('--no-output', action='store_true', help="don't create .svg/.png file, implies --no-show (-t/-o will be ignored)")
     args.add('--show-cycles', action='store_true', help="show only import cycles")
     args.add('--debug-mf', default=0, type=int, metavar="INT", help="set the ModuleFinder.debug flag to this value")
