@@ -347,6 +347,9 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
 Version history
 ---------------
 
+**Version 1.12.19** Thanks to wiguwbe_ for a PR that fixes an inconsistency with 
+the ``--no-dot`` flag.
+
 **Version 1.12.13** Better docs for larger packages.
 See maximum_module_depth_ for an example.
 Thanks to sheromon_ for the PR.
@@ -498,3 +501,4 @@ Contributing
 .. _pawamoy: https://github.com/pawamoy
 .. _septatrix: https://github.com/septatrix
 .. _sheromon: https://github.com/sheromon
+.. _wiguwbe: https://github.com/Wiguwbe
