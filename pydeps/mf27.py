@@ -115,8 +115,6 @@ class ModuleFinder(NativeModuleFinder):
             # fp.read(4)   # skip modification timestamp
             # co = marshal.load(fp)  # load marshalled code object.
 
-
-
             # adapted from https://github.com/nedbat/coveragepy/blob/master/lab/show_pyc.py#L21
             # if fp.read(4) != MAGIC_NUMBER:
             #     self.msgout(2, "raise ImportError: Bad magic number", pathname)

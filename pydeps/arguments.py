@@ -6,11 +6,7 @@ import argparse
 # from devtools import debug
 from .configs import Config, typefns, identity
 
-
-
 DEFAULT_NONE = '____'
-
-
 
 
 class Argument(object):
@@ -206,7 +202,7 @@ class Arguments(object):
         args = Namespace(p.parse_args(argv))
 
         config = Config.load(self.config_files)
-        config.update({k : v for k, v in args.items() if v is not None})
+        config.update({k: v for k, v in args.items() if v is not None})
 
         # print('---- yaml ---------------')
         # print(config.write_yaml())

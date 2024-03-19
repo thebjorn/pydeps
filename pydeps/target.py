@@ -21,7 +21,6 @@ class Target(object):
     is_module = False
     is_dir = False
 
-    
     def __init__(self, path):
         # log.debug("CURDIR: %s, path: %s, exists: %s", os.getcwd(), path, os.path.exists(path))
         # print("Target::CURDIR: %s, path: %s, exists: %s" % (os.getcwd(), path, os.path.exists(path)))

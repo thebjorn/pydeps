@@ -25,7 +25,6 @@ except ImportError:
             pass
 
 
-
 def is_string(v):
     return isinstance(v, str)
     
@@ -62,7 +61,6 @@ typefns = {
     'LIST': listval,
     'STR': str,
 }
-
 
 
 def load_toml(filename):
@@ -356,7 +354,7 @@ class Config(object):
     def write_ini(self):
         import configparser
         cfg = configparser.ConfigParser()
-        cfg['pydeps'] = {k : str(v) for k, v in self}
+        cfg['pydeps'] = {k: str(v) for k, v in self}
         with StringIO() as fp:
             cfg.write(fp)
             return fp.getvalue()
@@ -364,7 +362,7 @@ class Config(object):
     def write_toml(self):
         import tomlkit
         return tomlkit.dumps({
-            'tools.pydeps': {k : v for k, v in self if v is not None}
+            'tools.pydeps': {k: v for k, v in self if v is not None}
         })
 
     def write_json(self):

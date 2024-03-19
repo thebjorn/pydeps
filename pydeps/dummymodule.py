@@ -94,9 +94,10 @@ class DummyModule(object):
             # with open(self.fname, 'w') as fp:
             #     self.print_import(fp, target.modpath)
 
-        log.debug("dummy-filename: %r (%s)[module=%s, dir=%s, file=%s]", 
-            self.fname, self.absname, target.is_module, target.is_dir, target.is_pysource)
-
+        log.debug(
+            "dummy-filename: %r (%s)[module=%s, dir=%s, file=%s]", 
+            self.fname, self.absname, target.is_module, target.is_dir, target.is_pysource
+        )
 
     def text(self):
         """Return the content of the dummy module.
