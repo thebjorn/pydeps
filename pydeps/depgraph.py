@@ -372,12 +372,12 @@ class DepGraph(object):
                     self.cyclerelations.add(
                         (cycle[i], cycle[i + 1])
                     )
-                return
+                # return
 
-            for impmod in node.imports:
-                traverse(self.sources[impmod], path + [node.name])
+            for impmod in sorted(node.imports):
+                traverse(self.sources[impmod], list(path + [node.name]))
 
-        for src in list(self.sources.values()):
+        for src in sorted(self.sources.values(), key=lambda x: x.name.lower()):
             traverse(src, [])
 
     def connect_generations(self):

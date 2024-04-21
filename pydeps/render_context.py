@@ -147,9 +147,11 @@ class RenderBuffer(object):
                  min_cluster_size=0,
                  max_cluster_size=1,
                  keep_target_cluster=False,
-                 collapse_target_cluster=False, **kw):
+                 collapse_target_cluster=False, 
+                 remove_islands=False, **kw):
         self.target = target
         self.nodes = []
+        self.rule_nodes = set()
         self.clusters = defaultdict(list)
         self.rules = {}
         self.reverse = reverse
@@ -162,6 +164,7 @@ class RenderBuffer(object):
         self.graph_attrs = {}
         self.keep_target_cluster = keep_target_cluster
         self.collapse_target_cluster = collapse_target_cluster
+        self.remove_islands = remove_islands
 
     def _nodecolor(self, n):
         for node, attrs in self.nodes:
@@ -254,11 +257,11 @@ class RenderBuffer(object):
                 ctx.writeln('}')
 
             # non-clustered nodes
-            for n, attrs in self.nodes:
+            for n, attrs in sorted(self.nodes, key=lambda x: x[0].lower()):
                 ctx.write_node(n, **attrs)
 
             intercluster = set()
-            for (a, b), attrs in sorted(self.rules.items()):
+            for (a, b), attrs in sorted(self.rules.items(), key=lambda x: (x[0][0].lower(), x[0][1].lower())):  # sort by node name
                 if a == b:
                     continue
                 cida = self._clusterid(a)
@@ -308,6 +311,8 @@ class RenderBuffer(object):
         return n.split('.')[0]
 
     def write_node(self, n, **attrs):
+        if self.remove_islands and n not in self.rule_nodes:
+            return
         clusterid = self._clusterid(n)
         if self.cluster:
             self.clusters[clusterid].append((n, attrs))
@@ -315,6 +320,8 @@ class RenderBuffer(object):
             self.nodes.append((n, attrs))
 
     def write_rule(self, a, b, **attrs):
+        self.rule_nodes.add(a)
+        self.rule_nodes.add(b)
         self.rules[(a, b)] = attrs
 
     def _target_clusterid(self):

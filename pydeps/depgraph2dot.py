@@ -89,8 +89,9 @@ class CycleGraphDot(object):
         with ctx.graph(concentrate=False):
             visited = set()
             drawn = set()
+            relations = set()
 
-            for aname, bname in depgraph.cyclerelations:
+            for aname, bname in sorted(depgraph.cyclerelations):
                 try:
                     a = depgraph.sources[aname]
                     b = depgraph.sources[bname]
@@ -99,14 +100,19 @@ class CycleGraphDot(object):
                 drawn.add((bname, aname))
                 ctx.write_rule(
                     bname, aname,
-                    weight=depgraph.proximity_metric(a, b),
-                    minlen=depgraph.dissimilarity_metric(a, b),
+                    # weight=depgraph.proximity_metric(a, b),
+                    # minlen=depgraph.dissimilarity_metric(a, b),
                 )
+                relations.add(aname)
+                relations.add(bname)
                 visited.add(a)
                 visited.add(b)
 
             space = colors.ColorSpace(visited)
-            for src in visited:
+            for src in sorted(visited, key=lambda x: x.name.lower()):
+                # if src.name not in relations:
+                #     print('skipping', src.name)
+                #     continue
                 bg, fg = depgraph.get_colors(src, space)
                 kwargs = {}
 
@@ -131,5 +137,5 @@ def dep2dot(target, depgraph, **kw):
 
 def cycles2dot(target, depgraph, **kw):
     dotter = CycleGraphDot(**kw)
-    ctx = RenderBuffer(target, **kw)
+    ctx = RenderBuffer(target, remove_islands=False, **kw)
     return dotter.render(depgraph, ctx)
