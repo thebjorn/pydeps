@@ -57,49 +57,49 @@ Usage
                   [--rmprefix PREFIX [PREFIX ...]] [--start-color INT]
                   fname
 
-positional arguments:
-  fname                 filename
+    positional arguments:
+      fname                 filename
 
-optional arguments:
-  -h, --help                             show this help message and exit
-  --debug                                turn on all the show and verbose options (mainly for debugging pydeps itself)
-  --config FILE                          specify config file
-  --no-config                            disable processing of config files
-  --version                              print pydeps version
-  -L LOG, --log LOG                      set log-level to one of CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET.
-  --find-package                         tries to automatically find the name of the current package.
-  -v, --verbose                          be more verbose (-vv, -vvv for more verbosity)
-  -o file                                write output to 'file'
-  -T FORMAT                              output format (svg|png)
-  --display PROGRAM                      program to use to display the graph (png or svg file depending on the T parameter)
-  --noshow, --no-show                    don't call external program to display graph
-  --show-deps                            show output of dependency analysis
-  --show-raw-deps                        show output of dependency analysis before removing skips
-  --deps-output                          write output of dependency analysis to file (instead of screen)
-  --show-dot                             show output of dot conversion
-  --dot-output                           write dot code to file (instead of screen)
-  --nodot, --no-dot                      skip dot conversion
-  --no-output                            don't create .svg/.png file, implies --no-show (-t/-o will be ignored)
-  --show-cycles                          show only import cycles
-  --debug-mf INT                         set the ModuleFinder.debug flag to this value
-  --noise-level INT                      exclude sources or sinks with degree greater than noise-level
-  --max-bacon INT                        exclude nodes that are more than n hops away (default=2, 0 -> infinite)
-  --max-module-depth INT                 coalesce deep modules to at most n levels
-  --pylib                                include python std lib modules
-  --pylib-all                            include python all std lib modules (incl. C modules)
-  --include-missing                      include modules that are not installed (or can't be found on sys.path)
-  --only MODULE_PATH                     only include modules that start with MODULE_PATH, multiple paths can be provided
-  --externals                            create list of direct external dependencies
-  --reverse                              draw arrows to (instead of from) imported modules
-  --rankdir                              set the direction of the graph, legal values are TB (default, imported modules above importing modules), BT (opposite direction of TB), LR (left-to-right), and RL (right-to-left)
-  --cluster                              draw external dependencies as separate clusters
-  --min-cluster-size INT                 the minimum number of nodes a dependency must have before being clustered (default=0)
-  --max-cluster-size INT                 the maximum number of nodes a dependency can have before the cluster is collapsed to a single node (default=0)
-  --keep-target-cluster                  draw target module as a cluster
-  --collapse-target-cluster              collapse target module (this implies --cluster)
-  --rmprefix PREFIX                      remove PREFIX from the displayed name of the nodes (multiple prefixes can be provided)
-  -x PATTERN, --exclude PATTERN          input files to skip (e.g. `foo.*`), multiple patterns can be provided
-  --exclude-exact MODULE                 (shorthand -xx MODULE) same as --exclude, except requires the full match. `-xx foo.bar` will exclude foo.bar, but not foo.bar.blob
+    optional arguments:
+      -h, --help                             show this help message and exit
+      --debug                                turn on all the show and verbose options (mainly for debugging pydeps itself)
+      --config FILE                          specify config file
+      --no-config                            disable processing of config files
+      --version                              print pydeps version
+      -L LOG, --log LOG                      set log-level to one of CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET.
+      --find-package                         tries to automatically find the name of the current package.
+      -v, --verbose                          be more verbose (-vv, -vvv for more verbosity)
+      -o file                                write output to 'file'
+      -T FORMAT                              output format (svg|png)
+      --display PROGRAM                      program to use to display the graph (png or svg file depending on the T parameter)
+      --noshow, --no-show                    don't call external program to display graph
+      --show-deps                            show output of dependency analysis
+      --show-raw-deps                        show output of dependency analysis before removing skips
+      --deps-output                          write output of dependency analysis to file (instead of screen)
+      --show-dot                             show output of dot conversion
+      --dot-output                           write dot code to file (instead of screen)
+      --nodot, --no-dot                      skip dot conversion
+      --no-output                            don't create .svg/.png file, implies --no-show (-t/-o will be ignored)
+      --show-cycles                          show only import cycles
+      --debug-mf INT                         set the ModuleFinder.debug flag to this value
+      --noise-level INT                      exclude sources or sinks with degree greater than noise-level
+      --max-bacon INT                        exclude nodes that are more than n hops away (default=2, 0 -> infinite)
+      --max-module-depth INT                 coalesce deep modules to at most n levels
+      --pylib                                include python std lib modules
+      --pylib-all                            include python all std lib modules (incl. C modules)
+      --include-missing                      include modules that are not installed (or can't be found on sys.path)
+      --only MODULE_PATH                     only include modules that start with MODULE_PATH, multiple paths can be provided
+      --externals                            create list of direct external dependencies
+      --reverse                              draw arrows to (instead of from) imported modules
+      --rankdir                              set the direction of the graph, legal values are TB (default, imported modules above importing modules), BT (opposite direction of TB), LR (left-to-right), and RL (right-to-left)
+      --cluster                              draw external dependencies as separate clusters
+      --min-cluster-size INT                 the minimum number of nodes a dependency must have before being clustered (default=0)
+      --max-cluster-size INT                 the maximum number of nodes a dependency can have before the cluster is collapsed to a single node (default=0)
+      --keep-target-cluster                  draw target module as a cluster
+      --collapse-target-cluster              collapse target module (this implies --cluster)
+      --rmprefix PREFIX                      remove PREFIX from the displayed name of the nodes (multiple prefixes can be provided)
+      -x PATTERN, --exclude PATTERN          input files to skip (e.g. `foo.*`), multiple patterns can be provided
+      --exclude-exact MODULE                 (shorthand -xx MODULE) same as --exclude, except requires the full match. `-xx foo.bar` will exclude foo.bar, but not foo.bar.blob
 
 **Note:** if an option with a variable number of arguments (like ``-x``) is provided
 before ``fname``, separate the arguments from the filename with ``--`` otherwise ``fname``
@@ -199,7 +199,7 @@ Import cycles
 -------------
 
 ``pydeps`` can detect and display cycles with the ``--show-cycles``
-parameter.  This will _only_ display the cycles, and for big libraries
+parameter.  This will *only* display the cycles, and for big libraries
 it is not a particularly fast operation.  Given a folder with the
 following contents (this uses yaml to define a directory structure,
 like in the tests)::
@@ -232,7 +232,7 @@ will collapse external modules into folder-shaped objects::
 
 .. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pydeps-18-bacon4-cluster.svg?sanitize=true
 
-To see the internal structure _and_ delineate external modules, use the ``--max-cluster-size`` flag, which controls
+To see the internal structure *and* delineate external modules, use the ``--max-cluster-size`` flag, which controls
 how many nodes can be in a cluster before it is collapsed to a folder icon::
 
     shell> pydeps pydeps --max-bacon=4 --cluster --max-cluster-size=1000
@@ -396,7 +396,7 @@ and testing the issue and to kinow_ for helping with testing).
 **Version 1.9.0** supports Python 3.8.
 
 **Version 1.8.7** includes a new flag ``--rmprefix`` which lets you remove
-prefixes from the node-labels in the graph. The _name_ of the nodes are not effected
+prefixes from the node-labels in the graph. The *name* of the nodes are not effected
 so this does not cause merging of nodes, nor does it change coloring - but it
 can lead to multiple nodes with the same label (hovering over the node will
 give the full name). Thanks to  aroberge_ for the enhancement request.
@@ -426,8 +426,8 @@ creation of the .svg/.png file.
 for the bug report).
 
 **Version 1.7.0** The new ``--reverse`` flag reverses the direction
-of the arrows in the dependency graph, so they point _to_ the imported
-module instead of _from_ the imported module (thanks to goetzk_ for
+of the arrows in the dependency graph, so they point *to* the imported
+module instead of *from* the imported module (thanks to goetzk_ for
 the bug report and tobiasmaier_ for the PR!).
 
 **Version 1.5.0** Python 3 support (thanks to eight04_ for the PR).
