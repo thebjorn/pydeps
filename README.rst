@@ -347,6 +347,8 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
 Version history
 ---------------
 
+**Version 2.0.0** Python 3.8+ only. Thanks to timhoffm_ for the PR.
+
 **Version 1.12.19** Thanks to wiguwbe_ for a PR that fixes an inconsistency with 
 the ``--no-dot`` flag.
 
@@ -502,3 +504,4 @@ Contributing
 .. _septatrix: https://github.com/septatrix
 .. _sheromon: https://github.com/sheromon
 .. _wiguwbe: https://github.com/Wiguwbe
+.. _timhoffm: https://github.com/timhoffm

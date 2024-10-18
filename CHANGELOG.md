@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.0.0
+
+Python 3.8+ only.
+
 ## v1.10.12
 
 Fix bug where sys.real_prefix had disappeared
