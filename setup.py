@@ -36,8 +36,8 @@ setuptools.setup(
     name='pydeps',
     version=version,
     packages=setuptools.find_packages(exclude=['tests*']),
+    python_requires=">=3.6",
     install_requires=[
-        'enum34; python_version < "3.4"',
         'stdlib_list',
     ],
     long_description=io.open('README.rst', encoding='utf8').read(),
