@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-from collections import defaultdict
+from collections import defaultdict, deque
 import fnmatch
 from .pycompat import zip_longest
 import json
@@ -163,6 +163,106 @@ class Source(object):
         return self.get_label(splitlength=14)
 
 
+class GraphNode:
+    def __init__(self, src, index=None):
+        self.src = src
+        self.index = index
+        # self.inlinks = []
+        # self.outlinks = []
+
+    def __str__(self):
+        return self.src.name
+    
+    def __repr__(self):
+        return self.src.name
+
+    def __hash__(self):
+        return hash(self.src.name)
+
+    def __eq__(self, other):
+        return self.src.name == other.src.name
+
+    def __json__(self):
+        return self.src.name
+
+
+class GraphNodeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if hasattr(obj, '__json__'):
+            return obj.__json__()
+        if isinstance(obj, GraphNode):
+            return obj.name
+        return super().default(obj)
+
+
+class Graph:
+    def __init__(self, vertices: list[GraphNode], edges: list[tuple[GraphNode, GraphNode]]):
+        self.V = vertices
+        for i, v in enumerate(vertices):
+            v.index = i
+        self.edges = edges
+        self.neighbours = defaultdict(list)
+        for u, v in edges:
+            self.neighbours[u].append(v)
+
+    def __json__(self):
+        return {
+            "edges": [(u, v) for u, v in self.edges],
+            "neighbours": {u.__json__(): [v.__json__() for v in self.neighbours[u]] for u in self.V}
+        }
+    
+    def __str__(self):
+        return json.dumps(self, indent=4, cls=GraphNodeEncoder)
+
+    def transpose(self):
+        return Graph(self.V, [(v, u) for u, v in self.edges])
+
+    def dfs(self, v, visited, stack):
+        visited[v.index] = True
+        for neighbour in self.neighbours[v]:
+            if not visited[neighbour.index]:
+                self.dfs(neighbour, visited, stack)
+        stack.append(v)
+ 
+    
+    def fill_order(self):
+        def _fill_order(visited, stack):
+            for i, node in enumerate(self.V):
+                if not visited[i]:
+                    self.dfs(node, visited, stack)
+        visited = [False] * len(self.V)
+        stack = deque()
+        _fill_order(visited, stack)
+        return stack
+
+    def dfs_util(self, v, visited):
+        component = []
+
+        def _dfs_util(v, visited):
+            visited[v.index] = True
+            component.append(v)
+            for neighbour in self.neighbours[v]:
+                if not visited[neighbour.index]:
+                    _dfs_util(neighbour, visited)
+
+        _dfs_util(v, visited)
+        return set(component)
+
+    def kosaraju(self):
+        stack = self.fill_order()
+        transposed_graph = self.transpose()
+        
+        visited = [False] * len(self.V)
+        scc_list = []
+        
+        while stack:
+            node = stack.pop()  # popleft?
+            if not visited[node.index]:
+                component = transposed_graph.dfs_util(node, visited)
+                scc_list.append(component)
+        return sorted(scc_list, key=lambda x: len(x), reverse=True)
+
+
 class DepGraph(object):
     """The dependency graph.
 
@@ -179,9 +279,11 @@ class DepGraph(object):
 
         self.curhue = 150  # start with a green-ish color
         self.colors = {}
+
         self.cycles = []
         self.cyclenodes = set()
         self.cyclerelations = set()
+        
         self.max_module_depth = args.get('max_module_depth', 0)
         self.target = target
 
@@ -216,8 +318,8 @@ class DepGraph(object):
         cli.verbose(1, "there are", self.module_count, "total modules")
 
         self.connect_generations()
-        if self.args['show_cycles']:
-            self.find_import_cycles()
+        # if self.args['show_cycles']:
+        #     self.find_import_cycles()
         self.calculate_bacon()
         if self.args['show_raw_deps']:
             print(self)
@@ -236,6 +338,9 @@ class DepGraph(object):
 
         self.remove_excluded()
 
+        # if self.args['show_cycles']:
+        self.find_import_cycles()
+        
         if not self.args['show_deps']:
             cli.verbose(3, self)
 
@@ -358,27 +463,27 @@ class DepGraph(object):
                           default=lambda obj: obj.__json__() if hasattr(obj, '__json__') else obj)
 
     def find_import_cycles(self):
-        def traverse(node, path):
-            if node.name in self.cyclenodes:
-                return
+        """Divide the graph into strongly connected components using kosaraju's algorithm.
+        """
 
-            if node.name in path:
-                # found cycle
-                cycle = path[path.index(node.name):] + [node.name]
-                self.cycles.append(cycle)
-                for nodename in cycle:
-                    self.cyclenodes.add(nodename)
-                for i in range(len(cycle) - 1):
-                    self.cyclerelations.add(
-                        (cycle[i], cycle[i + 1])
-                    )
-                # return
+        vertices = {src.name: GraphNode(src) for src in sorted(
+            self.sources.values(), key=lambda x: x.name.lower()
+        )}
+        edges = []
+        for u in vertices.values():
+            for v in u.src.imported_by:
+                tmp = self.sources[v]
+                edges.append((u, vertices[tmp.name]))
+        graph = Graph(vertices.values(), edges)
 
-            for impmod in sorted(node.imports):
-                traverse(self.sources[impmod], list(path + [node.name]))
-
-        for src in sorted(self.sources.values(), key=lambda x: x.name.lower()):
-            traverse(src, [])
+        scc = [c for c in graph.kosaraju() if len(c) > 1]
+        self.cycles = [[n.src for n in c] for c in scc]
+        for c in scc:
+            for node in c:
+                self.cyclenodes.add(node.src.name)
+            # c = list(c)
+            # for i in range(len(c) - 1):
+            #     self.cyclerelations.add((c[i].src.name, c[i + 1].src.name))
 
     def connect_generations(self):
         """Traverse depth-first adding imported_by.

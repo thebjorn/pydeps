@@ -64,69 +64,75 @@ class PyDepGraphDot(object):
             space = colors.ColorSpace(visited)
             for src in sorted(visited):
                 bg, fg = depgraph.get_colors(src, space)
-                kwargs = {}
+                fillcolor = colors.rgb2css(bg)
+                fontcolor = colors.rgb2css(fg)
+                kwargs = {
+                    'fillcolor': fillcolor,
+                    'fontcolor': fontcolor,
+                }
 
                 if src.name in depgraph.cyclenodes:
-                    kwargs['shape'] = 'octagon'
+                    kwargs['shape'] = 'box'
+                    kwargs['fillcolor'] = 'blue'
+                    kwargs['fontcolor'] = 'white'
 
                 ctx.write_node(
                     src.name,
                     label=src.get_label(splitlength=14,
                                         rmprefix=self.kw.get('rmprefix')),
-                    fillcolor=colors.rgb2css(bg),
-                    fontcolor=colors.rgb2css(fg),
                     **kwargs
                 )
 
         return ctx.text()
 
 
-class CycleGraphDot(object):
-    def __init__(self, **kw):
-        self.kw = kw
+# class CycleGraphDot(object):
+#     def __init__(self, **kw):
+#         self.kw = kw
 
-    def render(self, depgraph, ctx):
-        with ctx.graph(concentrate=False):
-            visited = set()
-            drawn = set()
-            relations = set()
+#     def render(self, depgraph, ctx):
+#         with ctx.graph(concentrate=False):
+#             visited = set()
+#             drawn = set()
+#             relations = set()
 
-            for aname, bname in sorted(depgraph.cyclerelations):
-                try:
-                    a = depgraph.sources[aname]
-                    b = depgraph.sources[bname]
-                except KeyError:
-                    continue
-                drawn.add((bname, aname))
-                ctx.write_rule(
-                    bname, aname,
-                    # weight=depgraph.proximity_metric(a, b),
-                    # minlen=depgraph.dissimilarity_metric(a, b),
-                )
-                relations.add(aname)
-                relations.add(bname)
-                visited.add(a)
-                visited.add(b)
+#             for aname, bname in sorted(depgraph.cyclerelations):
+#                 try:
+#                     a = depgraph.sources[aname]
+#                     b = depgraph.sources[bname]
+#                 except KeyError:
+#                     continue
+#                 drawn.add((bname, aname))
+#                 ctx.write_rule(
+#                     bname, aname,
+#                     # weight=depgraph.proximity_metric(a, b),
+#                     # minlen=depgraph.dissimilarity_metric(a, b),
+#                 )
+#                 relations.add(aname)
+#                 relations.add(bname)
+#                 visited.add(a)
+#                 visited.add(b)
 
-            space = colors.ColorSpace(visited)
-            for src in sorted(visited, key=lambda x: x.name.lower()):
-                # if src.name not in relations:
-                #     print('skipping', src.name)
-                #     continue
-                bg, fg = depgraph.get_colors(src, space)
-                kwargs = {}
+#             space = colors.ColorSpace(visited)
+#             for src in sorted(visited, key=lambda x: x.name.lower()):
+#                 if src.name not in relations:
+#                     print('skipping', src.name)
+#                     continue
+#                 bg, fg = depgraph.get_colors(src, space)
+#                 kwargs = {}
 
-                if src.name in depgraph.cyclenodes:
-                    kwargs['shape'] = 'octagon'
+#                 # print("CYCLENODES:", depgraph.cyclenodes)
+#                 if src.name in depgraph.cyclenodes:
+#                     kwargs['shape'] = 'octagon'
 
-                ctx.write_node(
-                    src.name, label=src.label,
-                    fillcolor=colors.rgb2css(bg),
-                    fontcolor=colors.rgb2css(fg),
-                    **kwargs
-                )
+#                 ctx.write_node(
+#                     src.name, label=src.label,
+#                     fillcolor=colors.rgb2css(bg),
+#                     fontcolor=colors.rgb2css(fg),
+#                     **kwargs
+#                 )
 
-        return ctx.text()
+#         return ctx.text()
 
 
 def dep2dot(target, depgraph, **kw):
@@ -135,7 +141,7 @@ def dep2dot(target, depgraph, **kw):
     return dotter.render(depgraph, ctx)
 
 
-def cycles2dot(target, depgraph, **kw):
-    dotter = CycleGraphDot(**kw)
-    ctx = RenderBuffer(target, remove_islands=False, **kw)
-    return dotter.render(depgraph, ctx)
+# def cycles2dot(target, depgraph, **kw):
+#     dotter = CycleGraphDot(**kw)
+#     ctx = RenderBuffer(target, remove_islands=False, **kw)
+#     return dotter.render(depgraph, ctx)

@@ -8,7 +8,7 @@ import sys
 
 from pydeps.configs import Config
 from . import py2depgraph, cli, dot, target
-from .depgraph2dot import dep2dot, cycles2dot
+from .depgraph2dot import dep2dot  # , cycles2dot
 import logging
 from . import colors
 log = logging.getLogger(__name__)
@@ -93,9 +93,10 @@ def _pydeps(trgt, **kw):
 def depgraph_to_dotsrc(target, dep_graph, **kw):
     """Convert the dependency graph (DepGraph class) to dot source code.
     """
-    if kw.get('show_cycles'):
-        dotsrc = cycles2dot(target, dep_graph, **kw)
-    elif not kw.get('no_dot'):
+    # if kw.get('show_cycles'):
+    #     dotsrc = cycles2dot(target, dep_graph, **kw)
+    # el
+    if not kw.get('no_dot'):
         dotsrc = dep2dot(target, dep_graph, **kw)
     else:
         dotsrc = None

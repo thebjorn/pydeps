@@ -192,8 +192,8 @@ def parse_args(argv=()):
     _args.show = not _args.no_show
     if _args.no_dot and _args.show_cycles:
         error("Can't use --no=dot and --show-cycles together")  # pragma: nocover
-    if _args.show_cycles:
-        _args.max_bacon = 0
+    # if _args.show_cycles:
+    #     _args.max_bacon = 0
     if _args.no_dot:
         _args.show_dot = False
     if _args.max_bacon == 0:
