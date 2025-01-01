@@ -184,7 +184,8 @@ class GraphNode:
 
 
 class Graph:
-    def __init__(self, vertices: list[GraphNode], edges: list[tuple[GraphNode, GraphNode]]):
+    # def __init__(self, vertices: list[GraphNode], edges: list[tuple[GraphNode, GraphNode]]):
+    def __init__(self, vertices: list, edges: list):
         self.V = vertices
         for i, v in enumerate(vertices):
             v.index = i
