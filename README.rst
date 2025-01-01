@@ -47,7 +47,7 @@ Usage
                   [--find-package] [-v] [-o file] [-T FORMAT] [--display PROGRAM]
                   [--noshow] [--show-deps] [--show-raw-deps] [--deps-output DEPS_OUT]
                   [--show-dot] [--dot-output DOT_OUT] [--nodot] [--no-output]
-                  [--show-cycles] [--debug-mf INT] [--noise-level INT]
+                  [--debug-mf INT] [--noise-level INT]
                   [--max-bacon INT] [--max-module-depth INT] [--pylib] [--pylib-all]
                   [--include-missing] [-x PATTERN [PATTERN ...]]
                   [-xx MODULE [MODULE ...]] [--only MODULE_PATH [MODULE_PATH ...]]
@@ -80,7 +80,7 @@ Usage
       --dot-output                           write dot code to file (instead of screen)
       --nodot, --no-dot                      skip dot conversion
       --no-output                            don't create .svg/.png file, implies --no-show (-t/-o will be ignored)
-      --show-cycles                          show only import cycles
+      --show-cycles                          [deprecated] show only import cycles
       --debug-mf INT                         set the ModuleFinder.debug flag to this value
       --noise-level INT                      exclude sources or sinks with degree greater than noise-level
       --max-bacon INT                        exclude nodes that are more than n hops away (default=2, 0 -> infinite)
@@ -104,6 +104,9 @@ Usage
 **Note:** if an option with a variable number of arguments (like ``-x``) is provided
 before ``fname``, separate the arguments from the filename with ``--`` otherwise ``fname``
 will be parsed as an argument of the option. Example: ``$ pydeps -x os sys -- pydeps``.
+
+**Note:** the ``--show-cycles`` option is deprecated and will be removed in a future release,
+cycles are now always shown.
 
 You can of course also import ``pydeps`` from Python and use it as a library, look in
 ``tests/test_relative_imports.py`` for examples.
@@ -198,20 +201,16 @@ filter:
 Import cycles
 -------------
 
-``pydeps`` can detect and display cycles with the ``--show-cycles``
-parameter.  This will *only* display the cycles, and for big libraries
-it is not a particularly fast operation.  Given a folder with the
+``pydeps`` detects and displays cycles. Given a folder with the
 following contents (this uses yaml to define a directory structure,
 like in the tests)::
 
-        relimp:
-            - __init__.py
-            - a.py: |
-                from . import b
-            - b.py: |
-                from . import a
+        cycles:
+            __init__.py: ''
+            a.py: from . import b
+            b.py: from . import a
 
-``pydeps relimp --show-cycles`` displays:
+``pydeps cycles`` displays:
 
 .. image:: https://raw.githubusercontent.com/thebjorn/pydeps/master/docs/_static/pydeps-cycle.svg?sanitize=true
 
@@ -346,6 +345,7 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
 
 Version history
 ---------------
+**Version 3.0.0** Python 3.10+ only. Cycles are now always shown.
 
 **Version 2.0.0** Python 3.8+ only. Thanks to timhoffm_ for the PR.
 
