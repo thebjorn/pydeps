@@ -182,18 +182,6 @@ class GraphNode:
     def __eq__(self, other):
         return self.src.name == other.src.name
 
-    def __json__(self):
-        return self.src.name
-
-
-class GraphNodeEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if hasattr(obj, '__json__'):
-            return obj.__json__()
-        if isinstance(obj, GraphNode):
-            return obj.name
-        return super().default(obj)
-
 
 class Graph:
     def __init__(self, vertices: list[GraphNode], edges: list[tuple[GraphNode, GraphNode]]):
@@ -208,11 +196,11 @@ class Graph:
     def __json__(self):
         return {
             "edges": [(u, v) for u, v in self.edges],
-            "neighbours": {u.__json__(): [v.__json__() for v in self.neighbours[u]] for u in self.V}
+            "neighbours": {u.src.name: [v.src.name for v in self.neighbours[u]] for u in self.V}
         }
     
     def __str__(self):
-        return json.dumps(self, indent=4, cls=GraphNodeEncoder)
+        return json.dumps(self, indent=4)
 
     def transpose(self):
         return Graph(self.V, [(v, u) for u, v in self.edges])
