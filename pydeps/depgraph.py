@@ -2,6 +2,7 @@
 from __future__ import print_function
 from collections import defaultdict, deque
 import fnmatch
+import time
 from .pycompat import zip_longest
 import json
 import os
@@ -249,7 +250,8 @@ class Graph:
             if not visited[node.index]:
                 component = transposed_graph.dfs_util(node, visited)
                 scc_list.append(component)
-        return sorted(scc_list, key=lambda x: len(x), reverse=True)
+        res = sorted(scc_list, key=lambda x: len(x), reverse=True)
+        return res
 
 
 class DepGraph(object):
@@ -313,7 +315,7 @@ class DepGraph(object):
         if self.args['show_raw_deps']:
             print(self)
 
-        self.exclude_noise()
+        # self.exclude_noise()
         self.exclude_bacon(self.args['max_bacon'])
         self.only_filter(self.args.get('only'))
 
@@ -450,26 +452,128 @@ class DepGraph(object):
     def __repr__(self):
         return json.dumps(self.sources, indent=4, sort_keys=True,
                           default=lambda obj: obj.__json__() if hasattr(obj, '__json__') else obj)
+    
+    def _validate_cycle(self, cycle):
+        cycle_names = {c.name for c in cycle}
+        cycle = list(cycle)
+        length = len(cycle)
+        connected = [0] * length
+        known_paths = {}
+
+
+        def _path(a, b, path):
+            """There is a path from a to b if a.name in b.imports or there is 
+               a path from a to a node x and a path from x to b"""
+            key = (a.name, b.name)
+            if key in known_paths:
+                return known_paths[key]
+            if a.name in path:
+                return False
+            path.append(a.name)
+            if a.name in b.imports:
+                path.append(b.name)
+                known_paths[key] = path
+                return True
+            for imp in a.imported_by:
+                if _path(self.sources[imp], b, path):
+                    # known_paths[key] = path
+                    return True
+            # known_paths[key] = False
+            return False
+
+
+
+        # print("CYCLE:", cycle, type(cycle), len(cycle))
+        for i in range(length):
+            a = cycle[i]
+            for j in range(i + 1, length):
+                b = cycle[j]
+                if a.name == b.name:
+                    continue
+                if a.name in b.imports and b.name in a.imports:
+                    self.cyclerelations.add((a.name, b.name))
+                    self.cyclerelations.add((b.name, a.name))
+                ab = []
+                ba = []
+                if _path(a, b, ab) and _path(b, a, ba):
+                    connected[i] += 1
+                    connected[j] += 1
+                    # print("PATH:", a.name, b.name, ab, ba)
+                    # self.cyclerelations.add((a.name, b.name))
+                    # self.cyclerelations.add((b.name, a.name))
+
+        print("CYCLE:", [c.name for c in cycle])
+        print("CONNECTED:", connected)
+
+        known_paths = {k: v for k, v in known_paths.items() if k[0] in cycle_names and k[1] in cycle_names}
+        for k, v in known_paths.items():
+            print(f"KNOWN:PATHS: {k[0]} -> {k[1]} = {v}")
+            key = (k[1], k[0])
+            if key in known_paths:
+                print(f".back:PATHS: {k[1]} -> {k[0]} = {known_paths[key]}")
+            
+            a, b = k
+            # any return paths to a?
+            return_paths = {tmpkey: val for tmpkey, val in known_paths.items() if tmpkey[1] == a}
+            if not return_paths:
+                cycle.remove(a)
+                self.cyclerelations.remove((a.name, b.name))
+                self.cyclerelations.remove((b.name, a.name))
+            print(f"RETURN PATHS: {a} -> {return_paths}")
+
+        # print("CYCLE:", cycle, type(cycle), len(cycle))
+        # for i in range(length):
+        #     a = cycle[i]
+        #     for j in range(i + 1, length):
+        #         b = cycle[j]
+        #         if a.name == b.name:
+        #             continue
+        #         print("A:", a.name, a.imports)
+        #         print("B:", b.name, b.imports)
+        #         if a.name in b.imports and b.name in a.imports:
+        #             self.cyclerelations.add((a.name, b.name))
+        #             self.cyclerelations.add((b.name, a.name))
+
+        #         # if cycle[i].src.name == cycle[j].src.name:
+        #         #     print("CYCLE:", cycle, type(cycle), len(cycle))
+        #         #     print("CYCLE:", cycle[i], cycle[j])
+
+        # for node in cycle:
+        #     print("NODE:", node, type(node), node)
+        #     print("NODE:in:", node.imports)
+        #     print("NODE:out:", node.imported_by)
+        #     print()
+        #     # if node.src.name in self.sources:
+        #         # print("NODE:in:", node.src.imports)
+        #         # print("NODE:out:", node.src.imported_by)
 
     def find_import_cycles(self):
         """Divide the graph into strongly connected components using kosaraju's algorithm.
         """
-
+        start = time.time()
         vertices = {src.name: GraphNode(src) for src in sorted(
             self.sources.values(), key=lambda x: x.name.lower()
         )}
         edges = []
         for u in vertices.values():
-            for v in u.src.imported_by:
+            # for v in u.src.imported_by:
+            for v in u.src.imports:
                 tmp = self.sources[v]
                 edges.append((u, vertices[tmp.name]))
         graph = Graph(vertices.values(), edges)
 
         scc = [c for c in graph.kosaraju() if len(c) > 1]
         self.cycles = [[n.src for n in c] for c in scc]
-        for c in scc:
+        # self.cycles = [[n.src for n in c] for c in scc[:1]]
+        end = time.time()
+        print("CYCLES:", end - start)
+        for c in self.cycles:
+            print('-----------------------------------------------------')
+            # print("CYCLES:", c)
+            # print(self._validate_cycle(c))
             for node in c:
-                self.cyclenodes.add(node.src.name)
+                # self.cyclenodes.add(node.src.name)
+                self.cyclenodes.add(node.name)
             # c = list(c)
             # for i in range(len(c) - 1):
             #     self.cyclerelations.add((c[i].src.name, c[i + 1].src.name))
