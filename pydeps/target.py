@@ -21,13 +21,23 @@ class Target(object):
     is_module = False
     is_dir = False
 
-    def __init__(self, path):
+    def __init__(self, path, **kwargs):
+        """Initialise target
+
+        Args:
+            path: module path
+
+        Keyword Args:
+            use_calling_fname (bool): flag to use the `calling_fname` instead of `fname` in `self.get_src_fname`
+        """
+
         # log.debug("CURDIR: %s, path: %s, exists: %s", os.getcwd(), path, os.path.exists(path))
         # print("Target::CURDIR: %s, path: %s, exists: %s" % (os.getcwd(), path, os.path.exists(path)))
 
         self.calling_fname = path
         self.calling_dir = os.getcwd()
         self.exists = os.path.exists(path)
+        self.use_calling_fname = kwargs.get('use_calling_fname', False)
 
         if self.exists:
             self.path = os.path.realpath(path)
@@ -64,6 +74,12 @@ class Target(object):
             self.syspath_dir,
             self._path_parts(self.relpath)[0]
         )
+
+    def get_src_fname(self):
+        """Return the source file name to use."""
+        log.debug("[get_src_fname] use_calling_name: %s", self.use_calling_fname)
+
+        return self.calling_fname if self.use_calling_fname else self.fname
 
     @contextmanager
     def chdir_work(self):

@@ -16,7 +16,7 @@ def is_module(directory):
 
 
 def is_pysource(fname):
-    """A file name is a python source file iff it ends with '.py(w?)' and 
+    """A file name is a python source file iff it ends with '.py(w?)' and
        doesn't start with a dot.
     """
     return not fname.startswith('.') and fname.endswith(('.py', '.pyw'))
@@ -86,16 +86,16 @@ class DummyModule(object):
             assert target.is_pysource
             cli.verbose(1, "target is a FILE")
             # if working on a single file, we don't need to create a dummy
-            # module, this also avoids problems with file names that are 
+            # module, this also avoids problems with file names that are
             # not importable (e.g. `foo.bar.py)
             # self.fname = target.calling_fname
-            self.fname = target.fname
+            self.fname = target.get_src_fname()
             self.absname = target.package_root
             # with open(self.fname, 'w') as fp:
             #     self.print_import(fp, target.modpath)
 
         log.debug(
-            "dummy-filename: %r (%s)[module=%s, dir=%s, file=%s]", 
+            "dummy-filename: %r (%s)[module=%s, dir=%s, file=%s]",
             self.fname, self.absname, target.is_module, target.is_dir, target.is_pysource
         )
 
