@@ -345,6 +345,8 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
 
 Version history
 ---------------
+**Version 3.0.1** Thanks to oldskoolfan_ for #233 that improves the internal API.
+
 **Version 3.0.0** Python 3.10+ only. Cycles are now always shown.
 
 **Version 2.0.0** Python 3.8+ only. Thanks to timhoffm_ for the PR.
@@ -505,3 +507,4 @@ Contributing
 .. _sheromon: https://github.com/sheromon
 .. _wiguwbe: https://github.com/Wiguwbe
 .. _timhoffm: https://github.com/timhoffm
+.. _oldskoolfan: https://github.com/oldskoolfan
