@@ -280,6 +280,8 @@ class DepGraph(object):
 
         #: dict[module_name] -> Source object
         self.sources = {}
+        self._accepted = set()  # cache dla modułów, które nie zostały wykluczone
+        self._rejected = set()  # cache dla modułów, które zostały wykluczone
         self.skiplist = [re.compile(fnmatch.translate(arg)) for arg in args['exclude']]
         self.skiplist += [re.compile('^%s$' % fnmatch.translate(arg)) for arg in args['exclude_exact']]
         # depgraf = {name: imports for (name, imports) in depgraf.items()}
@@ -412,7 +414,22 @@ class DepGraph(object):
         return 4 if res > 4 else res
 
     def _exclude(self, name):
-        return any(skip.match(name) for skip in self.skiplist)
+        # Sprawdzenie cache'a
+        if name in self._accepted:
+            return False
+        if name in self._rejected:
+            return True
+        
+        # Uruchomienie obecnej logiki
+        is_excluded = any(skip.match(name) for skip in self._skiplist)
+        
+        # Dodanie do odpowiedniego zbioru
+        if is_excluded:
+            self._rejected.add(name)
+        else:
+            self._accepted.add(name)
+        
+        return is_excluded
 
     def add_source(self, src):
         if src.name in self.sources:
@@ -548,3 +565,5 @@ class DepGraph(object):
     def _add_skip(self, name):
         # print 'add skip:', name
         self.skiplist.append(re.compile(fnmatch.translate(name)))
+        self._accepted.clear()
+        self._rejected.clear()
