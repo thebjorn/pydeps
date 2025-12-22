@@ -421,7 +421,7 @@ class DepGraph(object):
             return True
         
         # Uruchomienie obecnej logiki
-        is_excluded = any(skip.match(name) for skip in self._skiplist)
+        is_excluded = any(skip.match(name) for skip in self.skiplist)
         
         # Dodanie do odpowiedniego zbioru
         if is_excluded:
