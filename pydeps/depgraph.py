@@ -280,8 +280,8 @@ class DepGraph(object):
 
         #: dict[module_name] -> Source object
         self.sources = {}
-        self._accepted = set()  # cache dla modułów, które nie zostały wykluczone
-        self._rejected = set()  # cache dla modułów, które zostały wykluczone
+        self._accepted = set()
+        self._rejected = set()
         self.skiplist = [re.compile(fnmatch.translate(arg)) for arg in args['exclude']]
         self.skiplist += [re.compile('^%s$' % fnmatch.translate(arg)) for arg in args['exclude_exact']]
         # depgraf = {name: imports for (name, imports) in depgraf.items()}
