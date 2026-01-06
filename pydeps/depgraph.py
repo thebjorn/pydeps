@@ -414,16 +414,16 @@ class DepGraph(object):
         return 4 if res > 4 else res
 
     def _exclude(self, name):
-        # Sprawdzenie cache'a
+        # Check if in cache
         if name in self._accepted:
             return False
         if name in self._rejected:
             return True
         
-        # Uruchomienie obecnej logiki
+        # calculate if match against any pattern - expensive steep
         is_excluded = any(skip.match(name) for skip in self.skiplist)
         
-        # Dodanie do odpowiedniego zbioru
+        # add to cache
         if is_excluded:
             self._rejected.add(name)
         else:
