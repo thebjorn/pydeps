@@ -90,7 +90,7 @@ class Excluder(object):
         if name in self._excluded:
             return True
         for regexp in self._regexps:
-            if regexp.search(name) is not None:
+            if regexp.match(name) is not None:
                 self._excluded.add(name)
                 return True
         return False
