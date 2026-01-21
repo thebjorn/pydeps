@@ -171,8 +171,6 @@ class MyModuleFinder(mf27.ModuleFinder):
         self._add_import(module)
         return module
 
-    # def _safe_import_hook(self, name, m, fromlist, level=level):
-    #     super()._safe_import_hook(name, m, fromlist, level=level)
 
     def load_module(self, fqname, fp, pathname, suffix_mode_kind):
         # log.debug("load_module(%r, %r, %r, %r)", fqname, fp, pathname, suffix_mode_kind)
