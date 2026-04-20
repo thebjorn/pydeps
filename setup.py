@@ -36,7 +36,7 @@ setuptools.setup(
     name='pydeps',
     version=version,
     packages=setuptools.find_packages(exclude=['tests*']),
-    python_requires=">=3.8",
+    python_requires=">=3.10",
     install_requires=[
         'stdlib_list',
     ],
