@@ -345,6 +345,8 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
 
 Version history
 ---------------
+**Version 3.0.2** update setup.py to inform users of the Python 3.10+ requirement (patch by pjonsson_).
+
 **Version 3.0.1** Thanks to oldskoolfan_ for #233 that improves the internal API.
 
 **Version 3.0.0** Python 3.10+ only. Cycles are now always shown.
@@ -508,3 +510,4 @@ Contributing
 .. _wiguwbe: https://github.com/Wiguwbe
 .. _timhoffm: https://github.com/timhoffm
 .. _oldskoolfan: https://github.com/oldskoolfan
+.. _pjonsson: https://github.com/pjonsson
