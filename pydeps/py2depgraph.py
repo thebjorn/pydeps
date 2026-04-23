@@ -23,7 +23,9 @@ from __future__ import print_function
 
 import json
 import os
+import re
 import sys
+import fnmatch
 from collections import defaultdict
 
 import enum
@@ -78,10 +80,27 @@ class Module(object):
         )
 
 
+class Excluder(object):
+    def __init__(self, excludes):
+        self.excludes = excludes
+        self._excluded = set()
+        self._regexps = [re.compile(fnmatch.translate(excl)) for excl in excludes]
+
+    def __call__(self, name):
+        if name in self._excluded:
+            return True
+        for regexp in self._regexps:
+            if regexp.match(name) is not None:
+                self._excluded.add(name)
+                return True
+        return False
+
+
 class MyModuleFinder(mf27.ModuleFinder):
     def __init__(self, syspath, *args, **kwargs):
         self.args = kwargs
         self.verbose = kwargs.get('verbose', 0)
+        self.excluder = Excluder(kwargs.get('excludes', []))
 
         # include all of python std lib (incl. C modules)
         self.include_pylib_all = kwargs.pop('pylib_all', False)
@@ -107,7 +126,7 @@ class MyModuleFinder(mf27.ModuleFinder):
             return self.modules[fqname]
         self.modules[fqname] = m = Module(fqname)
         return m
-    
+
     def run_script(self, pathname):
         # overridden so we can work directly with .pyc files
         # (the stdlig version hardcodes PY_SOURCE below)
@@ -115,8 +134,8 @@ class MyModuleFinder(mf27.ModuleFinder):
         self.msg(2, "run_script", pathname)
         with open(pathname, 'rb') as fp:
             stuff = (
-                "", 
-                "rb", 
+                "",
+                "rb",
                 imp.PY_COMPILED if pathname.endswith(".pyc") or pathname.endswith(".pyo") else imp.PY_SOURCE
             )
             self.load_module('__main__', fp, pathname, stuff)
@@ -152,12 +171,15 @@ class MyModuleFinder(mf27.ModuleFinder):
         self._add_import(module)
         return module
 
+
     def load_module(self, fqname, fp, pathname, suffix_mode_kind):
         # log.debug("load_module(%r, %r, %r, %r)", fqname, fp, pathname, suffix_mode_kind)
+        if self.excluder(fqname):
+            raise ImportError("Module %s is excluded" % fqname)
         (suffix, mode, kind) = suffix_mode_kind
         try:
             module = mf27.ModuleFinder.load_module(
-                self, 
+                self,
                 fqname, fp, pathname, (suffix, mode, kind)
             )
         except SyntaxError:
