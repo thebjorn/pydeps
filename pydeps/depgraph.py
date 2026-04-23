@@ -44,7 +44,6 @@ class Source(object):
     def __init__(self, name, path=None, imports=(), exclude=False, args=None):
         self.args = args or {}
         self.name = name
-        # self.kind = kind
         self.path = path             # needed here..?
         self.imports = set(imports)  # modules we import
         self.imported_by = set()     # modules that import us
@@ -80,13 +79,23 @@ class Source(object):
     def degree(self):
         return self.in_degree + self.out_degree
 
-    def is_noise(self):
-        """Is this module just noise?  (too common either at top or bottom of
-           the graph).
+    def is_noise(self) -> bool:
         """
+        Is this module just noise?  (too common either at top or bottom of the graph).
+        """
+
+        # This is needed to avoid showing a package node
+        # when there is a module mode associated to the package i.e.
+        #
+        # mypkg        will appear, this has no dependents
+        # mypkg.module should appear alone
+        if len(self.imports) == 0 and '.' not in self.name:
+            return True
+
         noise = self.args['noise_level']
         if not (self.in_degree and self.out_degree):
             return self.degree > noise
+
         return False
 
     def __json__(self):
@@ -172,7 +181,7 @@ class GraphNode:
 
     def __str__(self):
         return self.src.name
-    
+
     def __repr__(self):
         return self.src.name
 
@@ -184,11 +193,11 @@ class GraphNode:
 
 
 class Graph:
-    # def __init__(self, vertices: list[GraphNode], edges: list[tuple[GraphNode, GraphNode]]):
     def __init__(self, vertices: list, edges: list):
-        self.V = vertices
+        self.V     = vertices
         for i, v in enumerate(vertices):
             v.index = i
+
         self.edges = edges
         self.neighbours = defaultdict(list)
         for u, v in edges:
@@ -199,7 +208,7 @@ class Graph:
             "edges": [(u, v) for u, v in self.edges],
             "neighbours": {u.src.name: [v.src.name for v in self.neighbours[u]] for u in self.V}
         }
-    
+
     def __str__(self):
         return json.dumps(self, indent=4)
 
@@ -212,8 +221,7 @@ class Graph:
             if not visited[neighbour.index]:
                 self.dfs(neighbour, visited, stack)
         stack.append(v)
- 
-    
+
     def fill_order(self):
         def _fill_order(visited, stack):
             for i, node in enumerate(self.V):
@@ -240,10 +248,10 @@ class Graph:
     def kosaraju(self):
         stack = self.fill_order()
         transposed_graph = self.transpose()
-        
+
         visited = [False] * len(self.V)
         scc_list = []
-        
+
         while stack:
             node = stack.pop()  # popleft?
             if not visited[node.index]:
@@ -272,7 +280,7 @@ class DepGraph(object):
         self.cycles = []
         self.cyclenodes = set()
         self.cyclerelations = set()
-        
+
         self.max_module_depth = args.get('max_module_depth', 0)
         self.target = target
 
@@ -331,7 +339,7 @@ class DepGraph(object):
 
         # if self.args['show_cycles']:
         self.find_import_cycles()
-        
+
         if not self.args['show_deps']:
             cli.verbose(3, self)
 
@@ -340,7 +348,7 @@ class DepGraph(object):
         """
         res = name
         if name == "__main__" and self.target.is_pysource:
-            # use the target file name directly if we're working on a 
+            # use the target file name directly if we're working on a
             # single file
             return self.target.fname
 
@@ -563,7 +571,6 @@ class DepGraph(object):
             src.imported_by = [m for m in src.imported_by if not self._exclude(m)]
 
     def _add_skip(self, name):
-        # print 'add skip:', name
         self.skiplist.append(re.compile(fnmatch.translate(name)))
         self._accepted.clear()
         self._rejected.clear()
