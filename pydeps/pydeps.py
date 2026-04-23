@@ -70,6 +70,11 @@ def _pydeps(trgt, **kw):
                 svg = dot.call_graphviz_dot(dotsrc, fmt)
             except OSError as cause:
                 raise RuntimeError("While rendering {!r}: {}".format(output, cause))
+            if not svg or not svg.strip():
+                raise RuntimeError(
+                    "Graphviz 'dot' produced empty output for {!r}; "
+                    "the dependency graph could not be rendered.".format(output)
+                )
             if fmt == 'svg':
                 svg = svg.replace(b'</title>', b'</title><style>.edge>path:hover{stroke-width:8}</style>')
 
