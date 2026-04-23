@@ -345,6 +345,10 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
 
 Version history
 ---------------
+**Version 3.0.5** Thanks to Czaki_ for #242 which makes ``--exclude`` skip
+modules at import time, speeding up runs and avoiding ``RecursionError`` on
+problematic excluded modules.
+
 **Version 3.0.4** fail more cleanly on invalid input (filenames with dashes).
 
 **Version 3.0.3** update setup.py to inform users of the Python 3.10+ requirement (patch by pjonsson_).
@@ -512,4 +516,5 @@ Contributing
 .. _wiguwbe: https://github.com/Wiguwbe
 .. _timhoffm: https://github.com/timhoffm
 .. _oldskoolfan: https://github.com/oldskoolfan
+.. _Czaki: https://github.com/Czaki
 .. _pjonsson: https://github.com/pjonsson
