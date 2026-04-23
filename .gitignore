@@ -1,4 +1,6 @@
 .md5
+CLAUDE.md
+.claude/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
