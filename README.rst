@@ -347,6 +347,11 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
 
 Version history
 ---------------
+**Version 3.0.7** Discover PEP 420 implicit namespace packages — directories
+without an ``__init__.py`` are now treated as namespace packages, and the
+modules under them appear in the dependency graph. Thanks to gdetrez_ for
+the original bug report in #19.
+
 **Version 3.0.6** Un-deprecate ``--show-cycles`` — the flag now reduces the
 graph to just the nodes that participate in an import cycle and the edges
 between them. Thanks to hartwork_ for the test case and feedback in #197.
@@ -524,4 +529,5 @@ Contributing
 .. _oldskoolfan: https://github.com/oldskoolfan
 .. _Czaki: https://github.com/Czaki
 .. _hartwork: https://github.com/hartwork
+.. _gdetrez: https://github.com/gdetrez
 .. _pjonsson: https://github.com/pjonsson
