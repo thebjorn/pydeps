@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
-from __future__ import print_function
 from collections import defaultdict, deque
 import fnmatch
-from .pycompat import zip_longest
+from itertools import zip_longest
 import json
 import os
 import pprint

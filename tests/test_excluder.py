@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Tests for PR #242: pattern-based import-time module exclusion.
 import pytest
 

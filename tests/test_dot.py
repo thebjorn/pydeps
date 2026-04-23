@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from pydeps.dot import dot, cmd2args
 
 def test_svg(tmpdir):

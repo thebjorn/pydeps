@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # from devtools import debug
 from pydeps.cli import parse_args
 from tests.filemaker import create_files

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Graphviz interface.
 """
@@ -14,26 +13,14 @@ from . import cli
 win32 = sys.platform == 'win32'
 
 
-def is_unicode(s):  # pragma: nocover
-    """Test unicode with py3 support.
-    """
-    try:
-        return isinstance(s, unicode)
-    except NameError:
-        return False
-
-
 def to_bytes(s):  # pragma: nocover
     """Convert an item into bytes.
     """
     if isinstance(s, bytes):
         return s
-    if isinstance(s, str) or is_unicode(s):
-        return s.encode("utf-8")
-    try:
-        return unicode(s).encode("utf-8")
-    except NameError:
-        return str(s).encode("utf-8")
+    if not isinstance(s, str):
+        s = str(s)
+    return s.encode("utf-8")
 
 
 def cmd2args(cmd):

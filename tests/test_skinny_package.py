@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from tests.filemaker import create_files
 from tests.simpledeps import simpledeps
 

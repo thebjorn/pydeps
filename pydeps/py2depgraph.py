@@ -19,8 +19,6 @@
 # CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-from __future__ import print_function
-
 import json
 import os
 import re
@@ -185,7 +183,6 @@ class MyModuleFinder(mf27.ModuleFinder):
         except SyntaxError:
             # this happened first when pyinvoke tried to load yaml3/2 based on
             # an `if six.PY3`
-            # print "SYNTAX_ERROR"
             module = None
         except AttributeError as e:
             # See issues #139 and #140...

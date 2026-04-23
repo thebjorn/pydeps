@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from pydeps.render_context import RenderContext, Rankdir
 
 

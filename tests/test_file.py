@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 from pydeps.py2depgraph import py2dep
 from pydeps.pydeps import _pydeps

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 
 from pydeps.colors import rgb2css, brightness, brightnessdiff, colordiff, name2rgb, foreground

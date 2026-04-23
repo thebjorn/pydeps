@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 """cli entrypoints.
 """
-from __future__ import print_function
 import json
 import os
 import sys

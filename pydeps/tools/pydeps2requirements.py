@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Generate requirements.txt from pydeps output...
 

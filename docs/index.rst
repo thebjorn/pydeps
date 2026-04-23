@@ -104,14 +104,6 @@ pydeps.py2depgraph module
     :undoc-members:
     :show-inheritance:
 
-pydeps.pycompat module
-----------------------
-
-.. automodule:: pydeps.pycompat
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 pydeps.pydeps module
 --------------------
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # pydeps documentation build configuration file, created by
 # sphinx-quickstart on Thu Feb 13 18:59:19 2014.

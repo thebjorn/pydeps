@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import ast
 
 from pydeps.pydeps import pydeps, externals

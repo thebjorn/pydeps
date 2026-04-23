@@ -1,16 +1,8 @@
-# -*- coding: utf-8 -*-
 from collections import defaultdict
 from io import StringIO
 from contextlib import contextmanager
 import textwrap
 import enum
-
-
-def to_unicode(s):
-    try:
-        return unicode(s)
-    except NameError:
-        return s
 
 
 class Rankdir(enum.Enum):
@@ -97,7 +89,7 @@ class RenderContext(object):
     def write(self, txt):
         """Write ``txt`` to file and output stream (StringIO).
         """
-        self.fp.write(to_unicode(txt))
+        self.fp.write(txt)
         if self.out:
             self.out.write(txt)  # pragma: nocover
 

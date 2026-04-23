@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 # from devtools import debug
 from pydeps.pydeps import call_pydeps

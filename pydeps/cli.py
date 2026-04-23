@@ -1,15 +1,11 @@
-# -*- coding: utf-8 -*-
 """
 command line interface (cli) code.
 """
 # pylint: disable=line-too-long
-from __future__ import print_function
 import argparse
 
 from pydeps.configs import Config
 from .arguments import Arguments
-# import json
-# from .pycompat import configparser
 import logging
 import os
 import sys

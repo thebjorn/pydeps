@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 """
 Abstracting the target for pydeps to work on.
 """
-from __future__ import print_function
 import json
 import os
 import re

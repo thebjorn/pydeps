@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import print_function
 from tests.filemaker import create_files
 from tests.simpledeps import simpledeps, depgrf
 
