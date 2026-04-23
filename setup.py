@@ -22,7 +22,7 @@ setuptools.setup(
         ]
     },
     url='https://github.com/thebjorn/pydeps',
-    license='BSD',
+    license='BSD-2-Clause',
     author='bjorn',
     author_email='bp@datakortet.no',
     description='Display module dependencies',
@@ -31,7 +31,6 @@ setuptools.setup(
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Natural Language :: English',
-        'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
