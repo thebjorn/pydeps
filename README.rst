@@ -80,7 +80,7 @@ Usage
       --dot-output                           write dot code to file (instead of screen)
       --nodot, --no-dot                      skip dot conversion
       --no-output                            don't create .svg/.png file, implies --no-show (-t/-o will be ignored)
-      --show-cycles                          [deprecated] show only import cycles
+      --show-cycles                          show only import cycles
       --debug-mf INT                         set the ModuleFinder.debug flag to this value
       --noise-level INT                      exclude sources or sinks with degree greater than noise-level
       --max-bacon INT                        exclude nodes that are more than n hops away (default=2, 0 -> infinite)
@@ -105,8 +105,10 @@ Usage
 before ``fname``, separate the arguments from the filename with ``--`` otherwise ``fname``
 will be parsed as an argument of the option. Example: ``$ pydeps -x os sys -- pydeps``.
 
-**Note:** the ``--show-cycles`` option is deprecated and will be removed in a future release,
-cycles are now always shown.
+**Note:** any cycles in the dependency graph are highlighted as blue boxes by default.
+Pass ``--show-cycles`` to reduce the graph to just those cycles (nodes participating in
+an import cycle and the edges between them), which is useful for spotting cyclic imports
+in large projects.
 
 You can of course also import ``pydeps`` from Python and use it as a library, look in
 ``tests/test_relative_imports.py`` for examples.

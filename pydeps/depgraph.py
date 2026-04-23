@@ -327,9 +327,16 @@ class DepGraph(object):
 
         self.remove_excluded()
 
-        # if self.args['show_cycles']:
         self.find_import_cycles()
-        
+
+        if self.args.get('show_cycles'):
+            for name in list(self.sources):
+                if name not in self.cyclenodes:
+                    del self.sources[name]
+            for src in self.sources.values():
+                src.imports = [m for m in src.imports if m in self.cyclenodes]
+                src.imported_by = [m for m in src.imported_by if m in self.cyclenodes]
+
         if not self.args['show_deps']:
             cli.verbose(3, self)
 
