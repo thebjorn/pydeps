@@ -347,6 +347,10 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
 
 Version history
 ---------------
+**Version 3.0.6** Un-deprecate ``--show-cycles`` — the flag now reduces the
+graph to just the nodes that participate in an import cycle and the edges
+between them. Thanks to hartwork_ for the test case and feedback in #197.
+
 **Version 3.0.5** Thanks to Czaki_ for #242 which makes ``--exclude`` skip
 modules at import time, speeding up runs and avoiding ``RecursionError`` on
 problematic excluded modules.
@@ -519,4 +523,5 @@ Contributing
 .. _timhoffm: https://github.com/timhoffm
 .. _oldskoolfan: https://github.com/oldskoolfan
 .. _Czaki: https://github.com/Czaki
+.. _hartwork: https://github.com/hartwork
 .. _pjonsson: https://github.com/pjonsson
