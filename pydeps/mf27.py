@@ -17,6 +17,7 @@ HAVE_ARGUMENT = dis.HAVE_ARGUMENT
 _PY_SOURCE = mfimp.PY_SOURCE
 _PY_COMPILED = mfimp.PY_COMPILED
 _PKG_DIRECTORY = mfimp.PKG_DIRECTORY
+_NAMESPACE_PACKAGE = mfimp.NAMESPACE_PACKAGE
 
 # monkey-patch broken modulefinder._find_module
 # (https://github.com/python/cpython/issues/84530)
@@ -83,6 +84,7 @@ class ModuleFinder(NativeModuleFinder):
             _PKG_DIRECTORY: 'PKG_DIRECTORY',
             _PY_SOURCE: 'PY_SOURCE',
             _PY_COMPILED: 'PY_COMPILED',
+            _NAMESPACE_PACKAGE: 'NAMESPACE_PACKAGE',
         }.get(kind, 'unknown-kind')
         self.msgin(2, "load_module(%s) fqname=%s, fp=%s, pathname=%s" % (kstr, fqname, fp and "fp", pathname))
 
@@ -90,6 +92,15 @@ class ModuleFinder(NativeModuleFinder):
             module = self.load_package(fqname, pathname)
             self.msgout(2, "load_module ->", module)
             return module
+
+        if kind == _NAMESPACE_PACKAGE:
+            # PEP 420: no __init__.py to scan — just register the package
+            # so children on its __path__ get discovered.
+            m = self.add_module(fqname)
+            m.__file__ = None
+            m.__path__ = [pathname]
+            self.msgout(2, "load_module ->", m)
+            return m
 
         if kind == _PY_SOURCE:
             txt = fp.read()

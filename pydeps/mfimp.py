@@ -2,10 +2,11 @@
 Python's modulefinder._find_module has a bug that breaks a number of popular
 packages.
 
-This is a copy of the standard lib's imp._find_module which sort of does the
-right thing, ie. ignores namespace packages instead of crashing.
+This is a copy of the standard lib's imp._find_module, extended to also
+recognize PEP 420 implicit namespace packages (directories without an
+__init__.py).
 
-This is vendorized/copied here to prevent the warning error that the regular 
+This is vendorized/copied here to prevent the warning error that the regular
 imp module causes.
 """
 
@@ -22,6 +23,7 @@ C_EXTENSION = 3
 PKG_DIRECTORY = 5
 C_BUILTIN = 6
 PY_FROZEN = 7
+NAMESPACE_PACKAGE = 10
 
 
 def _get_suffixes():
@@ -48,6 +50,7 @@ def find_module(name, path=None):
         else:
             path = sys.path
 
+    namespace_directory = None
     for entry in path:
         package_directory = os.path.join(entry, name)
         for suffix in ['.py', machinery.BYTECODE_SUFFIXES[0]]:
@@ -61,9 +64,16 @@ def find_module(name, path=None):
             if os.path.isfile(file_path):
                 break
         else:
+            # PEP 420: a directory without __init__.py is a namespace
+            # package. Remember the first match and fall back to it only if
+            # no regular module or package is found in any later entry.
+            if namespace_directory is None and os.path.isdir(package_directory):
+                namespace_directory = package_directory
             continue
         break  # Break out of outer loop when breaking out of inner loop.
     else:
+        if namespace_directory is not None:
+            return None, namespace_directory, ('', '', NAMESPACE_PACKAGE)
         raise ImportError('No module named {!r}'.format(name), name=name)
 
     encoding = None
