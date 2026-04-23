@@ -345,6 +345,8 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
 
 Version history
 ---------------
+**Version 3.0.4** fail more cleanly on invalid input (filenames with dashes).
+
 **Version 3.0.3** update setup.py to inform users of the Python 3.10+ requirement (patch by pjonsson_).
 
 **Version 3.0.1** Thanks to oldskoolfan_ for #233 that improves the internal API.
