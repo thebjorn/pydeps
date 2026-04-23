@@ -2,7 +2,7 @@ setuptools>=70.0.0
 PyYAML==6.0.2
 stdlib-list>=0.6.0
 tomlkit>=0.7.0
-coverage>=5.5
+coverage>=7.13.5
 pytest>=4.6
 pytest-cov>=2.12.1
 Sphinx>=1.7.6
