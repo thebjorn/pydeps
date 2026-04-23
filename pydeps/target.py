@@ -70,6 +70,35 @@ class Target(object):
             self.modpath = self.relpath.replace(os.path.sep, '.')
         else:
             self.modpath = os.path.splitext(self.relpath)[0].replace(os.path.sep, '.')
+        for part in self.modpath.split('.'):
+            if not part.isidentifier():
+                print(
+                    "Cannot analyze {!r}: {!r} is not a valid Python "
+                    "module name.".format(self.calling_fname, part),
+                    file=sys.stderr,
+                )
+                print(
+                    "\nTechnical reason:\n"
+                    "  pydeps works by generating a synthetic 'dummy' module\n"
+                    "  (e.g. _dummy_<target>.py) that contains real Python\n"
+                    "  'import <modname>' statements for every submodule of\n"
+                    "  the target, then runs Python's modulefinder on that\n"
+                    "  dummy to trace the import graph. The 'import' keyword\n"
+                    "  is part of Python's grammar and only accepts dotted\n"
+                    "  identifiers -- letters, digits, and underscores, and\n"
+                    "  not starting with a digit. A name like {!r} cannot\n"
+                    "  appear on the right-hand side of an import statement,\n"
+                    "  so modulefinder has nothing to trace and pydeps\n"
+                    "  produces an empty graph.\n"
+                    "\nFix:\n"
+                    "  Rename the offending file or directory so that every\n"
+                    "  path component is a valid Python identifier (e.g.\n"
+                    "  replace '-' with '_'). If the file must keep its\n"
+                    "  on-disk name, point pydeps at a package whose name\n"
+                    "  is importable instead.".format(part),
+                    file=sys.stderr,
+                )
+                sys.exit(1)
         self.package_root = os.path.join(
             self.syspath_dir,
             self._path_parts(self.relpath)[0]
