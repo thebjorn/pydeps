@@ -3,7 +3,7 @@ PyYAML==6.0.3
 stdlib-list>=0.12.0
 tomlkit>=0.7.0
 coverage>=7.13.5
-pytest>=4.6
+pytest>=9.0.3
 pytest-cov>=2.12.1
 Sphinx>=8.1.3
 
