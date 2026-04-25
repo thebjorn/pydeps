@@ -4,6 +4,6 @@ stdlib-list>=0.12.0
 tomlkit>=0.7.0
 coverage>=7.13.5
 pytest>=9.0.3
-pytest-cov>=2.12.1
+pytest-cov>=7.1.0
 Sphinx>=8.1.3
 
