@@ -10,11 +10,12 @@ This is vendorized/copied here to prevent the warning error that the regular
 imp module causes.
 """
 
-from _imp import is_builtin, is_frozen
-from importlib import machinery
-import sys
 import os
+import sys
 import tokenize
+from importlib import machinery
+
+from _imp import is_builtin, is_frozen
 
 
 PY_SOURCE = 1

@@ -1,6 +1,7 @@
 import sys
-import stdlib_list
 import warnings
+
+import stdlib_list
 
 
 def pystdlib():

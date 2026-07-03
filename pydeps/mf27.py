@@ -1,13 +1,11 @@
-import sys
-import time
+import marshal
 import struct
-# from .mf.mf_next import *     # for debugging next version
+import sys
 import modulefinder
+from importlib.util import MAGIC_NUMBER
 from modulefinder import (
     ModuleFinder as NativeModuleFinder
 )
-from importlib.util import MAGIC_NUMBER
-import marshal
 import dis
 from . import mfimp
 

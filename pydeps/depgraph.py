@@ -1,15 +1,16 @@
-from collections import defaultdict, deque
+import enum
 import fnmatch
-from itertools import zip_longest
 import json
+import logging
 import os
 import pprint
 import re
-import enum
+import sys
+from collections import defaultdict, deque
+from itertools import zip_longest
 
 from . import colors, cli
-import sys
-import logging
+
 log = logging.getLogger(__name__)
 
 # we're normally not interested in imports of std python packages.

@@ -3,14 +3,15 @@ command line interface (cli) code.
 """
 # pylint: disable=line-too-long
 import argparse
-
-from pydeps.configs import Config
-from .arguments import Arguments
 import logging
 import os
-import sys
 import subprocess
+import sys
 import textwrap
+
+from pydeps.configs import Config
+
+from .arguments import Arguments
 from . import __version__
 
 
