@@ -189,6 +189,9 @@ def parse_args(argv=()):
     _args.show = not _args.no_show
     if _args.no_dot:
         _args.show_dot = False
+    if _args.dot_out:
+        _args.no_dot = False
+        _args.show_dot = True
     if _args.max_bacon == 0:
         _args.max_bacon = sys.maxsize
     if (
