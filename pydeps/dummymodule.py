@@ -60,25 +60,22 @@ class DummyModule(object):
                     self.print_import(fp, modname)
 
         elif target.is_dir:
-            # FIXME?: not sure what the intended semantics was here, as it is
-            #         this will almost certainly not do the right thing...
+            # a directory without an __init__.py, i.e. a PEP-420 namespace
+            # package (or just a directory of modules that python will treat
+            # as one).  Same as the PACKAGE branch, except that we mustn't
+            # require an __init__.py on the way down.
             cli.verbose(1, "target is a DIRECTORY")
             log.debug('curdir: %r', os.getcwd())
             log.debug('fname: %r', self.fname)
             log.debug('target.dirname: %r', target.dirname)
 
             with open(self.fname, 'w') as fp:
-                dirname = os.path.abspath(os.path.join(target.calling_dir, target.calling_fname))
-                for fname in os.listdir(dirname):
-                    fname = os.path.join(dirname, fname)
+                for fname in python_sources_below(target.path, package=False):
                     log.debug("fname: %r", fname)
-                    if is_pysource(fname):
-                        self.print_import(fp, fname2modname(fname, ''))
-                    elif is_module(fname):
-                        log.debug("fname is a module: %r", fname)
-                        for fnamea in python_sources_below(fname):
-                            modname = fname2modname(fnamea, target.syspath_dir)
-                            self.print_import(fp, modname)
+                    # names must be relative to the sys.path entry we add,
+                    # otherwise we end up printing `import c.users.tmp...`
+                    modname = fname2modname(fname, target.syspath_dir)
+                    self.print_import(fp, modname)
 
         else:
             assert target.is_pysource

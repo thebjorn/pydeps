@@ -53,3 +53,43 @@ def test_regular_package_shadows_namespace():
     with create_files(files) as workdir:
         deps = simpledeps('main.py')
         assert any('pkg.mod' in edge for edge in deps), deps
+
+
+def test_namespace_package_as_target():
+    # pointing pydeps directly at a namespace package directory used to
+    # print `import c.users.appdata.local.temp...` into the dummy module
+    # (and thus produce an empty graph).
+    files = """
+        - ns:
+            - foo.py: |
+                from ns import bar
+            - bar.py
+            - sub:
+                - __init__.py
+                - baz.py: |
+                    from ns import bar
+    """
+    with create_files(files) as workdir:
+        deps = simpledeps('ns', '--show-deps')
+        assert 'ns.bar -> ns.foo' in deps, deps
+        # regular packages below the namespace package are picked up too
+        assert 'ns.bar -> ns.sub.baz' in deps, deps
+
+
+def test_nested_namespace_packages_as_target():
+    # ..and the nesting can be arbitrarily deep (issue #284).
+    files = """
+        - src:
+            - myapp:
+                - main.py: |
+                    from myapp.sub import helper
+                - sub:
+                    - helper.py: |
+                        from myapp.sub.deeper import leaf
+                    - deeper:
+                        - leaf.py
+    """
+    with create_files(files) as workdir:
+        deps = simpledeps('src/myapp', '--show-deps')
+        assert 'myapp.sub -> myapp.main' in deps, deps
+        assert 'myapp.sub.deeper.leaf -> myapp.sub.helper' in deps, deps
