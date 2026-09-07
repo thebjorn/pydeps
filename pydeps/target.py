@@ -8,8 +8,77 @@ import shutil
 import sys
 import tempfile
 from contextlib import contextmanager
+import importlib.util
+from importlib.machinery import PathFinder
 import logging
 log = logging.getLogger(__name__)
+
+SUFFIXES = ('.py', '.pyc', '.pyo', '.pyw')
+
+
+def is_dotted_name(name):
+    """Could ``name`` appear after an ``import`` statement?
+    """
+    return bool(name) and all(
+        part.isidentifier() for part in name.split('.')
+    )
+
+
+def find_modspec(name):
+    """Return the ModuleSpec for ``name``, or ``None`` if it isn't
+       importable.
+
+       We first walk the name part-by-part through ``PathFinder``, which
+       only looks at the file system and thus doesn't execute any of your
+       code.  That misses modules provided by a meta-path hook (notably
+       ``pip install -e`` under PEP-660), so we fall back to the full
+       ``find_spec`` for those.  The fallback imports parent packages of
+       dotted names -- the plain ``pydeps <pkg>`` case never gets there.
+    """
+    paths = None       # ..which means sys.path to PathFinder
+    spec = None
+    for part in name.split('.'):
+        try:
+            spec = PathFinder.find_spec(part, paths)
+        except (ImportError, ValueError):  # pragma: nocover
+            spec = None
+        if spec is None:
+            break
+        paths = list(spec.submodule_search_locations or []) or None
+    else:
+        return spec
+
+    try:
+        return importlib.util.find_spec(name)
+    except (ImportError, AttributeError, ValueError):
+        # ImportError: a parent package isn't importable after all,
+        # AttributeError/ValueError: __spec__ is missing or None.
+        return None
+
+
+def resolve_modname(name):
+    """Find the location on disk of the module/package called ``name``.
+
+       Returns the directory of ``name`` if it is a (namespace) package,
+       the file name if it is a plain module, and ``None`` if ``name``
+       isn't importable (or is a builtin/extension module, which has no
+       Python source for us to look at).
+    """
+    if not is_dotted_name(name):
+        return None
+
+    spec = find_modspec(name)
+    if spec is None:
+        return None
+
+    locations = list(spec.submodule_search_locations or [])
+    if locations:
+        # a regular package (or the first directory of a namespace
+        # package, cfr. the caveat in issue #19).
+        return locations[0]
+    if spec.origin and spec.origin.endswith(SUFFIXES) and os.path.exists(spec.origin):
+        return spec.origin
+    return None         # builtin/frozen/extension modules have no source
 
 
 class Target(object):
@@ -37,16 +106,39 @@ class Target(object):
         self.exists = os.path.exists(path)
         self.use_calling_fname = kwargs.get('use_calling_fname', False)
 
+        if not self.exists:
+            # `path` doesn't name a file or a directory, so it might be an
+            # importable module/package instead (`pydeps pandas`).  Paths
+            # win when both would match, so this is only ever a fallback.
+            modname_path = resolve_modname(path)
+            if modname_path is not None:
+                log.debug("resolved module name %r to %r", path, modname_path)
+                # use the resolved (absolute) location from here on, so
+                # that everything downstream sees a plain old path.
+                self.calling_fname = path = modname_path
+                self.exists = True
+
         if self.exists:
             self.path = os.path.realpath(path)
-        else:  # pragma: nocover
+        else:
             print("No such file or directory:", repr(path), file=sys.stderr)
             if os.path.exists(path + '.py'):
                 print("..did you mean:", path + '.py', '?', file=sys.stderr)
+            elif is_dotted_name(path):
+                if find_modspec(path) is not None:
+                    print("..", repr(path), "is importable, but has no Python",
+                          "source for pydeps to read", file=sys.stderr)
+                    print("  (builtin, frozen, and C extension modules can't",
+                          "be analyzed).", file=sys.stderr)
+                else:
+                    print("..and no module named", repr(path), "is importable",
+                          file=sys.stderr)
+                    print("  (is it installed in the current environment?)",
+                          file=sys.stderr)
             sys.exit(1)
         self.is_dir = os.path.isdir(self.path)
         self.is_module = self.is_dir and '__init__.py' in os.listdir(self.path)
-        self.is_pysource = os.path.splitext(self.path)[1] in ('.py', '.pyc', '.pyo', '.pyw')
+        self.is_pysource = os.path.splitext(self.path)[1] in SUFFIXES
         self.fname = os.path.basename(self.path)
         if self.is_dir:
             self.dirname = self.fname
