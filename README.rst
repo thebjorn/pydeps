@@ -101,6 +101,30 @@ Usage
       -x PATTERN, --exclude PATTERN          input files to skip (e.g. `foo.*`), multiple patterns can be provided
       --exclude-exact MODULE                 (shorthand -xx MODULE) same as --exclude, except requires the full match. `-xx foo.bar` will exclude foo.bar, but not foo.bar.blob
 
+What to point pydeps at
+-----------------------
+
+The target can be either a path or the name of an importable module::
+
+    shell> pydeps src/myapp/main.py     # a single file
+    shell> pydeps src/myapp             # a directory (relative to cwd)
+    shell> pydeps myapp                 # ..the same, if you're in `src`
+    shell> pydeps pandas                # an installed package, from anywhere
+    shell> pydeps pandas.core           # ..or a module inside it
+
+Paths win when a name would match both, so if you're standing in a directory
+that contains a ``pandas`` folder, that is what gets analyzed -- not the
+installed one.
+
+Most of the examples below are of the ``pydeps <package>`` kind. Before
+v3.0.8 those only worked as *relative paths*, i.e. you had to be standing in
+the directory that contains the package (which is why ``pydeps pydeps`` works
+in a checkout of this repository). They now also work by name, as long as the
+package is installed in the current environment.
+
+Note that pydeps needs Python *source* to work with, so builtin, frozen, and C
+extension modules (``sys``, ``math``, ...) can't be analyzed by name.
+
 **Note:** if an option with a variable number of arguments (like ``-x``) is provided
 before ``fname``, separate the arguments from the filename with ``--`` otherwise ``fname``
 will be parsed as an argument of the option. Example: ``$ pydeps -x os sys -- pydeps``.
@@ -347,6 +371,12 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
 
 Version history
 ---------------
+**Version 3.0.8** The target can now be given as an importable module name
+(``pydeps pandas``) and not only as a path -- paths still win if both would
+match. Directories without an ``__init__.py`` are also analyzed correctly
+when pointed at directly, which fixes nested namespace packages. Thanks to
+postcoital-solitaire_ for the report in #284.
+
 **Version 3.0.7** Discover PEP 420 implicit namespace packages — directories
 without an ``__init__.py`` are now treated as namespace packages, and the
 modules under them appear in the dependency graph. Thanks to gdetrez_ for
@@ -530,4 +560,5 @@ Contributing
 .. _Czaki: https://github.com/Czaki
 .. _hartwork: https://github.com/hartwork
 .. _gdetrez: https://github.com/gdetrez
+.. _postcoital-solitaire: https://github.com/postcoital-solitaire
 .. _pjonsson: https://github.com/pjonsson
