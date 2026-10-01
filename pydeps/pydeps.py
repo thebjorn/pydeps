@@ -130,10 +130,11 @@ def externals(trgt, **kwargs):
     for k, src in list(depgraph.sources.items()):
         if k.startswith('_'):
             continue
-        if not k.startswith(pkgname):
+        if k != pkgname and not k.startswith(pkgname + '.'):
             continue
         if src.imports:
-            imps = [imp for imp in src.imports if not imp.startswith(pkgname)]
+            imps = [imp for imp in src.imports
+                    if imp != pkgname and not imp.startswith(pkgname + '.')]
             if imps:
                 for imp in imps:
                     ext.add(imp.split('.')[0])
