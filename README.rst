@@ -371,6 +371,11 @@ eg. the output from ``pydeps --show-deps ..`` looks like this::
 
 Version history
 ---------------
+**Version 3.0.9** Thanks to charan-rathore_ for #290 and #291. External
+dependency output now includes packages that share the target's name prefix
+(e.g. ``foobar`` when analyzing ``foo``), and pydeps warns when no dependency
+edges remain to display.
+
 **Version 3.0.8** The target can now be given as an importable module name
 (``pydeps pandas``) and not only as a path -- paths still win if both would
 match. Directories without an ``__init__.py`` are also analyzed correctly
@@ -562,3 +567,4 @@ Contributing
 .. _gdetrez: https://github.com/gdetrez
 .. _postcoital-solitaire: https://github.com/postcoital-solitaire
 .. _pjonsson: https://github.com/pjonsson
+.. _charan-rathore: https://github.com/charan-rathore
