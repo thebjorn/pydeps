@@ -19,8 +19,12 @@
 # CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+import logging
+
 from .render_context import RenderBuffer
 from . import colors
+
+log = logging.getLogger(__name__)
 
 
 class PyDepGraphDot(object):
@@ -81,6 +85,15 @@ class PyDepGraphDot(object):
                     label=src.get_label(splitlength=14,
                                         rmprefix=self.kw.get('rmprefix')),
                     **kwargs
+                )
+
+            if not drawn:
+                log.warning(
+                    "No dependencies to draw for %r. Check your filters, "
+                    "try --include-missing to show unresolved imports, or "
+                    "use -LDEBUG for diagnostic output. For help, visit "
+                    "https://github.com/thebjorn/pydeps/issues.",
+                    ctx.target.fname,
                 )
 
         return ctx.text()
