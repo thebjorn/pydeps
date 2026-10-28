@@ -5,6 +5,7 @@ import logging
 import os
 import pprint
 import re
+import site
 import sys
 from collections import defaultdict, deque
 from itertools import zip_longest
@@ -285,6 +286,9 @@ class DepGraph(object):
         self.skiplist += [re.compile('^%s$' % fnmatch.translate(arg)) for arg in args['exclude_exact']]
         # depgraf = {name: imports for (name, imports) in depgraf.items()}
 
+        if args.get('internal_only'):
+            depgraf = self._internal_filter(depgraf)
+
         for name, imports in depgraf.items():
             log.debug("depgraph name=%r imports=%r", name, imports)
             src = Source(
@@ -340,6 +344,40 @@ class DepGraph(object):
 
         if not self.args['show_deps']:
             cli.verbose(3, self)
+
+    def _internal_filter(self, depgraf):
+        """Filter by real paths before --max-module-depth coalesces names."""
+        def realpath(path):
+            return os.path.normcase(os.path.realpath(path))
+
+        def within(path, directory):
+            try:
+                return os.path.commonpath([path, directory]) == directory
+            except ValueError:  # different drives on Windows
+                return False
+
+        root = realpath(self.target.path if self.target.is_dir else os.path.dirname(self.target.path))
+        # An active virtualenv may be inside the project. An explicitly
+        # selected installed package, however, is itself the internal root.
+        site_paths = {realpath(p) for p in site.getsitepackages() + [site.getusersitepackages()]}
+        external = [p for p in site_paths if not within(root, p)]
+        internal = {'__main__'}
+        for imports in depgraf.values():
+            for name, path in imports.items():
+                if path:
+                    path = realpath(path)
+                    if within(path, root) and not any(within(path, p) for p in external):
+                        internal.add(name)
+
+        # Keep the entry for distance calculation. A file entry has a known
+        # target path even without incoming imports; a package's dummy is
+        # removed along with its edges by the normal exclusion machinery.
+        if not self.target.is_pysource:
+            self._add_skip('__main__')
+        return {
+            name: {n: p for n, p in imports.items() if n in internal}
+            for name, imports in depgraf.items() if name in internal
+        }
 
     def source_name(self, name, path=None):
         """Returns the module name, possibly limited by --max-module-depth.

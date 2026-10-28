@@ -51,7 +51,7 @@ Usage
                   [--max-bacon INT] [--max-module-depth INT] [--pylib] [--pylib-all]
                   [--include-missing] [-x PATTERN [PATTERN ...]]
                   [-xx MODULE [MODULE ...]] [--only MODULE_PATH [MODULE_PATH ...]]
-                  [--externals] [--reverse] [--rankdir {TB,BT,LR,RL}] [--cluster]
+                  [--internal-only] [--externals] [--reverse] [--rankdir {TB,BT,LR,RL}] [--cluster]
                   [--min-cluster-size INT] [--max-cluster-size INT]
                   [--keep-target-cluster] [--collapse-target-cluster]
                   [--rmprefix PREFIX [PREFIX ...]] [--start-color INT]
@@ -89,6 +89,7 @@ Usage
       --pylib-all                            include python all std lib modules (incl. C modules)
       --include-missing                      include modules that are not installed (or can't be found on sys.path)
       --only MODULE_PATH                     only include modules that start with MODULE_PATH, multiple paths can be provided
+      --internal-only                        only include modules inside the target directory (or a target file's parent directory)
       --externals                            create list of direct external dependencies
       --reverse                              draw arrows to (instead of from) imported modules
       --rankdir                              set the direction of the graph, legal values are TB (default, imported modules above importing modules), BT (opposite direction of TB), LR (left-to-right), and RL (right-to-left)
@@ -136,6 +137,50 @@ in large projects.
 
 You can of course also import ``pydeps`` from Python and use it as a library, look in
 ``tests/test_relative_imports.py`` for examples.
+
+Showing only internal dependencies
+----------------------------------
+
+Use ``--internal-only`` to hide dependencies outside the target's directory,
+without listing every internal module with ``--only`` or every external package
+with ``--exclude``::
+
+    pydeps example_project/main.py --internal-only --max-bacon=0
+    pydeps example_project --internal-only
+
+For a directory target, the boundary is that directory; for a single file it is
+the file's parent directory. Importable module names use the same boundary after
+resolving to a file or directory. This does not search upwards for a repository
+or project root. Select a directory target to include a larger part of a project.
+
+Paths are compared after resolving symbolic links, so a link to code outside the
+boundary is external. Installed modules in the current interpreter's site-package
+directories are also external, even if its virtual environment is inside the
+project. An explicitly selected installed package can still be analyzed as the
+target. Vendored code in ordinary directories inside the boundary is internal.
+
+Modules without a known file path are omitted conservatively, including unresolved
+imports and namespace package parent nodes. Discovered namespace child modules
+with files inside the boundary are retained. The single-file entry itself is
+retained using its known target path.
+
+``--only``, ``--exclude`` and the other graph filters still apply. The existing
+``--max-bacon`` limit is unchanged: use ``--max-bacon=0`` for an unlimited internal
+dependency chain. Path filtering happens before module names are coalesced with
+``--max-module-depth`` and distances are measured along the retained internal
+dependencies. This option filters discovered modules; it does not expand module
+discovery or combine namespace package locations outside the selected boundary.
+
+With ``--internal-only``, ``--show-raw-deps`` shows the path-filtered graph before
+the remaining graph filters are applied. For package targets, this diagnostic
+output may still contain the synthetic ``__main__`` entry marked as excluded;
+it is removed from the final graph.
+
+The option can also be enabled in ``.pydeps`` (or the other supported configuration
+formats) using the boolean key ``internal_only``::
+
+    [pydeps]
+    internal_only = true
 
 Example
 -------
