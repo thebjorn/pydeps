@@ -215,6 +215,9 @@ class Config(object):
     #: only include modules that start with MODULE_PATH
     only = []
 
+    #: only include modules inside the target directory (or a target file's parent)
+    internal_only = False
+
     #: create list of direct external dependencies
     externals = False
 
@@ -317,6 +320,8 @@ class Config(object):
             self.exclude_exact = listval(value)
         if field == 'only':
             self.only = listval(value)
+        if field == 'internal_only':
+            self.internal_only = boolval(value)
         if field == 'externals':
             self.externals = boolval(value)
         if field == 'reverse':

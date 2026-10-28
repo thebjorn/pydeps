@@ -163,6 +163,7 @@ def parse_args(argv=()):
     args.add('-x', '--exclude', default=[], nargs="+", metavar="PATTERN", help="input files to skip (e.g. `foo.*`), multiple file names can be provided")
     args.add('-xx', '--exclude-exact', default=[], nargs="+", metavar="MODULE", help="same as --exclude, except requires the full match. `-xx foo.bar` will exclude foo.bar, but not foo.bar.blob")
     args.add('--only', default=[], nargs="+", metavar="MODULE_PATH", help="only include modules that start with MODULE_PATH")
+    args.add('--internal-only', action='store_true', help="only include modules inside the target directory (or a target file's parent directory)")
     args.add('--externals', action='store_true', help='create list of direct external dependencies')
     args.add('--reverse', action='store_true', help="draw arrows to (instead of from) imported modules")
     args.add('--rankdir', default='TB', type=str, choices=['TB', 'BT', 'LR', 'RL'], help="set the direction of the graph, legal values are TB (default, imported modules above importing modules), "
