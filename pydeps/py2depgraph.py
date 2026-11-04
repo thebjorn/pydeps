@@ -293,14 +293,7 @@ def py2dep(target, **kw) -> depgraph.DepGraph:
         #               for k, v in mf.modules.items()
         #               if k not in pylib}
 
-    try:
-        import yaml
-        log.info("mf_depgraph:\n%s",
-                 yaml.dump(dict(mf_depgraph), default_flow_style=False))
-        # log.error("mf._types:\n%s", yaml.dump(mf._types, default_flow_style=False))
-        # log.debug("mf_modules:\n%s", yaml.dump(mf_modules, default_flow_style=False))
-    except ImportError:
-        log.info("mf_depgraph:\n%s", json.dumps(dict(mf_depgraph), indent=4))
+    log.info("mf_depgraph:\n%s", json.dumps(dict(mf_depgraph), indent=4))
 
     return depgraph.DepGraph(mf_depgraph, mf._types, target, **kw)
 
