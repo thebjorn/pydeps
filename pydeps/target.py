@@ -38,13 +38,16 @@ def find_modspec(name):
     paths = None       # ..which means sys.path to PathFinder
     spec = None
     for part in name.split('.'):
+        if spec is not None and paths is None:
+            # A module may set __path__ when imported by the fallback.
+            break
         try:
             spec = PathFinder.find_spec(part, paths)
         except (ImportError, ValueError):  # pragma: nocover
             spec = None
         if spec is None:
             break
-        paths = list(spec.submodule_search_locations or []) or None
+        paths = spec.submodule_search_locations
     else:
         return spec
 
