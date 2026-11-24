@@ -6,6 +6,7 @@ import importlib
 import os
 import sys
 from contextlib import contextmanager
+from unittest.mock import patch
 
 import pytest
 
@@ -137,6 +138,64 @@ def test_resolve_modname_finds_package():
 ])
 def test_resolve_modname_gives_up(name):
     assert resolve_modname(name) is None
+
+
+@pytest.mark.parametrize('parent', ['plain_parent', 'parent_pkg.plain_parent'])
+def test_non_package_parent_does_not_resolve_unrelated_module(parent, capsys):
+    files = """
+        site-packages:
+            - plain_parent.py
+            - parent_pkg:
+                - __init__.py
+                - plain_parent.py
+            - unrelated.py: |
+                raise AssertionError('must not import the unrelated module')
+    """
+    name = parent + '.unrelated'
+    with create_files(files):
+        with importable('site-packages'), patch.dict(sys.modules):
+            with pytest.raises(SystemExit) as excinfo:
+                Target(name)
+            assert excinfo.value.code == 1
+            assert resolve_modname(name) is None
+    assert 'no module named {!r} is importable'.format(name) in capsys.readouterr().err
+
+
+@pytest.mark.parametrize('parent', ['regular_parent', 'namespace_parent'])
+def test_dotted_module_is_resolved_without_importing(parent):
+    files = """
+        site-packages:
+            - regular_parent:
+                - __init__.py: |
+                    raise AssertionError('must not import the parent package')
+                - child.py: |
+                    raise AssertionError('must not import the target')
+            - namespace_parent:
+                - child.py: |
+                    raise AssertionError('must not import the target')
+    """
+    with create_files(files) as workdir:
+        with importable('site-packages'):
+            assert resolve_modname(parent + '.child') == os.path.join(
+                workdir, 'site-packages', parent, 'child.py'
+            )
+
+
+def test_module_with_dynamic_package_path():
+    files = """
+        site-packages:
+            - dynamic_parent.py: |
+                import os
+                __path__ = [os.path.join(os.path.dirname(__file__), 'children')]
+            - children:
+                - child.py: |
+                    raise AssertionError('must not import the target')
+    """
+    with create_files(files) as workdir:
+        with importable('site-packages'), patch.dict(sys.modules):
+            expected = os.path.join(workdir, 'site-packages', 'children', 'child.py')
+            assert resolve_modname('dynamic_parent.child') == expected
+            assert Target('dynamic_parent.child').path == expected
 
 
 def test_unresolvable_name_exits(capsys):
